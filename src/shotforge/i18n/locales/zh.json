@@ -1,0 +1,253 @@
+{
+  "design": {
+    "audience": "数字视频观众",
+    "mood": {
+      "moody": "雨夜氛围",
+      "energetic": "动感"
+    },
+    "constraints": [
+      "POC 阶段不调用真实视频模型",
+      "保持每个场景提示词可直接用于生产任务拆解"
+    ],
+    "titles": ["开场钩子", "冲突升级", "标志性瞬间", "收束结尾", "余韵", "循环回扣"],
+    "shot_types": ["广角建立镜头", "中景跟拍", "动态特写", "英雄式远景"],
+    "description": "{title}：围绕“{idea}”展开的关键视频段落",
+    "key_visuals": ["清晰主体焦点", "有层次的环境细节"],
+    "cameras": ["缓慢推进", "侧向跟拍", "环绕揭示", "升降拉远"],
+    "transitions": ["匹配剪辑", "甩镜转场", "光晕转场", "踩点硬切"],
+    "subject_motion": "主体动作轮廓清晰，意图明确，便于视频模型生成",
+    "pacing": {
+      "hook": "快速但可读",
+      "escalation": "层层推进"
+    },
+    "music": "混合电影感节奏铺底，纹理逐步演进",
+    "sound_design": ["环境氛围", "转场瞬态冲击", "轻微未来感音效"],
+    "prompt": {
+      "visual_style": "视觉风格",
+      "key_visuals": "关键视觉",
+      "audio_intent": "音频意图"
+    }
+  },
+  "agents": {
+    "suggestion": {
+      "correction_type_labels": {
+        "action": "动作",
+        "emotion": "情绪",
+        "character": "角色",
+        "scene": "场景",
+        "camera": "镜头",
+        "audio": "声音",
+        "prompt": "提示词"
+      },
+      "strategy": "针对 {dimensions} 执行定向{correction_type}修正。",
+      "risks": {
+        "action": "可能过度规定动作，降低画面自由度。",
+        "emotion": "可能让表演过度外显，削弱克制感。",
+        "character": "可能加入与既定风格冲突的角色约束。",
+        "scene": "可能过度限制场景空间。",
+        "camera": "可能降低生成器对镜头的发挥空间。",
+        "audio": "在真实音频生成前，可能过早锁死声音点位。",
+        "prompt": "可能让提示词变长，降低可执行性。",
+        "default": "可能引入非预期变化。"
+      }
+    },
+    "correction": {
+      "action": {
+        "note": "强化动作段落，加入更清晰的动作前后变化。",
+        "motion": "让主体运动更可读，明确手势、方向和可见反应。",
+        "prompt": "强调明确的动作调度、可读轮廓和决定性视觉锤点。",
+        "effect": "动作意图会更容易被评测，也更不容易含混。"
+      },
+      "emotion": {
+        "scene": "增强情绪目标，让段落产生更清晰的情绪变化。",
+        "shot": "增加表情、姿态或反应细节，让目标情绪可观察、可评测。",
+        "prompt": "补充情绪表演提示和反应时机，但不改变核心场景。",
+        "effect": "生成结果中的情绪强度会更容易被识别。"
+      },
+      "prompt": {
+        "prompt": "澄清可执行提示约束：主体、动作、镜头、时机和成功标准。",
+        "effect": "提示词会更有约束，也更容易被评分。"
+      },
+      "character": {
+        "behavior": "保持角色身份、轮廓和行为意图在相关镜头中连续一致。",
+        "prompt": "保持同一角色身份、服装逻辑、轮廓特征和行为连续性。",
+        "effect": "角色连续性会更容易被追踪和评测。"
+      },
+      "scene": {
+        "scene": "明确空间布局、前后景关系和场景锚点。",
+        "shot": "增加可读的环境锚点，让镜头地点保持稳定。",
+        "prompt": "指定地点锚点、空间层次和稳定的环境细节。",
+        "effect": "场景连续性和空间可读性会提升。"
+      },
+      "camera": {
+        "camera": "让镜头运动直接服务叙事焦点。",
+        "prompt": "描述镜头构图、距离和运动服务的视觉理由。",
+        "effect": "镜头语言会更清楚地支撑故事段落。"
+      },
+      "audio": {
+        "sound": "在需要强调的视觉节拍上放置清晰声音点位。",
+        "prompt": "让关键视觉节拍与具体音效或音乐变化同步。",
+        "effect": "声音点位会更容易与画面节奏对齐。"
+      }
+    }
+  },
+  "exports": {
+    "csv_headers": {
+      "shot_id": "镜头ID",
+      "scene_id": "场景ID",
+      "title": "标题",
+      "duration_seconds": "时长秒",
+      "description": "描述",
+      "shot_type": "镜头类型",
+      "camera": "相机运动",
+      "subject_motion": "主体运动",
+      "music": "音乐",
+      "prompt": "提示词"
+    },
+    "markdown": {
+      "package": "ShotForge 生产任务包",
+      "idea": "创意",
+      "intent": "意图",
+      "genre": "类型",
+      "mood": "情绪",
+      "visual_style": "视觉风格",
+      "audience": "受众",
+      "storyboard": "分镜",
+      "scene": "场景",
+      "duration": "时长",
+      "shot": "镜头",
+      "description": "描述",
+      "key_visuals": "关键视觉",
+      "camera": "相机运动",
+      "motion": "运动",
+      "transition": "转场",
+      "music": "音乐",
+      "sound_design": "声音设计",
+      "prompt": "提示词",
+      "trace": "执行链路"
+    }
+  },
+  "web": {
+    "header": {
+      "subtitle": "面向 AI 视频创作的 Evaluation-driven Agent Harness"
+    },
+    "form": {
+      "title": "创建任务包",
+      "idea": "视频创意",
+      "default_idea": "一只赛博猫在雨夜上海屋顶追逐发光无人机",
+      "style": "视觉风格",
+      "language": "语言",
+      "language_zh": "中文",
+      "language_en": "English",
+      "mode": "运行模式",
+      "mode_design": "仅设计",
+      "mode_full_loop": "设计 + 模拟评测",
+      "mode_planning": "设计 + 评测 + V2 重设计",
+      "rubric": "评测规则",
+      "generator_provider": "生成器 Provider",
+      "duration": "时长秒",
+      "max_iterations": "最大重设计轮数",
+      "submit": "运行流程"
+    },
+    "run": {
+      "title": "运行",
+      "scene": "场景",
+      "issues": "问题",
+      "ready_title": "就绪",
+      "ready_body": "输入创意后可生成分镜、运动、声音、提示词、导出文件、评测结果和修正规划。"
+    },
+    "exports": {
+      "json": "JSON",
+      "csv": "CSV",
+      "markdown": "Markdown",
+      "evaluation_csv": "评测 CSV"
+    },
+    "evaluation": {
+      "title": "评测",
+      "show_signals": "显示评测信号来源"
+    },
+    "correction_plans": {
+      "title": "修正计划",
+      "version_preview": "版本预览",
+      "priority": "优先级",
+      "risk": "风险",
+      "affected_fields": "影响字段",
+      "target_issues": "目标问题"
+    },
+    "correction_patches": {
+      "title": "修正 Patch",
+      "agent": "Agent",
+      "expected_effect": "预期效果",
+      "operations": "操作",
+      "rationale": "依据"
+    },
+    "version_diff": {
+      "title": "版本差异",
+      "chain_title": "版本链路",
+      "open": "查看差异",
+      "changed_shots": "变更镜头",
+      "changed_prompts": "变更提示词",
+      "changed_audio_cues": "变更声音点位",
+      "resolved_issues": "预计解决问题",
+      "field_changes": "字段变更",
+      "explanation": "说明",
+      "before": "修改前",
+      "after": "修改后",
+      "path": "路径",
+      "change_type": "变更",
+      "no_field_changes": "这一版没有生产包字段变化。"
+    },
+    "convergence": {
+      "title": "收束检查",
+      "overall_delta": "总分变化",
+      "status": "状态",
+      "resolved": "已解决",
+      "remaining": "仍存在",
+      "new": "新增",
+      "dimensions": "维度变化",
+      "history": "迭代历史",
+      "stop_reason": "停止原因"
+    },
+    "snapshots": {
+      "title": "版本快照",
+      "label": "快照",
+      "file": "文件"
+    },
+    "enums": {
+      "convergence_status": {
+        "improved": "已改善",
+        "mixed": "混合变化",
+        "regressed": "出现回归",
+        "unchanged": "无变化"
+      },
+      "stop_reason": {
+        "continue": "继续迭代",
+        "no_re_evaluation_yet": "尚未重新评测",
+        "design_package_unchanged": "生产包无变化",
+        "selected_iterations_reached": "已达到选择的迭代上限",
+        "regression_detected": "检测到回归",
+        "score_delta_below_threshold": "评分提升低于阈值",
+        "all_tracked_issues_resolved": "已解决全部追踪问题"
+      },
+      "change_type": {
+        "added": "新增",
+        "removed": "删除",
+        "modified": "修改"
+      }
+    },
+    "verification": {
+      "title": "生成验证",
+      "summary": "摘要",
+      "failed": "失败",
+      "warnings": "警告"
+    },
+    "signal_source": {
+      "evaluators": "评测器",
+      "signals": "信号数",
+      "source": "来源",
+      "signal": "信号",
+      "score": "分数",
+      "threshold": "阈值"
+    }
+  }
+}

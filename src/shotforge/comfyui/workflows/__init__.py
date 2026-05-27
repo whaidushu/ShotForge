@@ -1,0 +1,1 @@
+"""Bundled ComfyUI workflow templates."""

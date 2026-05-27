@@ -1,0 +1,7 @@
+[
+  {
+    "id": "readable_subject_motion",
+    "camera": "push / track / orbit / pullback",
+    "principle": "Subject motion should remain readable and attributable."
+  }
+]

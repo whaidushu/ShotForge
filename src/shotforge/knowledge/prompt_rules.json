@@ -1,0 +1,6 @@
+[
+  {
+    "id": "video_prompt_minimum_fields",
+    "fields": ["subject", "action", "environment", "camera", "style", "constraints"]
+  }
+]

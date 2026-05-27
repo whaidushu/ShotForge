@@ -1,0 +1,253 @@
+{
+  "design": {
+    "audience": "digital video viewers",
+    "mood": {
+      "moody": "moody",
+      "energetic": "energetic"
+    },
+    "constraints": [
+      "No real model calls in POC stage",
+      "Keep scene prompts production-ready"
+    ],
+    "titles": ["Hook", "Escalation", "Signature Moment", "Resolution", "Afterglow", "Loopback"],
+    "shot_types": ["wide establishing", "tracking medium", "dynamic close-up", "hero wide"],
+    "description": "{title} beat for: {idea}",
+    "key_visuals": ["clear focal subject", "layered environment detail"],
+    "cameras": ["slow push-in", "side tracking", "orbit reveal", "crane pullback"],
+    "transitions": ["match cut", "whip pan", "light bloom", "hard cut on beat"],
+    "subject_motion": "primary subject moves with readable silhouette and clear intent",
+    "pacing": {
+      "hook": "fast but legible",
+      "escalation": "controlled escalation"
+    },
+    "music": "hybrid cinematic pulse with evolving texture",
+    "sound_design": ["environment ambience", "transient impact on transition", "subtle futuristic accent"],
+    "prompt": {
+      "visual_style": "Visual style",
+      "key_visuals": "Key visuals",
+      "audio_intent": "Audio intent"
+    }
+  },
+  "agents": {
+    "suggestion": {
+      "correction_type_labels": {
+        "action": "action",
+        "emotion": "emotion",
+        "character": "character",
+        "scene": "scene",
+        "camera": "camera",
+        "audio": "audio",
+        "prompt": "prompt"
+      },
+      "strategy": "Apply targeted {correction_type} correction for: {dimensions}.",
+      "risks": {
+        "action": "May over-specify movement and reduce visual freedom.",
+        "emotion": "May exaggerate performance and reduce subtlety.",
+        "character": "May add constraints that conflict with style.",
+        "scene": "May over-constrain spatial layout.",
+        "camera": "May reduce generator flexibility.",
+        "audio": "May overfit timing before real audio exists.",
+        "prompt": "May make prompts longer and harder to execute.",
+        "default": "May introduce unintended changes."
+      }
+    },
+    "correction": {
+      "action": {
+        "note": "Strengthen the action beat with a clearer before/after movement cue.",
+        "motion": "Make the subject motion more readable, with a concrete gesture, direction, and visible reaction.",
+        "prompt": "Emphasize explicit action staging, readable silhouettes, and a decisive visual anchor.",
+        "effect": "Action intent should become easier to evaluate and less ambiguous."
+      },
+      "emotion": {
+        "scene": "Increase the emotional objective so the beat has a clearer feeling change.",
+        "shot": "Add visible expression, posture, or reaction detail that makes the intended emotion measurable.",
+        "prompt": "Specify emotional performance cues and reaction timing without changing the core scene.",
+        "effect": "Emotional intensity should become more legible in the generated result."
+      },
+      "prompt": {
+        "prompt": "Clarify executable prompt constraints: subject, action, camera, timing, and success criteria.",
+        "effect": "Prompt execution should become more constrained and easier to score."
+      },
+      "character": {
+        "behavior": "Keep the character identity, silhouette, and behavioral intent consistent across the affected shots.",
+        "prompt": "Preserve the same character identity, wardrobe logic, silhouette, and behavior continuity.",
+        "effect": "Character continuity should become easier to track across the sequence."
+      },
+      "scene": {
+        "scene": "Clarify spatial layout, foreground/background relationship, and scene anchor.",
+        "shot": "Add a readable environment anchor so the shot location remains stable.",
+        "prompt": "Specify the location anchor, spatial layers, and stable environmental details.",
+        "effect": "Scene continuity and spatial readability should improve."
+      },
+      "camera": {
+        "camera": "Tie camera movement directly to the narrative focal point.",
+        "prompt": "Describe camera framing, lens distance, and the visual reason for the movement.",
+        "effect": "Camera language should support the story beat more clearly."
+      },
+      "audio": {
+        "sound": "Place a clear audio cue on the visual beat that needs emphasis.",
+        "prompt": "Sync the key visual beat with a concrete sound cue or music change.",
+        "effect": "Audio timing should become easier to align with the visual rhythm."
+      }
+    }
+  },
+  "exports": {
+    "csv_headers": {
+      "shot_id": "shot_id",
+      "scene_id": "scene_id",
+      "title": "title",
+      "duration_seconds": "duration_seconds",
+      "description": "description",
+      "shot_type": "shot_type",
+      "camera": "camera",
+      "subject_motion": "subject_motion",
+      "music": "music",
+      "prompt": "prompt"
+    },
+    "markdown": {
+      "package": "ShotForge Production Package",
+      "idea": "Idea",
+      "intent": "Intent",
+      "genre": "Genre",
+      "mood": "Mood",
+      "visual_style": "Visual Style",
+      "audience": "Audience",
+      "storyboard": "Storyboard",
+      "scene": "Scene",
+      "duration": "Duration",
+      "shot": "Shot",
+      "description": "Description",
+      "key_visuals": "Key visuals",
+      "camera": "Camera",
+      "motion": "Motion",
+      "transition": "Transition",
+      "music": "Music",
+      "sound_design": "Sound design",
+      "prompt": "Prompt",
+      "trace": "Trace"
+    }
+  },
+  "web": {
+    "header": {
+      "subtitle": "Evaluation-driven Agent Harness for AI video creation"
+    },
+    "form": {
+      "title": "Create Package",
+      "idea": "Video idea",
+      "default_idea": "A cyber cat chases a glowing drone across rainy Shanghai rooftops",
+      "style": "Visual style",
+      "language": "Language",
+      "language_zh": "中文",
+      "language_en": "English",
+      "mode": "Run mode",
+      "mode_design": "Design only",
+      "mode_full_loop": "Design + Mock Evaluation",
+      "mode_planning": "Design + Evaluation + Redesign V2",
+      "rubric": "Evaluation rubric",
+      "generator_provider": "Generator provider",
+      "duration": "Duration seconds",
+      "max_iterations": "Max redesign iterations",
+      "submit": "Run Pipeline"
+    },
+    "run": {
+      "title": "Run",
+      "scene": "Scene",
+      "issues": "issues",
+      "ready_title": "Ready",
+      "ready_body": "Submit an idea to generate storyboard, motion, audio cues, prompts, exports, evaluation, and correction planning."
+    },
+    "exports": {
+      "json": "JSON",
+      "csv": "CSV",
+      "markdown": "Markdown",
+      "evaluation_csv": "Evaluation CSV"
+    },
+    "evaluation": {
+      "title": "Evaluation",
+      "show_signals": "Show evaluator signal sources"
+    },
+    "correction_plans": {
+      "title": "Correction Plans",
+      "version_preview": "Version preview",
+      "priority": "Priority",
+      "risk": "Risk",
+      "affected_fields": "Affected fields",
+      "target_issues": "Target issues"
+    },
+    "correction_patches": {
+      "title": "Correction Patches",
+      "agent": "Agent",
+      "expected_effect": "Expected effect",
+      "operations": "Operations",
+      "rationale": "Rationale"
+    },
+    "version_diff": {
+      "title": "Version Diff",
+      "chain_title": "Version Chain",
+      "open": "View diff",
+      "changed_shots": "Changed shots",
+      "changed_prompts": "Changed prompts",
+      "changed_audio_cues": "Changed audio cues",
+      "resolved_issues": "Resolved issues",
+      "field_changes": "Field changes",
+      "explanation": "Explanation",
+      "before": "Before",
+      "after": "After",
+      "path": "Path",
+      "change_type": "Change",
+      "no_field_changes": "No production-package field changed in this version."
+    },
+    "convergence": {
+      "title": "Convergence Check",
+      "overall_delta": "Overall delta",
+      "status": "Status",
+      "resolved": "Resolved",
+      "remaining": "Remaining",
+      "new": "New",
+      "dimensions": "Dimension deltas",
+      "history": "Iteration history",
+      "stop_reason": "Stop reason"
+    },
+    "snapshots": {
+      "title": "Version Snapshots",
+      "label": "snapshot",
+      "file": "File"
+    },
+    "enums": {
+      "convergence_status": {
+        "improved": "Improved",
+        "mixed": "Mixed",
+        "regressed": "Regressed",
+        "unchanged": "Unchanged"
+      },
+      "stop_reason": {
+        "continue": "Continue",
+        "no_re_evaluation_yet": "No re-evaluation yet",
+        "design_package_unchanged": "Production package unchanged",
+        "selected_iterations_reached": "Selected iteration limit reached",
+        "regression_detected": "Regression detected",
+        "score_delta_below_threshold": "Score improvement below threshold",
+        "all_tracked_issues_resolved": "All tracked issues resolved"
+      },
+      "change_type": {
+        "added": "Added",
+        "removed": "Removed",
+        "modified": "Modified"
+      }
+    },
+    "verification": {
+      "title": "Verification",
+      "summary": "Summary",
+      "failed": "Failed",
+      "warnings": "Warnings"
+    },
+    "signal_source": {
+      "evaluators": "Evaluators",
+      "signals": "Signals",
+      "source": "Source",
+      "signal": "Signal",
+      "score": "Score",
+      "threshold": "Threshold"
+    }
+  }
+}

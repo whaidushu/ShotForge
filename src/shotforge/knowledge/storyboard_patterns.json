@@ -1,0 +1,7 @@
+[
+  {
+    "id": "short_form_four_beat",
+    "name": "Short-form four-beat structure",
+    "beats": ["hook", "escalation", "signature_moment", "resolution"]
+  }
+]

@@ -1,0 +1,126 @@
+{
+  "version": "v2",
+  "principle": "Route issues to specialized correction agents and keep text strategies data-driven.",
+  "strategies": {
+    "action": {
+      "notes": {
+        "note": {
+          "zh": "强化动作段落，加入更清晰的动作前后变化。",
+          "en": "Strengthen the action beat with a clearer before/after movement cue."
+        },
+        "motion": {
+          "zh": "让主体运动更可读，明确手势、方向和可见反应。",
+          "en": "Make the subject motion more readable, with a concrete gesture, direction, and visible reaction."
+        },
+        "prompt": {
+          "zh": "强调明确的动作调度、可读轮廓和决定性视觉锚点。",
+          "en": "Emphasize explicit action staging, readable silhouettes, and a decisive visual anchor."
+        },
+        "effect": {
+          "zh": "动作意图会更容易被评测，也更不容易含混。",
+          "en": "Action intent should become easier to evaluate and less ambiguous."
+        }
+      }
+    },
+    "emotion": {
+      "notes": {
+        "scene": {
+          "zh": "增强情绪目标，让段落产生更清晰的情绪变化。",
+          "en": "Increase the emotional objective so the beat has a clearer feeling change."
+        },
+        "shot": {
+          "zh": "增加表情、姿态或反应细节，让目标情绪可观察、可评测。",
+          "en": "Add visible expression, posture, or reaction detail that makes the intended emotion measurable."
+        },
+        "prompt": {
+          "zh": "补充情绪表演提示和反应时机，但不改变核心场景。",
+          "en": "Specify emotional performance cues and reaction timing without changing the core scene."
+        },
+        "effect": {
+          "zh": "生成结果中的情绪强度会更容易被识别。",
+          "en": "Emotional intensity should become more legible in the generated result."
+        }
+      }
+    },
+    "prompt": {
+      "notes": {
+        "prompt": {
+          "zh": "澄清可执行提示约束：主体、动作、镜头、时机和成功标准。",
+          "en": "Clarify executable prompt constraints: subject, action, camera, timing, and success criteria."
+        },
+        "effect": {
+          "zh": "提示词会更有约束，也更容易被评分。",
+          "en": "Prompt execution should become more constrained and easier to score."
+        }
+      }
+    },
+    "character": {
+      "notes": {
+        "behavior": {
+          "zh": "保持角色身份、轮廓和行为意图在相关镜头中连续一致。",
+          "en": "Keep the character identity, silhouette, and behavioral intent consistent across the affected shots."
+        },
+        "prompt": {
+          "zh": "保持同一角色身份、服装逻辑、轮廓特征和行为连续性。",
+          "en": "Preserve the same character identity, wardrobe logic, silhouette, and behavior continuity."
+        },
+        "effect": {
+          "zh": "角色连续性会更容易被追踪和评测。",
+          "en": "Character continuity should become easier to track across the sequence."
+        }
+      }
+    },
+    "scene": {
+      "notes": {
+        "scene": {
+          "zh": "明确空间布局、前后景关系和场景锚点。",
+          "en": "Clarify spatial layout, foreground/background relationship, and scene anchor."
+        },
+        "shot": {
+          "zh": "增加可读的环境锚点，让镜头地点保持稳定。",
+          "en": "Add a readable environment anchor so the shot location remains stable."
+        },
+        "prompt": {
+          "zh": "指定地点锚点、空间层次和稳定的环境细节。",
+          "en": "Specify the location anchor, spatial layers, and stable environmental details."
+        },
+        "effect": {
+          "zh": "场景连续性和空间可读性会提升。",
+          "en": "Scene continuity and spatial readability should improve."
+        }
+      }
+    },
+    "camera": {
+      "notes": {
+        "camera": {
+          "zh": "让镜头运动直接服务叙事焦点。",
+          "en": "Tie camera movement directly to the narrative focal point."
+        },
+        "prompt": {
+          "zh": "描述镜头构图、距离和运动服务的视觉理由。",
+          "en": "Describe camera framing, lens distance, and the visual reason for the movement."
+        },
+        "effect": {
+          "zh": "镜头语言会更清晰地支撑故事段落。",
+          "en": "Camera language should support the story beat more clearly."
+        }
+      }
+    },
+    "audio": {
+      "notes": {
+        "sound": {
+          "zh": "在需要强调的视觉节拍上放置清晰声音点位。",
+          "en": "Place a clear audio cue on the visual beat that needs emphasis."
+        },
+        "prompt": {
+          "zh": "让关键视觉节拍与具体音效或音乐变化同步。",
+          "en": "Sync the key visual beat with a concrete sound cue or music change."
+        },
+        "effect": {
+          "zh": "声音点位会更容易与画面节奏对齐。",
+          "en": "Audio timing should become easier to align with the visual rhythm."
+        }
+      }
+    }
+  }
+}

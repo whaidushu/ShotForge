@@ -1,0 +1,90 @@
+# {{ labels.package }}
+
+Project: `{{ state.project_id }}`
+Run: `{{ state.run_id }}`
+Version: `{{ state.version }}`
+
+## {{ labels.idea }}
+
+{{ state.user_idea }}
+
+## {{ labels.intent }}
+
+- {{ labels.genre }}: {{ state.creative_intent.genre if state.creative_intent else "" }}
+- {{ labels.mood }}: {{ state.creative_intent.mood if state.creative_intent else "" }}
+- {{ labels.visual_style }}: {{ state.creative_intent.visual_style if state.creative_intent else state.style }}
+- {{ labels.audience }}: {{ state.creative_intent.audience if state.creative_intent else "" }}
+
+## {{ labels.storyboard }}
+
+{% for beat in state.shots %}
+### {{ labels.scene }} {{ beat.index }} - {{ beat.title }}
+
+- {{ labels.duration }}: {{ beat.duration_seconds }}s
+- {{ labels.shot }}: {{ beat.shot_type }}
+- {{ labels.description }}: {{ beat.description }}
+- {{ labels.key_visuals }}: {{ beat.key_visuals | join(", ") }}
+
+{% set motion = beat.motion %}
+{% set audio = (state.audio_cues | selectattr("shot_id", "equalto", beat.shot_id) | list | first) %}
+{% set prompt = (state.prompt_package.prompts | selectattr("shot_id", "equalto", beat.shot_id) | list | first) %}
+{% if motion %}
+- {{ labels.camera }}: {{ motion.camera }}
+- {{ labels.motion }}: {{ motion.subject_motion }}
+- {{ labels.transition }}: {{ motion.transition }}
+{% endif %}
+{% if audio %}
+- {{ labels.music }}: {{ audio.music }}
+- {{ labels.sound_design }}: {{ audio.sound_design | join(", ") }}
+{% endif %}
+{% if prompt %}
+- {{ labels.prompt }}: {{ prompt.prompt }}
+{% endif %}
+
+{% endfor %}
+
+{% if state.generation_results %}
+## Mock Generation
+
+{% set generation = state.generation_results[-1] %}
+- Provider: {{ generation.provider }}
+- Status: {{ generation.status }}
+- Result: `{{ generation.generated_result_id }}`
+
+{% for generated_shot in generation.shots %}
+- {{ generated_shot.shot_id }}: {{ generated_shot.observed_summary }}
+{% endfor %}
+
+{% endif %}
+{% if state.evaluation_reports %}
+## Evaluation Report
+
+{% set report = state.evaluation_reports[-1] %}
+- Evaluation: `{{ report.evaluation_id }}`
+- Rubric: {{ report.rubric_id }}
+- Overall score: {{ "%.2f"|format(report.score_card.overall_score) }}
+
+### Dimension Scores
+
+{% for score in report.score_card.dimension_scores %}
+- {{ score.label }} (`{{ score.dimension_id }}`): {{ "%.2f"|format(score.score) }} - {{ score.rationale }}
+{% endfor %}
+
+### Issues
+
+{% for issue in report.issues %}
+- [{{ issue.severity }}] {{ issue.shot_id }} / {{ issue.dimension_label }} / {{ issue.correction_type }}: {{ issue.description }} Cause: {{ issue.suspected_cause }}
+{% endfor %}
+
+### Suggested Focus
+
+{% for focus in report.suggested_focus %}
+- {{ focus }}
+{% endfor %}
+
+{% endif %}
+## {{ labels.trace }}
+
+{% for event in state.trace_logs %}
+- {{ event.timestamp }} - {{ event.step }} - {{ event.status }}{% if event.duration_ms %} - {{ "%.2f"|format(event.duration_ms) }}ms{% endif %}
+{% endfor %}

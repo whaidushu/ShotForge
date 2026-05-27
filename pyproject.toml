@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shotforge"
+version = "0.1.0"
+description = "AI Video Creative Agent Harness POC built with FastAPI, LangGraph, Pydantic, Jinja2, and local file storage."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "ShotForge Contributors" }]
+keywords = ["ai-video", "fastapi", "langgraph", "creative-agent", "poc"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Framework :: FastAPI",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+  "fastapi>=0.111.0",
+  "uvicorn[standard]>=0.29.0",
+  "langgraph>=0.2.0,<1.0",
+  "pydantic>=2.7.0",
+  "pydantic-settings>=2.2.1",
+  "jinja2>=3.1.4",
+  "typer>=0.12.3",
+  "rich>=13.7.1",
+  "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "httpx>=0.27.0",
+  "ruff>=0.5.0",
+]
+llm = [
+  "openai>=1.109.1",
+]
+
+[project.scripts]
+shotforge = "shotforge.app.cli.main:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+shotforge = [
+  "templates/*.html",
+  "templates/*.md.j2",
+  "knowledge/*.json",
+  "i18n/locales/*.json",
+  "comfyui/workflows/*.json",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+filterwarnings = [
+  "ignore:The default value of `allowed_objects` will change.*:langchain_core._api.deprecation.LangChainPendingDeprecationWarning",
+]

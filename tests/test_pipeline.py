@@ -1,0 +1,137 @@
+from shotforge.workflows.design_workflow import run_design_pipeline
+from shotforge.workflows.full_loop_workflow import run_full_loop_pipeline
+from shotforge.core.project_state import ProjectState
+
+
+def test_pipeline_exports_all_formats(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_design_pipeline("A robot chef films a moonlit dessert commercial", duration_seconds=24)
+
+    assert state.language == "zh"
+    assert state.creative_intent is not None
+    assert len(state.scenes) == 4
+    assert len(state.shots) == 4
+    assert len(state.motion_plan) == 4
+    assert len(state.audio_cues) == 4
+    assert len(state.prompt_package.prompts) == 4
+    assert {item.format for item in state.exports} == {"json", "csv", "markdown"}
+    for artifact in state.exports:
+        assert artifact.path
+
+
+def test_csv_export_is_excel_friendly_for_chinese(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_design_pipeline("一只赛博猫在雨夜上海屋顶追逐发光无人机", duration_seconds=24)
+    csv_path = next(item.path for item in state.exports if item.format == "csv")
+    raw = open(csv_path, "rb").read()
+
+    assert raw.startswith(b"\xef\xbb\xbf")
+    assert "一只赛博猫" in raw.decode("utf-8-sig")
+    assert "镜头ID" in raw.decode("utf-8-sig")
+
+
+def test_pipeline_supports_english_output(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_design_pipeline(
+        "A neon train crossing a desert at sunrise",
+        duration_seconds=24,
+        language="en",
+    )
+    csv_path = next(item.path for item in state.exports if item.format == "csv")
+    markdown_path = next(item.path for item in state.exports if item.format == "markdown")
+
+    assert state.language == "en"
+    assert state.shots[0].title == "Hook"
+    assert "Visual style" in state.prompt_package.prompts[0].prompt
+    assert "shot_id" in open(csv_path, encoding="utf-8-sig").read()
+    assert "ShotForge Production Package" in open(markdown_path, encoding="utf-8").read()
+
+
+def test_chinese_idea_is_preserved_in_storyboard_text(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    idea = "\u4e00\u4e2a\u5973\u4e3b\u5728\u96e8\u591c\u5929\u53f0\u64ad\u653e\u5f55\u97f3\u5b8c\u6210\u53cd\u8f6c"
+    state = run_design_pipeline(idea, duration_seconds=24, language="zh")
+
+    assert state.user_idea == idea
+    assert idea in state.shots[1].description
+    assert "????" not in state.shots[1].description
+    assert "\\u" not in state.shots[1].description
+
+
+def test_full_loop_generates_mock_evaluation(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_full_loop_pipeline(
+        "一只赛博猫在雨夜上海屋顶追逐发光无人机",
+        duration_seconds=24,
+        language="zh",
+        generator_provider_id="mock",
+    )
+    report = state.evaluation_reports[-1]
+    evaluation_csv_path = next(item.path for item in state.exports if item.format == "evaluation_csv")
+    markdown_path = next(item.path for item in state.exports if item.format == "markdown")
+
+    assert len(state.generation_results) == 1
+    assert state.metadata["generator_provider_id"] == "mock"
+    assert state.generation_results[-1].metadata["provider_id"] == "mock"
+    assert len(report.score_card.dimension_scores) >= 9
+    assert "mock_visual" in report.metadata["evaluator_sources"]
+    assert "prompt_static" in report.metadata["evaluator_sources"]
+    assert report.metadata["signal_count"] >= len(report.score_card.dimension_scores)
+    assert report.issues
+    assert all(issue.correction_type for issue in report.issues)
+    assert all(issue.metadata.get("signal_source") for issue in report.issues)
+    assert "action_clarity" in {score.dimension_id for score in report.score_card.dimension_scores}
+    assert "evaluation_id" in open(evaluation_csv_path, encoding="utf-8-sig").read()
+    assert "Evaluation Report" in open(markdown_path, encoding="utf-8").read()
+
+
+def test_template_package_metadata_round_trip(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+    from shotforge.exporters import ExportManager
+
+    get_settings.cache_clear()
+    state = run_design_pipeline("A quiet revenge reveal in a luxury elevator", language="en")
+    state.shots[0].metadata["visual_anchor"] = "phone recording close-up"
+    state.audio_cues[0].metadata["audio_anchor"] = "music drops to silence"
+    state.prompt_package.metadata["template_experiment"] = "anchor_fields_v0"
+    json_path = ExportManager().export_json(state)
+
+    loaded = ProjectState.model_validate_json(json_path.read_text(encoding="utf-8"))
+
+    assert loaded.shots[0].metadata["visual_anchor"] == "phone recording close-up"
+    assert loaded.audio_cues[0].metadata["audio_anchor"] == "music drops to silence"
+    assert loaded.prompt_package.metadata["template_experiment"] == "anchor_fields_v0"
