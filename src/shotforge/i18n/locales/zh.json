@@ -129,7 +129,7 @@
   },
   "web": {
     "header": {
-      "subtitle": "面向 AI 视频创作的 Evaluation-driven Agent Harness"
+      "subtitle": "面向 AI 视频工作流的行业级 Evaluation-driven Agent Harness"
     },
     "form": {
       "title": "创建任务包",
@@ -240,6 +240,23 @@
       "summary": "摘要",
       "failed": "失败",
       "warnings": "警告"
+    },
+    "harness": {
+      "title": "Harness Inspector",
+      "subtitle": "运行时视图：上下文、工具、状态、策略、MCP、Sandbox 和 Memory。",
+      "context": "上下文",
+      "tools": "工具调用",
+      "policy": "执行策略",
+      "mcp": "MCP 工具",
+      "sandbox": "Sandbox",
+      "memory": "Memory",
+      "state": "状态",
+      "agent": "Agent",
+      "sources": "来源",
+      "chars": "字符数",
+      "no_records": "暂无记录",
+      "tool_status": "状态",
+      "latency": "耗时"
     },
     "signal_source": {
       "evaluators": "评测器",

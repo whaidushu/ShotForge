@@ -129,7 +129,7 @@
   },
   "web": {
     "header": {
-      "subtitle": "Evaluation-driven Agent Harness for AI video creation"
+      "subtitle": "Industry-grade Agent Harness for evaluation-driven AI video workflows"
     },
     "form": {
       "title": "Create Package",
@@ -240,6 +240,23 @@
       "summary": "Summary",
       "failed": "Failed",
       "warnings": "Warnings"
+    },
+    "harness": {
+      "title": "Harness Inspector",
+      "subtitle": "Runtime view of context, tools, state, policies, MCP, sandbox, and memory.",
+      "context": "Context",
+      "tools": "Tool Calls",
+      "policy": "Execution Policy",
+      "mcp": "MCP Tools",
+      "sandbox": "Sandbox",
+      "memory": "Memory",
+      "state": "State",
+      "agent": "Agent",
+      "sources": "Sources",
+      "chars": "Chars",
+      "no_records": "No records yet",
+      "tool_status": "Status",
+      "latency": "Latency"
     },
     "signal_source": {
       "evaluators": "Evaluators",

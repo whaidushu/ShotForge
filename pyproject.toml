@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "shotforge"
 version = "0.1.0"
-description = "AI Video Creative Agent Harness POC built with FastAPI, LangGraph, Pydantic, Jinja2, and local file storage."
+description = "Industry-grade AI Agent Harness solution demo for evaluation-driven video creative workflows."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "ShotForge Contributors" }]
-keywords = ["ai-video", "fastapi", "langgraph", "creative-agent", "poc"]
+keywords = ["ai-agent", "agent-harness", "context-engineering", "langgraph", "ai-video"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Framework :: FastAPI",

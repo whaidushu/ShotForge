@@ -19,7 +19,7 @@ from shotforge.workflows.full_loop_workflow import run_full_loop_pipeline
 from shotforge.workflows.iterative_redesign_workflow import run_iterative_redesign
 
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parents[2] / "templates"))
-app = FastAPI(title="ShotForge / 镜铸", version="0.1.0")
+app = FastAPI(title="ShotForge_BD Agent Harness Demo", version="0.1.0")
 
 
 def _format_diff_value(value: Any) -> str:
@@ -134,6 +134,21 @@ def _web_ui_labels(language: OutputLanguage) -> dict[str, str]:
         "verification_summary": "web.verification.summary",
         "verification_failed": "web.verification.failed",
         "verification_warnings": "web.verification.warnings",
+        "harness_title": "web.harness.title",
+        "harness_subtitle": "web.harness.subtitle",
+        "harness_context": "web.harness.context",
+        "harness_tools": "web.harness.tools",
+        "harness_policy": "web.harness.policy",
+        "harness_mcp": "web.harness.mcp",
+        "harness_sandbox": "web.harness.sandbox",
+        "harness_memory": "web.harness.memory",
+        "harness_state": "web.harness.state",
+        "harness_agent": "web.harness.agent",
+        "harness_sources": "web.harness.sources",
+        "harness_chars": "web.harness.chars",
+        "harness_no_records": "web.harness.no_records",
+        "harness_tool_status": "web.harness.tool_status",
+        "harness_latency": "web.harness.latency",
         "signal_source_evaluators": "web.signal_source.evaluators",
         "signal_source_signals": "web.signal_source.signals",
         "signal_source_source": "web.signal_source.source",
@@ -172,6 +187,34 @@ def _available_generator_providers() -> list[dict[str, Any]]:
             }
         )
     return providers
+
+
+def _harness_inspector(state: ProjectState | None) -> dict[str, Any]:
+    if state is None:
+        return {
+            "contexts": [],
+            "tool_calls": [],
+            "latest_context": {},
+            "state_summary": {},
+        }
+    contexts = [item.model_dump(mode="json") for item in state.harness_contexts]
+    tool_calls = [item.model_dump(mode="json") for item in state.tool_call_records]
+    latest_context = contexts[-1] if contexts else {}
+    return {
+        "contexts": contexts,
+        "tool_calls": tool_calls,
+        "latest_context": latest_context,
+        "state_summary": {
+            "project_id": state.project_id,
+            "run_id": state.run_id,
+            "version": state.version,
+            "trace_events": len(state.trace_logs),
+            "versions": len(state.versions),
+            "version_diffs": len(state.version_diffs),
+            "evaluation_reports": len(state.evaluation_reports),
+            "correction_plans": len(state.correction_plans),
+        },
+    }
 
 
 def _validate_generator_provider_id(provider_id: str) -> str:
@@ -244,6 +287,7 @@ def index(
                 "change_type",
                 ["added", "removed", "modified"],
             ),
+            "harness_inspector": _harness_inspector(state),
             "snapshots": _version_snapshots(state),
             "generator_providers": _available_generator_providers(),
         },

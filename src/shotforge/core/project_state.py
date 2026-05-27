@@ -6,6 +6,9 @@ from uuid import uuid4
 
 from pydantic import AliasChoices, BaseModel, Field
 
+from shotforge.core.harness_snapshot import HarnessContextSnapshot
+from shotforge.core.tool_call import ToolCallRecord
+
 
 ExportFormat = Literal["json", "csv", "markdown", "evaluation_csv"]
 OutputLanguage = Literal["zh", "en"]
@@ -386,6 +389,8 @@ class ProjectState(BaseModel):
     versions: list[str] = Field(default_factory=list)
     exports: list[ExportArtifact] = Field(default_factory=list)
     trace_logs: list[TraceEvent] = Field(default_factory=list)
+    harness_contexts: list[HarnessContextSnapshot] = Field(default_factory=list)
+    tool_call_records: list[ToolCallRecord] = Field(default_factory=list)
     knowledge_refs: list[str] = Field(default_factory=list)
     review_notes: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)

@@ -164,6 +164,41 @@
         display: grid;
         gap: 12px;
       }
+      .inspector-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      .inspector-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfbf8;
+        padding: 12px;
+        min-width: 0;
+      }
+      .inspector-panel h4 {
+        margin: 0 0 10px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .compact-list {
+        display: grid;
+        gap: 8px;
+      }
+      .compact-item {
+        border-top: 1px solid var(--line);
+        padding-top: 8px;
+      }
+      .compact-item:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
       .version-chain {
         display: grid;
         gap: 12px;
@@ -272,7 +307,7 @@
   </head>
   <body>
     <header>
-      <h1>ShotForge</h1>
+      <h1>ShotForge_BD</h1>
       <div class="muted">{{ ui.header_subtitle }}</div>
     </header>
     <main>
@@ -360,6 +395,89 @@
                   {% if issue.metadata.threshold is defined %} · {{ ui.signal_source_threshold }}: {{ "%.2f"|format(issue.metadata.threshold) }}{% endif %}
                 </div>
               {% endfor %}
+            </article>
+          {% endif %}
+          {% if harness_inspector.contexts or harness_inspector.tool_calls %}
+            {% set latest_context = harness_inspector.latest_context %}
+            <article class="card">
+              <h3>{{ ui.harness_title }}</h3>
+              <p class="muted">{{ ui.harness_subtitle }}</p>
+              <div class="inspector-grid">
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_context }}</h4>
+                  {% if harness_inspector.contexts %}
+                    <div class="compact-list">
+                      {% for context in harness_inspector.contexts[-4:] %}
+                        <div class="compact-item">
+                          <strong>{{ ui.harness_agent }}: {{ context.agent_name }}</strong>
+                          <p class="muted">
+                            {{ ui.harness_sources }}: {{ context.source_count }}
+                            / {{ ui.harness_chars }}: {{ context.char_count }}
+                          </p>
+                          <div class="pill-row">
+                            {% for source_type in context.source_types[:6] %}
+                              <span class="badge">{{ source_type }}</span>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    <p class="muted">{{ ui.harness_no_records }}</p>
+                  {% endif %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_tools }}</h4>
+                  {% if harness_inspector.tool_calls %}
+                    <div class="compact-list">
+                      {% for record in harness_inspector.tool_calls[-5:] %}
+                        <div class="compact-item">
+                          <strong>{{ record.tool_name }}</strong>
+                          <p class="muted">
+                            {{ ui.harness_tool_status }}: {{ record.status }}
+                            {% if record.latency_ms %}/ {{ ui.harness_latency }}: {{ "%.1f"|format(record.latency_ms) }}ms{% endif %}
+                          </p>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    <p class="muted">{{ ui.harness_no_records }}</p>
+                  {% endif %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_state }}</h4>
+                  <div class="summary-strip">
+                    {% for key, value in harness_inspector.state_summary.items() %}
+                      <div class="metric">
+                        <strong>{{ key }}</strong>
+                        <span>{{ value }}</span>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_policy }}</h4>
+                  <pre>{{ latest_context.execution_policy | diff_value if latest_context.execution_policy else "{}" }}</pre>
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_mcp }}</h4>
+                  <div class="pill-row">
+                    {% for tool_name in latest_context.mcp_tool_names %}
+                      <span class="badge">{{ tool_name }}</span>
+                    {% else %}
+                      <span class="muted">{{ ui.harness_no_records }}</span>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_sandbox }}</h4>
+                  <pre>{{ latest_context.sandbox_policy | diff_value if latest_context.sandbox_policy else "{}" }}</pre>
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_memory }}</h4>
+                  <pre>{{ latest_context.memory | diff_value if latest_context.memory else "{}" }}</pre>
+                </div>
+              </div>
             </article>
           {% endif %}
           {% if state.correction_plans %}

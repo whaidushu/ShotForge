@@ -110,6 +110,11 @@ def test_create_run_api_with_planning(tmp_path, monkeypatch):
     assert "Version Chain" in page.text
     assert "View diff" in page.text
     assert "Production package unchanged" in page.text
+    assert "Harness Inspector" in page.text
+    assert "Tool Calls" in page.text
+    assert "Execution Policy" in page.text
+    assert "MCP Tools" in page.text
+    assert "Sandbox" in page.text
 
     versions = client.get(f"/api/runs/{payload['run_id']}/versions")
     assert versions.status_code == 200
