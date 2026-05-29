@@ -160,6 +160,28 @@
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         font-size: 14px;
       }
+      .inspector-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+      }
+      .inspector-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: #fbfbf8;
+        min-width: 0;
+      }
+      .inspector-panel h4 {
+        margin: 0 0 8px;
+        font-size: 13px;
+      }
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
       .diff-panel {
         display: grid;
         gap: 12px;
@@ -325,11 +347,147 @@
                 <a href="/api/runs/{{ state.run_id }}/export/json">{{ ui.exports_json }}</a>
                 <a href="/api/runs/{{ state.run_id }}/export/csv">{{ ui.exports_csv }}</a>
                 <a href="/api/runs/{{ state.run_id }}/export/markdown">{{ ui.exports_markdown }}</a>
+                <a href="/api/runs/{{ state.run_id }}/export/manifest">{{ ui.exports_manifest }}</a>
+                <a href="/api/runs/{{ state.run_id }}/export/trace">{{ ui.exports_trace }}</a>
+                <a href="/api/runs/{{ state.run_id }}/export/run_summary">{{ ui.exports_run_summary }}</a>
                 {% if state.evaluation_reports %}
                   <a href="/api/runs/{{ state.run_id }}/export/evaluation_csv">{{ ui.exports_evaluation_csv }}</a>
                 {% endif %}
               </p>
             </div>
+          {% if state.solution_architecture %}
+            {% set solution = state.solution_architecture %}
+            <article class="card">
+              <h3>{{ ui.solution_title }}</h3>
+              <p class="muted">{{ ui.solution_subtitle }}</p>
+              <div class="summary-strip">
+                <div class="metric">
+                  <strong>{{ ui.solution_industry }}</strong>
+                  <span>{{ solution.industry }}</span>
+                </div>
+                <div class="metric">
+                  <strong>{{ ui.solution_scenario }}</strong>
+                  <span>{{ solution.scenario }}</span>
+                </div>
+                <div class="metric">
+                  <strong>{{ ui.solution_success }}</strong>
+                  <span>{{ solution.poc_success_criteria | length }}</span>
+                </div>
+                <div class="metric">
+                  <strong>{{ ui.solution_value }}</strong>
+                  <span>{{ solution.value_metrics | length }}</span>
+                </div>
+              </div>
+              <p><strong>{{ ui.solution_objective }}</strong>: {{ solution.business_objective }}</p>
+              <p><strong>{{ ui.solution_model_strategy }}</strong>: {{ solution.model_strategy }}</p>
+              <p><strong>{{ ui.solution_knowledge }}</strong>: {{ solution.knowledge_assets | join(", ") }}</p>
+              <p><strong>{{ ui.solution_patterns }}</strong>: {{ solution.scenario_patterns | join(", ") }}</p>
+              <p><strong>{{ ui.solution_metrics }}</strong>: {{ solution.evaluation_metrics | join(", ") }}</p>
+              <div class="inspector-grid">
+                <div class="inspector-panel">
+                  <h4>{{ ui.solution_components }}</h4>
+                  {% for component in solution.components %}
+                    <p>
+                      <strong>{{ component.name }}</strong><br>
+                      <span class="muted">{{ component.owner_agent }} / {{ component.responsibility }}</span>
+                    </p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.solution_integrations }}</h4>
+                  {% for integration in solution.integration_points %}
+                    <p>
+                      <strong>{{ integration.system }}</strong>
+                      <span class="badge">{{ integration.status }}</span><br>
+                      <span class="muted">{{ integration.interface }}</span>
+                    </p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.solution_success }}</h4>
+                  {% for criterion in solution.poc_success_criteria %}
+                    <p><strong>{{ criterion.metric }}</strong><br><span class="muted">{{ criterion.target }}</span></p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.solution_rollout }}</h4>
+                  {% for phase in solution.rollout_plan %}
+                    <p><strong>{{ phase.phase }}</strong><br><span class="muted">{{ phase.objective }}</span></p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.solution_value }}</h4>
+                  {% for metric in solution.value_metrics %}
+                    <p><strong>{{ metric.name }}</strong><br><span class="muted">{{ metric.business_value }}</span></p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.solution_safety }}</h4>
+                  {% for control in solution.safety_controls %}
+                    <p class="muted">{{ control }}</p>
+                  {% endfor %}
+                </div>
+              </div>
+            </article>
+          {% endif %}
+          {% if state.delivery_readiness %}
+            {% set readiness = state.delivery_readiness %}
+            <article class="card">
+              <h3>{{ ui.readiness_title }}</h3>
+              <p class="muted">{{ ui.readiness_subtitle }}</p>
+              <div class="summary-strip">
+                <div class="metric">
+                  <strong>{{ ui.readiness_overall }}</strong>
+                  <span>{{ readiness.overall_status }}</span>
+                </div>
+                <div class="metric">
+                  <strong>{{ ui.readiness_checks }}</strong>
+                  <span>{{ readiness.checks | length }}</span>
+                </div>
+                <div class="metric">
+                  <strong>{{ ui.readiness_handoff }}</strong>
+                  <span>{{ readiness.handoff_deliverables | length }}</span>
+                </div>
+                <div class="metric">
+                  <strong>{{ ui.readiness_risks }}</strong>
+                  <span>{{ readiness.risk_register | length }}</span>
+                </div>
+              </div>
+              <div class="inspector-grid">
+                <div class="inspector-panel">
+                  <h4>{{ ui.readiness_checks }}</h4>
+                  {% for check in readiness.checks %}
+                    <p>
+                      <strong>{{ check.category }}</strong>
+                      <span class="badge">{{ check.status }}</span><br>
+                      <span class="muted">{{ check.check_id }} / {{ check.evidence }}</span>
+                      {% if check.remediation %}
+                        <br><span class="muted">{{ ui.readiness_remediation }}: {{ check.remediation }}</span>
+                      {% endif %}
+                    </p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.readiness_handoff }}</h4>
+                  {% for deliverable in readiness.handoff_deliverables %}
+                    <p class="muted">{{ deliverable }}</p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.readiness_next_actions }}</h4>
+                  {% for action in readiness.next_actions %}
+                    <p class="muted">{{ action }}</p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.readiness_risks }}</h4>
+                  {% for risk in readiness.risk_register %}
+                    <p class="muted">{{ risk }}</p>
+                  {% endfor %}
+                </div>
+              </div>
+            </article>
+          {% endif %}
           {% if state.evaluation_reports %}
             {% set report = state.evaluation_reports[-1] %}
             <article class="card">
@@ -529,6 +687,99 @@
                     <p class="muted">{{ ui.snapshots_file }}: {{ snapshot.name }}</p>
                   </div>
                 {% endfor %}
+              </div>
+            </article>
+          {% endif %}
+          {% if harness_inspector.contexts or harness_inspector.tool_calls %}
+            {% set latest_context = harness_inspector.latest_context %}
+            <article class="card">
+              <h3>{{ ui.harness_title }}</h3>
+              <p class="muted">{{ ui.harness_subtitle }}</p>
+              <div class="inspector-grid">
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_context }}</h4>
+                  {% if harness_inspector.contexts %}
+                    {% for context in harness_inspector.contexts[-4:] %}
+                      <p>
+                        <strong>{{ ui.harness_agent }}: {{ context.agent_name }}</strong><br>
+                        <span class="muted">{{ ui.harness_sources }}: {{ context.source_count }} / {{ ui.harness_chars }}: {{ context.char_count }}</span>
+                      </p>
+                      <div class="pill-row">
+                        {% for source_type in context.source_types[:6] %}
+                          <span class="badge">{{ source_type }}</span>
+                        {% endfor %}
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <p class="muted">{{ ui.harness_no_records }}</p>
+                  {% endif %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_tools }}</h4>
+                  {% if harness_inspector.tool_calls %}
+                    {% for record in harness_inspector.tool_calls[-5:] %}
+                      <p>
+                        <strong>{{ record.tool_name }}</strong><br>
+                        <span class="muted">{{ ui.harness_tool_status }}: {{ record.status }}{% if record.duration_ms %} / {{ ui.harness_latency }}: {{ "%.1f"|format(record.duration_ms) }}ms{% endif %}</span>
+                      </p>
+                    {% endfor %}
+                  {% else %}
+                    <p class="muted">{{ ui.harness_no_records }}</p>
+                  {% endif %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_state }}</h4>
+                  {% for key, value in harness_inspector.state_summary.items() %}
+                    <p><strong>{{ key }}</strong>: {{ value }}</p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_transitions }}</h4>
+                  {% if harness_inspector.state_transitions %}
+                    {% for transition in harness_inspector.state_transitions[-5:] %}
+                      <p>
+                        <strong>{{ transition.agent_name }}</strong><br>
+                        <span class="muted">{{ ui.harness_invariant_status }}: {{ transition.invariant_status }}</span><br>
+                        <span class="muted">{{ ui.harness_changed_fields }}: {{ transition.changed_fields | join(", ") if transition.changed_fields else "none" }}</span>
+                      </p>
+                    {% endfor %}
+                  {% else %}
+                    <p class="muted">{{ ui.harness_no_records }}</p>
+                  {% endif %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_topology }}</h4>
+                  <p><strong>{{ ui.harness_nodes }}</strong>: {{ harness_inspector.agent_topology.nodes | length }}</p>
+                  <p><strong>{{ ui.harness_edges }}</strong>: {{ harness_inspector.agent_topology.edges | length }}</p>
+                  {% for node in harness_inspector.agent_topology.nodes[:5] %}
+                    <p>
+                      <strong>{{ node.agent_name }}</strong><br>
+                      <span class="muted">{{ node.role }}</span>
+                    </p>
+                  {% endfor %}
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_policy }}</h4>
+                  <pre>{{ latest_context.execution_policy | diff_value if latest_context.execution_policy else "{}" }}</pre>
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_mcp }}</h4>
+                  <div class="pill-row">
+                    {% for tool_name in latest_context.mcp_tool_names %}
+                      <span class="badge">{{ tool_name }}</span>
+                    {% else %}
+                      <span class="muted">{{ ui.harness_no_records }}</span>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_sandbox }}</h4>
+                  <pre>{{ latest_context.sandbox_policy | diff_value if latest_context.sandbox_policy else "{}" }}</pre>
+                </div>
+                <div class="inspector-panel">
+                  <h4>{{ ui.harness_memory }}</h4>
+                  <pre>{{ latest_context.memory | diff_value if latest_context.memory else "{}" }}</pre>
+                </div>
               </div>
             </article>
           {% endif %}

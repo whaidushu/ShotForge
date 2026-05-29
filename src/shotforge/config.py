@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     runs_dir: Path = Path("data/runs")
     versions_dir: Path = Path("data/versions")
     knowledge_base_path: Path = Path("data/knowledge_base.json")
+    memory_store_path: Path = Path("data/memory.jsonl")
     default_duration_seconds: int = 24
 
     model_config = SettingsConfigDict(env_prefix="SHOTFORGE_", env_file=".env")

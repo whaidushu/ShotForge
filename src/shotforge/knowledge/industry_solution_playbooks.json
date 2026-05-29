@@ -1,0 +1,54 @@
+[
+  {
+    "playbook_id": "media_advertising_video_ops",
+    "industries": ["Media and Entertainment", "Advertising"],
+    "scenario_patterns": [
+      "campaign concept to storyboard package",
+      "brand-safe short-video production planning",
+      "multi-provider video model comparison"
+    ],
+    "value_levers": ["speed", "creative consistency", "production auditability"],
+    "required_integrations": ["brand asset store", "review workflow", "video model provider"],
+    "risk_controls": ["brand safety review", "copyright and likeness review", "prompt/version trace"],
+    "evaluation_metrics": ["story clarity", "brand fit", "motion readability", "prompt executability"]
+  },
+  {
+    "playbook_id": "gaming_character_content",
+    "industries": ["Gaming"],
+    "scenario_patterns": [
+      "character trailer ideation",
+      "NPC behavior video prompt generation",
+      "game asset motion reference planning"
+    ],
+    "value_levers": ["asset reuse", "character consistency", "faster trailer iteration"],
+    "required_integrations": ["asset library", "character bible", "render/reference store"],
+    "risk_controls": ["IP consistency check", "character continuity check", "style drift review"],
+    "evaluation_metrics": ["character identity", "action clarity", "style consistency", "scene continuity"]
+  },
+  {
+    "playbook_id": "ecommerce_product_video",
+    "industries": ["Retail and E-commerce"],
+    "scenario_patterns": [
+      "SKU to product short-video brief",
+      "promotion video variant generation",
+      "platform-specific creative adaptation"
+    ],
+    "value_levers": ["creative throughput", "SKU coverage", "lower production cost"],
+    "required_integrations": ["PIM/SKU data", "product image store", "campaign calendar"],
+    "risk_controls": ["claim compliance", "price/promotion validity", "brand template constraints"],
+    "evaluation_metrics": ["product visibility", "claim accuracy", "platform fit", "CTA clarity"]
+  },
+  {
+    "playbook_id": "financial_service_explainer",
+    "industries": ["Financial Services"],
+    "scenario_patterns": [
+      "policy explainer video planning",
+      "risk education short-video package",
+      "customer onboarding content generation"
+    ],
+    "value_levers": ["content governance", "review efficiency", "message consistency"],
+    "required_integrations": ["compliance rule base", "approved copy library", "review record system"],
+    "risk_controls": ["compliance review", "disclaimer enforcement", "sensitive claim detection"],
+    "evaluation_metrics": ["factual consistency", "disclaimer coverage", "readability", "risk wording"]
+  }
+]

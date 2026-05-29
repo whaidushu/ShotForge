@@ -9,7 +9,9 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 
+from shotforge.core.capability_catalog import build_capability_catalog
 from shotforge.config import get_settings
+from shotforge.core.harness_audit import build_harness_audit
 from shotforge.core.project_state import OutputLanguage, ProjectState
 from shotforge.core.version_manager import VersionManager
 from shotforge.generators import build_default_generator_registry, build_generator_catalog
@@ -91,6 +93,33 @@ def _web_ui_labels(language: OutputLanguage) -> dict[str, str]:
         "exports_csv": "web.exports.csv",
         "exports_markdown": "web.exports.markdown",
         "exports_evaluation_csv": "web.exports.evaluation_csv",
+        "exports_manifest": "web.exports.manifest",
+        "exports_trace": "web.exports.trace",
+        "exports_run_summary": "web.exports.run_summary",
+        "solution_title": "web.solution.title",
+        "solution_subtitle": "web.solution.subtitle",
+        "solution_industry": "web.solution.industry",
+        "solution_scenario": "web.solution.scenario",
+        "solution_objective": "web.solution.objective",
+        "solution_model_strategy": "web.solution.model_strategy",
+        "solution_components": "web.solution.components",
+        "solution_integrations": "web.solution.integrations",
+        "solution_success": "web.solution.success",
+        "solution_rollout": "web.solution.rollout",
+        "solution_value": "web.solution.value",
+        "solution_safety": "web.solution.safety",
+        "solution_knowledge": "web.solution.knowledge",
+        "solution_patterns": "web.solution.patterns",
+        "solution_metrics": "web.solution.metrics",
+        "readiness_title": "web.readiness.title",
+        "readiness_subtitle": "web.readiness.subtitle",
+        "readiness_overall": "web.readiness.overall",
+        "readiness_checks": "web.readiness.checks",
+        "readiness_handoff": "web.readiness.handoff",
+        "readiness_next_actions": "web.readiness.next_actions",
+        "readiness_risks": "web.readiness.risks",
+        "readiness_required": "web.readiness.required",
+        "readiness_remediation": "web.readiness.remediation",
         "evaluation_title": "web.evaluation.title",
         "evaluation_show_signals": "web.evaluation.show_signals",
         "correction_plans_title": "web.correction_plans.title",
@@ -140,6 +169,27 @@ def _web_ui_labels(language: OutputLanguage) -> dict[str, str]:
         "signal_source_signal": "web.signal_source.signal",
         "signal_source_score": "web.signal_source.score",
         "signal_source_threshold": "web.signal_source.threshold",
+        "harness_title": "web.harness.title",
+        "harness_subtitle": "web.harness.subtitle",
+        "harness_context": "web.harness.context",
+        "harness_tools": "web.harness.tools",
+        "harness_policy": "web.harness.policy",
+        "harness_mcp": "web.harness.mcp",
+        "harness_sandbox": "web.harness.sandbox",
+        "harness_memory": "web.harness.memory",
+        "harness_state": "web.harness.state",
+        "harness_agent": "web.harness.agent",
+        "harness_sources": "web.harness.sources",
+        "harness_chars": "web.harness.chars",
+        "harness_no_records": "web.harness.no_records",
+        "harness_tool_status": "web.harness.tool_status",
+        "harness_latency": "web.harness.latency",
+        "harness_transitions": "web.harness.transitions",
+        "harness_changed_fields": "web.harness.changed_fields",
+        "harness_invariant_status": "web.harness.invariant_status",
+        "harness_topology": "web.harness.topology",
+        "harness_nodes": "web.harness.nodes",
+        "harness_edges": "web.harness.edges",
     }
     return {name: translator.t(language, key) for name, key in keys.items()}
 
@@ -172,6 +222,10 @@ def _available_generator_providers() -> list[dict[str, Any]]:
             }
         )
     return providers
+
+
+def _harness_inspector(state: ProjectState | None) -> dict[str, Any]:
+    return build_harness_audit(state)
 
 
 def _validate_generator_provider_id(provider_id: str) -> str:
@@ -246,6 +300,7 @@ def index(
             ),
             "snapshots": _version_snapshots(state),
             "generator_providers": _available_generator_providers(),
+            "harness_inspector": _harness_inspector(state),
         },
     )
     response.headers["Cache-Control"] = "no-store"
@@ -292,9 +347,7 @@ def create_run_form(
     state.metadata["generator_provider_id"] = generator_provider_id
     from shotforge.exporters import ExportManager
 
-    exporter = ExportManager()
-    exporter.export_json(state)
-    exporter.export_markdown(state)
+    ExportManager().export_all(state)
     return RedirectResponse(url=f"/?run_id={state.run_id}", status_code=303)
 
 
@@ -318,10 +371,7 @@ def create_run(payload: RunRequest) -> RunResponse:
             )
             from shotforge.exporters import ExportManager
 
-            exporter = ExportManager()
-            exporter.export_json(state)
-            exporter.export_markdown(state)
-            exporter.export_evaluation_csv(state)
+            ExportManager().export_all(state)
     else:
         state = run_design_pipeline(
             idea=payload.idea,
@@ -338,6 +388,29 @@ def create_run(payload: RunRequest) -> RunResponse:
     )
 
 
+@app.get("/api/capabilities")
+def get_capabilities() -> dict[str, Any]:
+    return build_capability_catalog()
+
+
+@app.get("/api/health")
+def get_health() -> dict[str, Any]:
+    settings = get_settings()
+    return {
+        "status": "ok",
+        "app_name": settings.app_name,
+        "storage": {
+            "storage_root": str(settings.storage_root),
+            "runs_dir": str(settings.runs_dir),
+            "versions_dir": str(settings.versions_dir),
+            "knowledge_base_path": str(settings.knowledge_base_path),
+            "memory_store_path": str(settings.memory_store_path),
+            "runs_dir_exists": settings.runs_dir.exists(),
+            "versions_dir_exists": settings.versions_dir.exists(),
+        },
+    }
+
+
 @app.get("/api/runs/{run_id}", response_model=ProjectState)
 def get_run(run_id: str) -> ProjectState:
     return _load_run(run_id)
@@ -346,6 +419,33 @@ def get_run(run_id: str) -> ProjectState:
 @app.get("/api/runs/{run_id}/trace")
 def get_trace(run_id: str) -> list[dict]:
     return json.loads(_load_run(run_id).model_dump_json())["trace_logs"]
+
+
+@app.get("/api/runs/{run_id}/harness")
+def get_harness_audit(run_id: str) -> dict[str, Any]:
+    return build_harness_audit(_load_run(run_id))
+
+
+@app.get("/api/runs/{run_id}/readiness")
+def get_readiness(run_id: str) -> dict[str, Any]:
+    state = _load_run(run_id)
+    if state.delivery_readiness is None:
+        raise HTTPException(status_code=404, detail=f"Readiness report not found: {run_id}")
+    report = state.delivery_readiness
+    return {
+        "project_id": state.project_id,
+        "run_id": state.run_id,
+        "overall_status": report.overall_status,
+        "checks": [item.model_dump(mode="json") for item in report.checks],
+        "summary": {
+            "passed": len([item for item in report.checks if item.status == "passed"]),
+            "warnings": len([item for item in report.checks if item.status == "warning"]),
+            "failed": len([item for item in report.checks if item.status == "failed"]),
+        },
+        "handoff_deliverables": report.handoff_deliverables,
+        "next_actions": report.next_actions,
+        "risk_register": report.risk_register,
+    }
 
 
 @app.get("/api/runs/{run_id}/versions")
@@ -361,6 +461,10 @@ def download_export(run_id: str, export_format: str) -> FileResponse:
         "csv": ("package.csv", "text/csv"),
         "markdown": ("package.md", "text/markdown"),
         "md": ("package.md", "text/markdown"),
+        "manifest": ("manifest.json", "application/json"),
+        "trace": ("trace.json", "application/json"),
+        "run_summary": ("run_summary.md", "text/markdown"),
+        "summary": ("run_summary.md", "text/markdown"),
         "evaluation_csv": ("evaluation.csv", "text/csv"),
         "evaluation": ("evaluation.csv", "text/csv"),
     }

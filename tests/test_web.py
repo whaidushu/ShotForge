@@ -28,8 +28,13 @@ def test_create_run_api(tmp_path, monkeypatch):
     payload = response.json()
     assert re.match(r"^\d{8}_\d{4}(?:_\d{2})?$", payload["run_id"])
     assert payload["state"]["language"] == "en"
+    assert payload["state"]["solution_architecture"]
+    assert payload["state"]["delivery_readiness"]
     assert payload["state"]["evaluation_reports"]
     assert "json" in payload["exports"]
+    assert "manifest" in payload["exports"]
+    assert "trace" in payload["exports"]
+    assert "run_summary" in payload["exports"]
 
 
 def test_index_page():
@@ -48,6 +53,32 @@ def test_index_page():
     assert "show-signals" in response.text
     assert "创建任务包" in response.text
     assert "仅设计" in response.text
+
+
+def test_capability_catalog_api():
+    client = TestClient(app)
+    response = client.get("/api/capabilities")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["agents"]["specs"]
+    assert payload["agents"]["dependency_edges"]
+    assert payload["agent_harness"]["state_management"] == "ProjectState"
+    assert "knowledge.search" in payload["infra"]["mcp"]
+    assert "manifest" in payload["export_formats"]
+    assert "GET /api/runs/{run_id}/readiness" in payload["api_routes"]
+    assert any(item["provider_id"] == "mock" for item in payload["generator_providers"])
+    assert any(item["playbook_id"] == "media_advertising_video_ops" for item in payload["playbooks"])
+
+
+def test_health_api():
+    client = TestClient(app)
+    response = client.get("/api/health")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert "runs_dir_exists" in payload["storage"]
 
 
 def test_create_run_form_redirects():
@@ -108,13 +139,52 @@ def test_create_run_api_with_planning(tmp_path, monkeypatch):
     page = client.get(f"/?run_id={payload['run_id']}&language=en")
     assert page.status_code == 200
     assert "Version Chain" in page.text
+    assert "Solution Architecture" in page.text
+    assert "POC success" in page.text
+    assert "Delivery Readiness" in page.text
+    assert "Handoff" in page.text
+    assert "Manifest" in page.text
+    assert "Run Summary" in page.text
     assert "View diff" in page.text
     assert "Production package unchanged" in page.text
+    assert "Harness Inspector" in page.text
+    assert "MCP Tools" in page.text
+    assert "Sandbox" in page.text
+    assert "Memory" in page.text
+    assert "State Transitions" in page.text
+    assert "Invariant status" in page.text
+    assert "Agent Topology" in page.text
+    assert "Transform production state" in page.text
 
     versions = client.get(f"/api/runs/{payload['run_id']}/versions")
     assert versions.status_code == 200
     assert versions.json()
     assert any(item["label"].startswith("redesign_iter") for item in versions.json())
+
+    harness = client.get(f"/api/runs/{payload['run_id']}/harness")
+    assert harness.status_code == 200
+    audit = harness.json()
+    assert audit["run_id"] == payload["run_id"]
+    assert audit["contexts"]
+    assert audit["tool_calls"]
+    assert audit["state_transitions"]
+    assert audit["state_summary"]["state_transitions"] >= 1
+    assert audit["agent_topology"]["nodes"]
+    assert audit["agent_topology"]["edges"]
+    assert "knowledge.search" in audit["policies"]["mcp_tool_names"]
+    assert audit["solution"]["knowledge_assets"]
+    assert audit["readiness"]["checks"]
+
+    manifest = client.get(f"/api/runs/{payload['run_id']}/export/manifest")
+    assert manifest.status_code == 200
+    assert manifest.json()["run_id"] == payload["run_id"]
+
+    readiness = client.get(f"/api/runs/{payload['run_id']}/readiness")
+    assert readiness.status_code == 200
+    readiness_payload = readiness.json()
+    assert readiness_payload["run_id"] == payload["run_id"]
+    assert readiness_payload["checks"]
+    assert readiness_payload["summary"]["warnings"] >= 0
 
 
 def test_create_run_api_rejects_unknown_generator_provider():

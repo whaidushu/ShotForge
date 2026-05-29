@@ -37,6 +37,8 @@ def build_design_graph(harness: AgentHarness | None = None):
     graph.add_node("motion", wrap("motion_agent"))
     graph.add_node("audio", wrap("audio_cue_agent"))
     graph.add_node("prompt_adapter", wrap("prompt_adapter_agent"))
+    graph.add_node("solution_architect", wrap("solution_architect_agent"))
+    graph.add_node("delivery_readiness", wrap("delivery_readiness_agent"))
     graph.add_node("export", wrap("export_agent"))
 
     graph.set_entry_point("intent")
@@ -44,7 +46,9 @@ def build_design_graph(harness: AgentHarness | None = None):
     graph.add_edge("storyboard", "motion")
     graph.add_edge("motion", "audio")
     graph.add_edge("audio", "prompt_adapter")
-    graph.add_edge("prompt_adapter", "export")
+    graph.add_edge("prompt_adapter", "solution_architect")
+    graph.add_edge("solution_architect", "delivery_readiness")
+    graph.add_edge("delivery_readiness", "export")
     graph.add_edge("export", END)
     return graph.compile()
 

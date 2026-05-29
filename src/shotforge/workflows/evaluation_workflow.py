@@ -52,10 +52,7 @@ def run_evaluation_pipeline(
     run_verification(state, generated_result)
     run_evaluation(state, generated_result=generated_result, rubric_id=rubric_id)
     if export:
-        exporter = ExportManager()
-        exporter.export_json(state)
-        exporter.export_markdown(state)
-        exporter.export_evaluation_csv(state)
+        ExportManager().export_all(state)
     return state
 
 

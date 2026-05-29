@@ -1,0 +1,262 @@
+from __future__ import annotations
+
+from collections.abc import Callable
+
+from shotforge.core.agent_catalog import AgentCatalog
+from shotforge.core.context_builder import ContextBuilder
+from shotforge.core.project_state import ProjectState
+from shotforge.core.runtime_models import HarnessContextSnapshot, StateTransitionRecord, ToolCallRecord
+from shotforge.core.trace_log import TraceLog
+from shotforge.infra.mcp import LocalMCPAdapter, build_default_mcp_adapter
+from shotforge.infra.memory import LocalMemoryStore
+from shotforge.infra.policies import ExecutionPolicy
+from shotforge.infra.sandbox import SandboxPolicy
+from shotforge.skills import SkillRegistry
+
+
+class AgentHarnessRuntime:
+    def __init__(
+        self,
+        context_builder: ContextBuilder | None = None,
+        registry: SkillRegistry | None = None,
+        execution_policy: ExecutionPolicy | None = None,
+        sandbox_policy: SandboxPolicy | None = None,
+        mcp_adapter: LocalMCPAdapter | None = None,
+        memory_store: LocalMemoryStore | None = None,
+        agent_catalog: AgentCatalog | None = None,
+    ):
+        self.context_builder = context_builder or ContextBuilder()
+        self.registry = registry or SkillRegistry()
+        self.execution_policy = execution_policy or ExecutionPolicy()
+        self.sandbox_policy = sandbox_policy or SandboxPolicy()
+        self.mcp_adapter = mcp_adapter or build_default_mcp_adapter()
+        self.memory_store = memory_store or LocalMemoryStore()
+        self.agent_catalog = agent_catalog
+
+    def run_agent(
+        self,
+        state: ProjectState,
+        agent_name: str,
+        handler: Callable[[ProjectState], ProjectState],
+        tags: list[str] | None = None,
+    ) -> ProjectState:
+        with TraceLog(state).span("agent_harness_runtime", agent_name=agent_name):
+            self._record_context(state, agent_name, tags=tags)
+            before_record_count = len(self.registry.records())
+            before_summary = self._state_summary(state)
+            result = handler(state)
+            self._record_state_transition(result, agent_name, before_summary)
+            self._enforce_tool_budget(result, agent_name, before_record_count)
+            self._record_tool_calls(result, before_record_count)
+            self._maybe_promote_memory(result, agent_name)
+            return result
+
+    def _record_context(
+        self,
+        state: ProjectState,
+        agent_name: str,
+        tags: list[str] | None = None,
+    ) -> None:
+        context = self.context_builder.build(
+            state,
+            agent_name,
+            tags=tags,
+            max_chars=self.execution_policy.max_context_chars,
+        )
+        memory_hits = self.memory_store.search(query=state.user_idea, tags=tags, limit=3)
+        for record in memory_hits:
+            if record.memory_id not in state.memory_refs:
+                state.memory_refs.append(record.memory_id)
+
+        state.harness_contexts.append(
+            HarnessContextSnapshot(
+                agent_name=agent_name,
+                source_count=len([source for source in context.sources if source.included])
+                + len(memory_hits),
+                char_count=context.char_count,
+                source_types=[
+                    *[source.source_type for source in context.sources if source.included],
+                    *["memory" for _ in memory_hits],
+                ],
+                source_titles=[
+                    *[source.title for source in context.sources if source.included],
+                    *[item.kind for item in memory_hits],
+                ],
+                skill_count=len(self.registry.names()),
+                skill_names=self.registry.names(),
+                mcp_tool_count=len(self.mcp_adapter.list_tools()),
+                mcp_tool_names=[tool.name for tool in self.mcp_adapter.list_tools()],
+                execution_policy=self.execution_policy.model_dump(mode="json"),
+                sandbox_policy=self.sandbox_policy.model_dump(mode="json"),
+                memory={
+                    "provider": self.memory_store.__class__.__name__,
+                    "hits": len(memory_hits),
+                    "memory_ids": [record.memory_id for record in memory_hits],
+                },
+                metadata={
+                    "context_digest": context.digest,
+                    "context_max_chars": context.max_chars,
+                    "context_truncated": context.truncated,
+                    "agent_spec": self._agent_spec_metadata(agent_name),
+                    "source_priorities": {
+                        source.source_id: source.priority for source in context.sources
+                    },
+                    "excluded_sources": [
+                        source.source_id for source in context.sources if not source.included
+                    ],
+                    "redacted_sources": [
+                        source.source_id for source in context.sources if source.redacted
+                    ],
+                },
+            )
+        )
+        state.touch()
+
+    def _record_tool_calls(self, state: ProjectState, before_record_count: int) -> None:
+        records = self.registry.records()[before_record_count:]
+        state.tool_call_records.extend(records)
+        state.touch()
+
+    def _enforce_tool_budget(
+        self,
+        state: ProjectState,
+        agent_name: str,
+        before_record_count: int,
+    ) -> None:
+        records = self.registry.records()[before_record_count:]
+        max_calls = self.execution_policy.max_tool_calls_per_agent
+        if len(records) <= max_calls:
+            return
+        violation = ToolCallRecord(
+            tool_name="agent_harness.tool_budget",
+            status="failed",
+            error=(
+                f"Agent {agent_name} exceeded tool call budget: "
+                f"{len(records)} > {max_calls}"
+            ),
+            permission_scope="runtime_policy",
+            metadata={
+                "agent_name": agent_name,
+                "tool_call_count": len(records),
+                "max_tool_calls_per_agent": max_calls,
+                "policy_id": self.execution_policy.policy_id,
+            },
+        )
+        state.tool_call_records.extend(records)
+        state.tool_call_records.append(violation)
+        state.touch()
+        raise PermissionError(violation.error)
+
+    def _record_state_transition(
+        self,
+        state: ProjectState,
+        agent_name: str,
+        before_summary: dict[str, int | str],
+    ) -> None:
+        after_summary = self._state_summary(state)
+        changed_fields = [
+            key
+            for key, before_value in before_summary.items()
+            if after_summary.get(key) != before_value
+        ]
+        invariant_issues = self._invariant_issues(state, agent_name)
+        state.state_transitions.append(
+            StateTransitionRecord(
+                agent_name=agent_name,
+                before=before_summary,
+                after=after_summary,
+                changed_fields=changed_fields,
+                invariant_status="warning" if invariant_issues else "passed",
+                invariant_issues=invariant_issues,
+                metadata={
+                    "changed_count": len(changed_fields),
+                    "project_id": state.project_id,
+                    "run_id": state.run_id,
+                },
+            )
+        )
+        state.touch()
+
+    def _state_summary(self, state: ProjectState) -> dict[str, int | str]:
+        return {
+            "version": state.version,
+            "creative_intent": 1 if state.creative_intent else 0,
+            "characters": len(state.characters),
+            "scenes": len(state.scenes),
+            "shots": len(state.shots),
+            "audio_cues": len(state.audio_cues),
+            "prompts": len(state.prompt_package.prompts),
+            "solution_architecture": 1 if state.solution_architecture else 0,
+            "delivery_readiness": 1 if state.delivery_readiness else 0,
+            "evaluations": len(state.evaluation_reports),
+            "exports": len(state.exports),
+            "trace_logs": len(state.trace_logs),
+        }
+
+    def _invariant_issues(self, state: ProjectState, agent_name: str) -> list[str]:
+        issues: list[str] = []
+        if agent_name in {"storyboard_agent", "motion_agent", "audio_cue_agent"} and not state.shots:
+            issues.append("shots_missing_after_story_phase")
+        if agent_name in {"audio_cue_agent", "prompt_adapter_agent"} and state.shots:
+            if state.audio_cues and len(state.audio_cues) != len(state.shots):
+                issues.append("audio_cue_count_does_not_match_shots")
+        if agent_name in {"prompt_adapter_agent", "solution_architect_agent", "export_agent"}:
+            prompt_count = len(state.prompt_package.prompts)
+            if state.shots and prompt_count != len(state.shots):
+                issues.append("prompt_count_does_not_match_shots")
+        if agent_name == "solution_architect_agent" and state.solution_architecture is None:
+            issues.append("solution_architecture_missing")
+        if agent_name == "delivery_readiness_agent" and state.delivery_readiness is None:
+            issues.append("delivery_readiness_missing")
+        return issues
+
+    def _agent_spec_metadata(self, agent_name: str) -> dict:
+        if self.agent_catalog is None:
+            return {}
+        try:
+            spec = self.agent_catalog.get(agent_name)
+        except KeyError:
+            return {}
+        return {
+            "role": spec.role,
+            "inputs": spec.inputs,
+            "outputs": spec.outputs,
+            "dependencies": spec.dependencies,
+            "extension_points": spec.extension_points,
+        }
+
+    def _maybe_promote_memory(self, state: ProjectState, agent_name: str) -> None:
+        if agent_name not in {"delivery_readiness_agent", "export_agent"}:
+            return
+        promoted_key = "memory_promoted_run_id"
+        if state.metadata.get(promoted_key) == state.run_id:
+            return
+        summary = (
+            f"Run {state.run_id}: idea={state.user_idea}; style={state.style}; "
+            f"shots={len(state.shots)}; prompts={len(state.prompt_package.prompts)}; "
+            f"readiness={state.delivery_readiness.overall_status if state.delivery_readiness else 'n/a'}"
+        )
+        record = self.memory_store.promote_run(
+            run_id=state.run_id,
+            summary=summary,
+            tags=[
+                state.style,
+                state.target_platform,
+                state.language,
+                "shotforge-run",
+            ],
+            namespace="shotforge",
+            importance=0.75,
+            metadata={
+                "project_id": state.project_id,
+                "version": state.version,
+                "export_count": len(state.exports),
+            },
+        )
+        if record.memory_id not in state.memory_refs:
+            state.memory_refs.append(record.memory_id)
+        state.metadata[promoted_key] = state.run_id
+        state.touch()
+
+
+__all__ = ["AgentHarnessRuntime"]

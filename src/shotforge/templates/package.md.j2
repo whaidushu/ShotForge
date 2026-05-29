@@ -43,6 +43,70 @@ Version: `{{ state.version }}`
 
 {% endfor %}
 
+{% if state.solution_architecture %}
+{% set solution = state.solution_architecture %}
+## {{ labels.get("solution_architecture", "Solution Architecture") }}
+
+- {{ labels.get("industry", "Industry") }}: {{ solution.industry }}
+- {{ labels.get("scenario", "Scenario") }}: {{ solution.scenario }}
+- {{ labels.get("business_objective", "Business objective") }}: {{ solution.business_objective }}
+- {{ labels.get("model_strategy", "Model strategy") }}: {{ solution.model_strategy }}
+- {{ labels.get("knowledge_assets", "Knowledge assets") }}: {{ solution.knowledge_assets | join(", ") }}
+- {{ labels.get("scenario_patterns", "Scenario patterns") }}: {{ solution.scenario_patterns | join(", ") }}
+- {{ labels.get("evaluation_metrics", "Evaluation metrics") }}: {{ solution.evaluation_metrics | join(", ") }}
+
+### {{ labels.get("agent_components", "Agent components") }}
+
+{% for component in solution.components %}
+- {{ component.name }} / {{ component.owner_agent }}: {{ component.responsibility }}
+{% endfor %}
+
+### {{ labels.get("poc_success_criteria", "POC success criteria") }}
+
+{% for criterion in solution.poc_success_criteria %}
+- {{ criterion.metric }}: {{ criterion.target }} ({{ criterion.evaluation_method }})
+{% endfor %}
+
+### {{ labels.get("rollout_plan", "Rollout plan") }}
+
+{% for phase in solution.rollout_plan %}
+- {{ phase.phase }}: {{ phase.objective }}
+{% endfor %}
+
+### {{ labels.get("value_metrics", "Value metrics") }}
+
+{% for metric in solution.value_metrics %}
+- {{ metric.name }}: {{ metric.business_value }} ({{ metric.baseline }} -> {{ metric.target }})
+{% endfor %}
+
+{% endif %}
+
+{% if state.delivery_readiness %}
+{% set readiness = state.delivery_readiness %}
+## {{ labels.get("delivery_readiness", "Delivery Readiness") }}
+
+- {{ labels.get("overall_status", "Overall status") }}: {{ readiness.overall_status }}
+
+### {{ labels.get("readiness_checks", "Readiness checks") }}
+
+{% for check in readiness.checks %}
+- [{{ check.status }}] {{ check.category }} / {{ check.check_id }}: {{ check.evidence }}{% if check.remediation %} Remediation: {{ check.remediation }}{% endif %}
+{% endfor %}
+
+### {{ labels.get("handoff_deliverables", "Handoff deliverables") }}
+
+{% for deliverable in readiness.handoff_deliverables %}
+- {{ deliverable }}
+{% endfor %}
+
+### {{ labels.get("next_actions", "Next actions") }}
+
+{% for action in readiness.next_actions %}
+- {{ action }}
+{% endfor %}
+
+{% endif %}
+
 {% if state.generation_results %}
 ## Mock Generation
 

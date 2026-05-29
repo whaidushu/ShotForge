@@ -9,19 +9,48 @@
       "POC 阶段不调用真实视频模型",
       "保持每个场景提示词可直接用于生产任务拆解"
     ],
-    "titles": ["开场钩子", "冲突升级", "标志性瞬间", "收束结尾", "余韵", "循环回扣"],
-    "shot_types": ["广角建立镜头", "中景跟拍", "动态特写", "英雄式远景"],
+    "titles": [
+      "开场钩子",
+      "冲突升级",
+      "标志性瞬间",
+      "收束结尾",
+      "余韵",
+      "循环回扣"
+    ],
+    "shot_types": [
+      "广角建立镜头",
+      "中景跟拍",
+      "动态特写",
+      "英雄式远景"
+    ],
     "description": "{title}：围绕“{idea}”展开的关键视频段落",
-    "key_visuals": ["清晰主体焦点", "有层次的环境细节"],
-    "cameras": ["缓慢推进", "侧向跟拍", "环绕揭示", "升降拉远"],
-    "transitions": ["匹配剪辑", "甩镜转场", "光晕转场", "踩点硬切"],
+    "key_visuals": [
+      "清晰主体焦点",
+      "有层次的环境细节"
+    ],
+    "cameras": [
+      "缓慢推进",
+      "侧向跟拍",
+      "环绕揭示",
+      "升降拉远"
+    ],
+    "transitions": [
+      "匹配剪辑",
+      "甩镜转场",
+      "光晕转场",
+      "踩点硬切"
+    ],
     "subject_motion": "主体动作轮廓清晰，意图明确，便于视频模型生成",
     "pacing": {
       "hook": "快速但可读",
       "escalation": "层层推进"
     },
     "music": "混合电影感节奏铺底，纹理逐步演进",
-    "sound_design": ["环境氛围", "转场瞬态冲击", "轻微未来感音效"],
+    "sound_design": [
+      "环境氛围",
+      "转场瞬态冲击",
+      "轻微未来感音效"
+    ],
     "prompt": {
       "visual_style": "视觉风格",
       "key_visuals": "关键视觉",
@@ -124,7 +153,24 @@
       "music": "音乐",
       "sound_design": "声音设计",
       "prompt": "提示词",
-      "trace": "执行链路"
+      "trace": "执行链路",
+      "solution_architecture": "??????",
+      "industry": "??",
+      "scenario": "??",
+      "business_objective": "????",
+      "model_strategy": "????",
+      "agent_components": "Agent ??",
+      "poc_success_criteria": "POC ????",
+      "rollout_plan": "????",
+      "value_metrics": "????",
+      "delivery_readiness": "?????",
+      "overall_status": "????",
+      "readiness_checks": "?????",
+      "handoff_deliverables": "????",
+      "next_actions": "?????",
+      "knowledge_assets": "????",
+      "scenario_patterns": "????",
+      "evaluation_metrics": "????"
     }
   },
   "web": {
@@ -160,7 +206,10 @@
       "json": "JSON",
       "csv": "CSV",
       "markdown": "Markdown",
-      "evaluation_csv": "评测 CSV"
+      "evaluation_csv": "评测 CSV",
+      "manifest": "Manifest",
+      "trace": "Trace",
+      "run_summary": "Run Summary"
     },
     "evaluation": {
       "title": "评测",
@@ -248,6 +297,57 @@
       "signal": "信号",
       "score": "分数",
       "threshold": "阈值"
+    },
+    "harness": {
+      "title": "Harness Inspector",
+      "subtitle": "运行时视图：上下文、工具、状态、策略、MCP、Sandbox 和 Memory。",
+      "context": "上下文",
+      "tools": "工具调用",
+      "policy": "执行策略",
+      "mcp": "MCP 工具",
+      "sandbox": "Sandbox",
+      "memory": "Memory",
+      "state": "状态",
+      "agent": "Agent",
+      "sources": "来源数",
+      "chars": "字符数",
+      "no_records": "暂无记录",
+      "tool_status": "状态",
+      "latency": "耗时",
+      "transitions": "????",
+      "changed_fields": "????",
+      "invariant_status": "?????",
+      "topology": "Agent ??",
+      "nodes": "??",
+      "edges": "?"
+    },
+    "solution": {
+      "title": "??????",
+      "subtitle": "?????? Agent Harness ??????????",
+      "industry": "??",
+      "scenario": "??",
+      "objective": "????",
+      "model_strategy": "????",
+      "components": "Agent ??",
+      "integrations": "???",
+      "success": "POC ????",
+      "rollout": "????",
+      "value": "????",
+      "safety": "????",
+      "knowledge": "????",
+      "patterns": "????",
+      "metrics": "????"
+    },
+    "readiness": {
+      "title": "?????",
+      "subtitle": "???????Pilot ????????? POC ???",
+      "overall": "????",
+      "checks": "???",
+      "handoff": "????",
+      "next_actions": "?????",
+      "risks": "??",
+      "required": "Pilot ??",
+      "remediation": "????"
     }
   }
 }

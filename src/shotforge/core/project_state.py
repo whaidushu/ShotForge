@@ -6,11 +6,26 @@ from uuid import uuid4
 
 from pydantic import AliasChoices, BaseModel, Field
 
+from shotforge.core.runtime_models import (
+    HarnessContextSnapshot,
+    StateTransitionRecord,
+    ToolCallRecord,
+)
 
-ExportFormat = Literal["json", "csv", "markdown", "evaluation_csv"]
+
+ExportFormat = Literal[
+    "json",
+    "csv",
+    "markdown",
+    "evaluation_csv",
+    "manifest",
+    "trace",
+    "run_summary",
+]
 OutputLanguage = Literal["zh", "en"]
 IssueSeverity = Literal["low", "medium", "high", "critical"]
 GenerationStatus = Literal["mocked", "submitted", "running", "completed", "failed"]
+ReadinessStatus = Literal["passed", "warning", "failed"]
 
 
 def utc_now() -> datetime:
@@ -124,6 +139,86 @@ class PromptPackage(BaseModel):
     provider: str = "mock-video-model"
     prompts: list[PromptItem] = Field(default_factory=list)
     adapter_notes: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ArchitectureComponent(BaseModel):
+    name: str
+    responsibility: str
+    owner_agent: str
+    skills: list[str] = Field(default_factory=list)
+    guardrails: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class IntegrationPoint(BaseModel):
+    system: str
+    interface: str
+    data_contract: str
+    status: Literal["mocked", "planned", "ready"] = "planned"
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class POCSuccessCriterion(BaseModel):
+    criterion_id: str
+    metric: str
+    target: str
+    evaluation_method: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class RolloutPhase(BaseModel):
+    phase: str
+    objective: str
+    exit_criteria: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ValueMetric(BaseModel):
+    name: str
+    baseline: str
+    target: str
+    business_value: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class SolutionArchitecture(BaseModel):
+    industry: str
+    scenario: str
+    business_objective: str
+    reference_customer: str = ""
+    model_strategy: str
+    agent_topology: list[str] = Field(default_factory=list)
+    components: list[ArchitectureComponent] = Field(default_factory=list)
+    integration_points: list[IntegrationPoint] = Field(default_factory=list)
+    safety_controls: list[str] = Field(default_factory=list)
+    poc_success_criteria: list[POCSuccessCriterion] = Field(default_factory=list)
+    rollout_plan: list[RolloutPhase] = Field(default_factory=list)
+    value_metrics: list[ValueMetric] = Field(default_factory=list)
+    knowledge_assets: list[str] = Field(default_factory=list)
+    scenario_patterns: list[str] = Field(default_factory=list)
+    evaluation_metrics: list[str] = Field(default_factory=list)
+    assumptions: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ReadinessCheck(BaseModel):
+    check_id: str
+    category: str
+    status: ReadinessStatus
+    evidence: str
+    required_for_pilot: bool = True
+    remediation: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class DeliveryReadinessReport(BaseModel):
+    report_id: str = Field(default_factory=lambda: f"ready_{uuid4().hex[:12]}")
+    overall_status: ReadinessStatus
+    checks: list[ReadinessCheck] = Field(default_factory=list)
+    handoff_deliverables: list[str] = Field(default_factory=list)
+    next_actions: list[str] = Field(default_factory=list)
+    risk_register: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -371,6 +466,8 @@ class ProjectState(BaseModel):
     shots: list[ShotSpec] = Field(default_factory=list)
     audio_cues: list[AudioCue] = Field(default_factory=list)
     prompt_package: PromptPackage = Field(default_factory=PromptPackage)
+    solution_architecture: SolutionArchitecture | None = None
+    delivery_readiness: DeliveryReadinessReport | None = None
 
     generation_results: list[GeneratedResult] = Field(default_factory=list)
     verification_reports: list[VerificationReport] = Field(default_factory=list)
@@ -386,7 +483,11 @@ class ProjectState(BaseModel):
     versions: list[str] = Field(default_factory=list)
     exports: list[ExportArtifact] = Field(default_factory=list)
     trace_logs: list[TraceEvent] = Field(default_factory=list)
+    tool_call_records: list[ToolCallRecord] = Field(default_factory=list)
+    harness_contexts: list[HarnessContextSnapshot] = Field(default_factory=list)
+    state_transitions: list[StateTransitionRecord] = Field(default_factory=list)
     knowledge_refs: list[str] = Field(default_factory=list)
+    memory_refs: list[str] = Field(default_factory=list)
     review_notes: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 

@@ -124,6 +124,23 @@
       "music": "Music",
       "sound_design": "Sound design",
       "prompt": "Prompt",
+      "solution_architecture": "Solution Architecture",
+      "industry": "Industry",
+      "scenario": "Scenario",
+      "business_objective": "Business objective",
+      "model_strategy": "Model strategy",
+      "knowledge_assets": "Knowledge assets",
+      "scenario_patterns": "Scenario patterns",
+      "evaluation_metrics": "Evaluation metrics",
+      "agent_components": "Agent components",
+      "poc_success_criteria": "POC success criteria",
+      "rollout_plan": "Rollout plan",
+      "value_metrics": "Value metrics",
+      "delivery_readiness": "Delivery Readiness",
+      "overall_status": "Overall status",
+      "readiness_checks": "Readiness checks",
+      "handoff_deliverables": "Handoff deliverables",
+      "next_actions": "Next actions",
       "trace": "Trace"
     }
   },
@@ -160,7 +177,38 @@
       "json": "JSON",
       "csv": "CSV",
       "markdown": "Markdown",
-      "evaluation_csv": "Evaluation CSV"
+      "evaluation_csv": "Evaluation CSV",
+      "manifest": "Manifest",
+      "trace": "Trace",
+      "run_summary": "Run Summary"
+    },
+    "solution": {
+      "title": "Solution Architecture",
+      "subtitle": "Customer-facing path from scenario insight to Agent Harness delivery.",
+      "industry": "Industry",
+      "scenario": "Scenario",
+      "objective": "Business objective",
+      "model_strategy": "Model strategy",
+      "components": "Agent components",
+      "integrations": "Integrations",
+      "success": "POC success",
+      "rollout": "Rollout",
+      "value": "Value metrics",
+      "safety": "Safety controls",
+      "knowledge": "Knowledge assets",
+      "patterns": "Scenario patterns",
+      "metrics": "Evaluation metrics"
+    },
+    "readiness": {
+      "title": "Delivery Readiness",
+      "subtitle": "POC gates for customer handoff, pilot setup, and production hardening.",
+      "overall": "Overall status",
+      "checks": "Checks",
+      "handoff": "Handoff",
+      "next_actions": "Next actions",
+      "risks": "Risks",
+      "required": "Required for pilot",
+      "remediation": "Remediation"
     },
     "evaluation": {
       "title": "Evaluation",
@@ -248,6 +296,29 @@
       "signal": "Signal",
       "score": "Score",
       "threshold": "Threshold"
+    },
+    "harness": {
+      "title": "Harness Inspector",
+      "subtitle": "Runtime view of context, tools, state, policies, MCP, sandbox, and memory.",
+      "context": "Context",
+      "tools": "Tool Calls",
+      "policy": "Execution Policy",
+      "mcp": "MCP Tools",
+      "sandbox": "Sandbox",
+      "memory": "Memory",
+      "state": "State",
+      "agent": "Agent",
+      "sources": "Sources",
+      "chars": "Chars",
+      "no_records": "No records",
+      "tool_status": "Status",
+      "latency": "Latency",
+      "transitions": "State Transitions",
+      "changed_fields": "Changed fields",
+      "invariant_status": "Invariant status",
+      "topology": "Agent Topology",
+      "nodes": "Nodes",
+      "edges": "Edges"
     }
   }
 }

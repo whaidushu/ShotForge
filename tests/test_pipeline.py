@@ -1,6 +1,18 @@
 from shotforge.workflows.design_workflow import run_design_pipeline
 from shotforge.workflows.full_loop_workflow import run_full_loop_pipeline
 from shotforge.core.project_state import ProjectState
+from shotforge.core.solution_playbook import SolutionPlaybookStore
+
+
+def test_solution_playbooks_load_from_package():
+    playbooks = SolutionPlaybookStore().load()
+
+    assert {item.playbook_id for item in playbooks} >= {
+        "media_advertising_video_ops",
+        "gaming_character_content",
+        "ecommerce_product_video",
+    }
+    assert SolutionPlaybookStore().find_for_industry("Gaming").playbook_id == "gaming_character_content"
 
 
 def test_pipeline_exports_all_formats(tmp_path, monkeypatch):
@@ -20,7 +32,32 @@ def test_pipeline_exports_all_formats(tmp_path, monkeypatch):
     assert len(state.motion_plan) == 4
     assert len(state.audio_cues) == 4
     assert len(state.prompt_package.prompts) == 4
-    assert {item.format for item in state.exports} == {"json", "csv", "markdown"}
+    assert state.solution_architecture is not None
+    assert state.solution_architecture.components
+    assert state.solution_architecture.poc_success_criteria
+    assert "media_advertising_video_ops" in state.solution_architecture.knowledge_assets
+    assert state.solution_architecture.scenario_patterns
+    assert state.solution_architecture.evaluation_metrics
+    assert state.delivery_readiness is not None
+    assert state.delivery_readiness.overall_status == "warning"
+    assert {check.check_id for check in state.delivery_readiness.checks} >= {
+        "state_schema",
+        "state_transition_audit",
+        "context_safety",
+        "mcp_capability",
+        "memory_strategy",
+        "solution_architecture",
+        "provider_strategy",
+        "evaluation_loop",
+    }
+    assert {item.format for item in state.exports} == {
+        "json",
+        "csv",
+        "markdown",
+        "manifest",
+        "trace",
+        "run_summary",
+    }
     for artifact in state.exports:
         assert artifact.path
 
@@ -57,12 +94,30 @@ def test_pipeline_supports_english_output(tmp_path, monkeypatch):
     )
     csv_path = next(item.path for item in state.exports if item.format == "csv")
     markdown_path = next(item.path for item in state.exports if item.format == "markdown")
+    manifest_path = next(item.path for item in state.exports if item.format == "manifest")
+    trace_path = next(item.path for item in state.exports if item.format == "trace")
+    summary_path = next(item.path for item in state.exports if item.format == "run_summary")
 
     assert state.language == "en"
+    assert state.solution_architecture is not None
+    assert state.solution_architecture.industry == "Media and Entertainment"
+    assert state.delivery_readiness is not None
+    assert any(
+        item.criterion_id == "poc_observability"
+        for item in state.solution_architecture.poc_success_criteria
+    )
     assert state.shots[0].title == "Hook"
     assert "Visual style" in state.prompt_package.prompts[0].prompt
     assert "shot_id" in open(csv_path, encoding="utf-8-sig").read()
     assert "ShotForge Production Package" in open(markdown_path, encoding="utf-8").read()
+    assert "Solution Architecture" in open(markdown_path, encoding="utf-8").read()
+    assert "Delivery Readiness" in open(markdown_path, encoding="utf-8").read()
+    assert "audit_api" in open(manifest_path, encoding="utf-8").read()
+    assert "harness_audit" in open(trace_path, encoding="utf-8").read()
+    summary = open(summary_path, encoding="utf-8").read()
+    assert "ShotForge Run Summary" in summary
+    assert "Harness Evidence" in summary
+    assert "State transitions" in summary
 
 
 def test_chinese_idea_is_preserved_in_storyboard_text(tmp_path, monkeypatch):

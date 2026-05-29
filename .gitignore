@@ -15,5 +15,11 @@ build/
 !.env.example
 data/runs/
 data/versions/
+data/knowledge_base.json
+data/memory.jsonl
 data/*.log
 *.log
+
+# Private local notes, plans, and drafts. Never commit this directory.
+_private/
+*.private.md
