@@ -36,13 +36,30 @@ def test_agent_harness_runtime_records_context_and_tool_calls(tmp_path, monkeypa
     assert state.solution_architecture is not None
     assert state.delivery_readiness is not None
     assert state.tool_call_records
+    assert state.tool_orchestration_records
     assert state.state_transitions
+    assert state.agent_contract_reports
+    assert state.workflow_decisions
     assert any(
         item.agent_name == "prompt_adapter_agent" and "prompts" in item.changed_fields
         for item in state.state_transitions
     )
+    assert all(item.precondition_status == "passed" for item in state.agent_contract_reports)
+    assert all(item.postcondition_status == "passed" for item in state.agent_contract_reports)
+    assert any(
+        decision.agent_name == "delivery_readiness_agent" and decision.decision == "review"
+        for decision in state.workflow_decisions
+    )
     assert all(item.invariant_status == "passed" for item in state.state_transitions)
     assert any(record.tool_name == "mock_llm.complete" for record in state.tool_call_records)
+    assert any(
+        record.requested_tool == "mock_llm.complete" and record.schema_status == "passed"
+        for record in state.tool_orchestration_records
+    )
+    assert any(
+        record.agent_name == "export_agent" and record.expected_output == "json package"
+        for record in state.tool_orchestration_records
+    )
     assert any(record.permission_scope == "local_file_write" for record in state.tool_call_records)
     assert all(snapshot.metadata.get("context_digest") for snapshot in state.harness_contexts)
     assert all(snapshot.metadata.get("agent_spec") for snapshot in state.harness_contexts)
@@ -148,6 +165,29 @@ def test_runtime_enforces_agent_tool_call_budget(tmp_path, monkeypatch):
         )
 
     assert any(record.tool_name == "agent_harness.tool_budget" for record in state.tool_call_records)
+
+
+def test_runtime_blocks_agent_when_contract_preconditions_fail(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    runtime = AgentHarnessRuntime()
+    state = ProjectState(user_idea="contract test", language="en")
+
+    with pytest.raises(PermissionError):
+        runtime.run_agent(
+            state,
+            "storyboard_agent",
+            lambda project: project,
+        )
+
+    assert state.agent_contract_reports[-1].agent_name == "storyboard_agent"
+    assert state.agent_contract_reports[-1].precondition_status == "failed"
+    assert "creative_intent" in state.agent_contract_reports[-1].missing_inputs
+    assert state.workflow_decisions[-1].decision == "block"
+    assert state.workflow_decisions[-1].severity == "critical"
 
 
 def test_memory_store_ranks_updates_and_promotes_runs(tmp_path):
@@ -300,6 +340,10 @@ def test_skill_registry_denies_unauthorized_tool_scope():
     assert record.permission_scope == "external_network"
     assert record.metadata["authorized"] is False
     assert record.metadata["risk_level"] == "high"
+    orchestration = registry.orchestration_records()[-1]
+    assert orchestration.status == "denied"
+    assert orchestration.authorization_decision == "denied"
+    assert "permission_scope_denied:external_network" in orchestration.authorization_reasons
 
 
 def test_skill_registry_records_authorized_tool_metadata():
@@ -315,3 +359,36 @@ def test_skill_registry_records_authorized_tool_metadata():
     assert records[0].metadata["purpose"] == "unit_test"
     assert records[1].metadata["authorized"] is False
     assert registry.call_counts()["local.echo"] == 1
+
+
+def test_skill_registry_schema_failure_can_fallback():
+    registry = SkillRegistry()
+    registry.register(
+        "primary.bad",
+        lambda value: 123,
+        input_schema={"required_arg_count": 1},
+        output_schema={"type": "str"},
+    )
+    registry.register(
+        "fallback.good",
+        lambda value: f"ok:{value}",
+        input_schema={"required_arg_count": 1},
+        output_schema={"type": "str"},
+    )
+
+    result = registry.call(
+        "primary.bad",
+        "demo",
+        agent_name="unit_agent",
+        expected_output="string result",
+        fallback_tools=["fallback.good"],
+    )
+
+    assert result == "ok:demo"
+    record = registry.orchestration_records()[-1]
+    assert record.status == "fallback_completed"
+    assert record.fallback_used is True
+    assert record.selected_tool == "fallback.good"
+    assert record.attempted_tools == ["primary.bad", "fallback.good"]
+    assert record.schema_status == "failed"
+    assert record.schema_issues

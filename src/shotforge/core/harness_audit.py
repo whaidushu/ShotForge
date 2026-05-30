@@ -10,7 +10,10 @@ def build_harness_audit(state: ProjectState | None) -> dict[str, Any]:
         return {
             "contexts": [],
             "tool_calls": [],
+            "tool_orchestration": [],
             "state_transitions": [],
+            "agent_contracts": [],
+            "workflow_decisions": [],
             "latest_context": {},
             "state_summary": {},
             "policies": {},
@@ -20,7 +23,12 @@ def build_harness_audit(state: ProjectState | None) -> dict[str, Any]:
         }
     contexts = [item.model_dump(mode="json") for item in state.harness_contexts]
     tool_calls = [item.model_dump(mode="json") for item in state.tool_call_records]
+    tool_orchestration = [
+        item.model_dump(mode="json") for item in state.tool_orchestration_records
+    ]
     state_transitions = [item.model_dump(mode="json") for item in state.state_transitions]
+    agent_contracts = [item.model_dump(mode="json") for item in state.agent_contract_reports]
+    workflow_decisions = [item.model_dump(mode="json") for item in state.workflow_decisions]
     latest_context = contexts[-1] if contexts else {}
     return {
         "project_id": state.project_id,
@@ -28,7 +36,10 @@ def build_harness_audit(state: ProjectState | None) -> dict[str, Any]:
         "version": state.version,
         "contexts": contexts,
         "tool_calls": tool_calls,
+        "tool_orchestration": tool_orchestration,
         "state_transitions": state_transitions,
+        "agent_contracts": agent_contracts,
+        "workflow_decisions": workflow_decisions,
         "latest_context": latest_context,
         "agent_topology": _agent_topology(contexts, state_transitions),
         "policies": {
@@ -40,7 +51,10 @@ def build_harness_audit(state: ProjectState | None) -> dict[str, Any]:
         "state_summary": {
             "trace_events": len(state.trace_logs),
             "tool_calls": len(state.tool_call_records),
+            "tool_orchestration": len(state.tool_orchestration_records),
             "state_transitions": len(state.state_transitions),
+            "agent_contracts": len(state.agent_contract_reports),
+            "workflow_decisions": len(state.workflow_decisions),
             "knowledge_refs": len(state.knowledge_refs),
             "memory_refs": len(state.memory_refs),
             "evaluations": len(state.evaluation_reports),

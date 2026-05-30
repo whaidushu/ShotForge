@@ -2,11 +2,22 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from shotforge.core.agent_contract import (
+    AgentContractRegistry,
+    build_default_agent_contract_registry,
+)
 from shotforge.core.agent_catalog import AgentCatalog
 from shotforge.core.context_builder import ContextBuilder
+from shotforge.core.harness_policy import HarnessStrategyPolicy
 from shotforge.core.project_state import ProjectState
-from shotforge.core.runtime_models import HarnessContextSnapshot, StateTransitionRecord, ToolCallRecord
+from shotforge.core.runtime_models import (
+    AgentContractReport,
+    HarnessContextSnapshot,
+    StateTransitionRecord,
+    ToolCallRecord,
+)
 from shotforge.core.trace_log import TraceLog
+from shotforge.core.workflow_controller import WorkflowController
 from shotforge.infra.mcp import LocalMCPAdapter, build_default_mcp_adapter
 from shotforge.infra.memory import LocalMemoryStore
 from shotforge.infra.policies import ExecutionPolicy
@@ -24,6 +35,9 @@ class AgentHarnessRuntime:
         mcp_adapter: LocalMCPAdapter | None = None,
         memory_store: LocalMemoryStore | None = None,
         agent_catalog: AgentCatalog | None = None,
+        contract_registry: AgentContractRegistry | None = None,
+        workflow_controller: WorkflowController | None = None,
+        harness_policy: HarnessStrategyPolicy | None = None,
     ):
         self.context_builder = context_builder or ContextBuilder()
         self.registry = registry or SkillRegistry()
@@ -32,6 +46,9 @@ class AgentHarnessRuntime:
         self.mcp_adapter = mcp_adapter or build_default_mcp_adapter()
         self.memory_store = memory_store or LocalMemoryStore()
         self.agent_catalog = agent_catalog
+        self.contract_registry = contract_registry or build_default_agent_contract_registry()
+        self.workflow_controller = workflow_controller or WorkflowController()
+        self.harness_policy = harness_policy or HarnessStrategyPolicy()
 
     def run_agent(
         self,
@@ -41,15 +58,78 @@ class AgentHarnessRuntime:
         tags: list[str] | None = None,
     ) -> ProjectState:
         with TraceLog(state).span("agent_harness_runtime", agent_name=agent_name):
+            precondition_report = self._evaluate_preconditions(state, agent_name)
             self._record_context(state, agent_name, tags=tags)
             before_record_count = len(self.registry.records())
+            before_orchestration_count = len(self.registry.orchestration_records())
             before_summary = self._state_summary(state)
             result = handler(state)
             self._record_state_transition(result, agent_name, before_summary)
+            contract_report = self._record_contract_report(
+                result,
+                agent_name,
+                precondition_report,
+            )
+            self._record_workflow_decision(result, agent_name, contract_report)
             self._enforce_tool_budget(result, agent_name, before_record_count)
             self._record_tool_calls(result, before_record_count)
+            self._record_tool_orchestration(result, before_orchestration_count)
             self._maybe_promote_memory(result, agent_name)
             return result
+
+    def _evaluate_preconditions(
+        self,
+        state: ProjectState,
+        agent_name: str,
+    ) -> AgentContractReport | None:
+        contract = self.contract_registry.get(agent_name)
+        if contract is None:
+            return None
+        report = contract.evaluate_preconditions(state)
+        if report.precondition_status == "failed" and self.harness_policy.enforce_preconditions:
+            state.agent_contract_reports.append(report)
+            state.workflow_decisions.append(
+                self.workflow_controller.decide(state, agent_name, report)
+            )
+            state.touch()
+            raise PermissionError(
+                f"Agent preconditions failed for {agent_name}: "
+                f"{', '.join(report.missing_inputs)}"
+            )
+        return report
+
+    def _record_contract_report(
+        self,
+        state: ProjectState,
+        agent_name: str,
+        precondition_report: AgentContractReport | None,
+    ) -> AgentContractReport | None:
+        contract = self.contract_registry.get(agent_name)
+        if contract is None or precondition_report is None:
+            return None
+        report = contract.evaluate(state, precondition_report)
+        if self.harness_policy.record_contract_reports:
+            state.agent_contract_reports.append(report)
+            state.touch()
+        if report.postcondition_status == "failed" and self.harness_policy.enforce_postconditions:
+            raise PermissionError(
+                f"Agent postconditions failed for {agent_name}: "
+                f"{', '.join(report.missing_outputs)}"
+            )
+        return report
+
+    def _record_workflow_decision(
+        self,
+        state: ProjectState,
+        agent_name: str,
+        contract_report: AgentContractReport | None,
+    ) -> None:
+        if not self.harness_policy.record_workflow_decisions:
+            return
+        state.workflow_decisions.append(
+            self.workflow_controller.decide(state, agent_name, contract_report)
+        )
+        state.touch()
 
     def _record_context(
         self,
@@ -115,6 +195,15 @@ class AgentHarnessRuntime:
     def _record_tool_calls(self, state: ProjectState, before_record_count: int) -> None:
         records = self.registry.records()[before_record_count:]
         state.tool_call_records.extend(records)
+        state.touch()
+
+    def _record_tool_orchestration(
+        self,
+        state: ProjectState,
+        before_orchestration_count: int,
+    ) -> None:
+        records = self.registry.orchestration_records()[before_orchestration_count:]
+        state.tool_orchestration_records.extend(records)
         state.touch()
 
     def _enforce_tool_budget(
@@ -191,6 +280,9 @@ class AgentHarnessRuntime:
             "evaluations": len(state.evaluation_reports),
             "exports": len(state.exports),
             "trace_logs": len(state.trace_logs),
+            "tool_orchestration_records": len(state.tool_orchestration_records),
+            "agent_contract_reports": len(state.agent_contract_reports),
+            "workflow_decisions": len(state.workflow_decisions),
         }
 
     def _invariant_issues(self, state: ProjectState, agent_name: str) -> list[str]:

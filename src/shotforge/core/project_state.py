@@ -7,9 +7,12 @@ from uuid import uuid4
 from pydantic import AliasChoices, BaseModel, Field
 
 from shotforge.core.runtime_models import (
+    AgentContractReport,
     HarnessContextSnapshot,
     StateTransitionRecord,
     ToolCallRecord,
+    ToolOrchestrationRecord,
+    WorkflowDecisionRecord,
 )
 
 
@@ -484,8 +487,11 @@ class ProjectState(BaseModel):
     exports: list[ExportArtifact] = Field(default_factory=list)
     trace_logs: list[TraceEvent] = Field(default_factory=list)
     tool_call_records: list[ToolCallRecord] = Field(default_factory=list)
+    tool_orchestration_records: list[ToolOrchestrationRecord] = Field(default_factory=list)
     harness_contexts: list[HarnessContextSnapshot] = Field(default_factory=list)
     state_transitions: list[StateTransitionRecord] = Field(default_factory=list)
+    agent_contract_reports: list[AgentContractReport] = Field(default_factory=list)
+    workflow_decisions: list[WorkflowDecisionRecord] = Field(default_factory=list)
     knowledge_refs: list[str] = Field(default_factory=list)
     memory_refs: list[str] = Field(default_factory=list)
     review_notes: list[str] = Field(default_factory=list)

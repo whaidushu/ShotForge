@@ -14,7 +14,13 @@ def intent_agent(
 ) -> ProjectState:
     with TraceLog(state).span("intent_agent"):
         context = context_builder.build(state, "Intent Agent", ["cinematic", "visual"])
-        completion = registry.call("mock_llm.complete", context.as_prompt(), purpose="intent")
+        completion = registry.call(
+            "mock_llm.complete",
+            context.as_prompt(),
+            purpose="intent",
+            agent_name="intent_agent",
+            expected_output="creative intent draft",
+        )
         lower_idea = state.user_idea.lower()
         genre = "sci-fi" if any(term in lower_idea for term in ["ai", "cyber", "赛博"]) else state.style
         mood_key = (

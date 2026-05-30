@@ -30,6 +30,8 @@ def solution_architect_agent(
             "mock_llm.complete",
             context.as_prompt(),
             purpose="solution_architecture",
+            agent_name="solution_architect_agent",
+            expected_output="solution architecture assumptions",
         )
         industry, scenario = _infer_industry_and_scenario(state.user_idea, state.language)
         playbook = SolutionPlaybookStore().find_for_industry(_canonical_industry(industry))

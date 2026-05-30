@@ -26,7 +26,10 @@ def delivery_readiness_agent(
             _state_schema_check(state),
             _context_observability_check(state),
             _tool_policy_check(state),
+            _tool_orchestration_check(state),
             _state_transition_check(state),
+            _agent_contract_check(state),
+            _workflow_decision_check(state),
             _context_safety_check(state),
             _mcp_capability_check(state),
             _memory_strategy_check(state),
@@ -86,6 +89,25 @@ def _tool_policy_check(state: ProjectState) -> ReadinessCheck:
     )
 
 
+def _tool_orchestration_check(state: ProjectState) -> ReadinessCheck:
+    failed = [
+        record
+        for record in state.tool_orchestration_records
+        if record.status in {"failed", "denied", "fallback_failed"}
+    ]
+    fallback_used = [record for record in state.tool_orchestration_records if record.fallback_used]
+    return ReadinessCheck(
+        check_id="tool_orchestration",
+        category="Tool Orchestration",
+        status="passed" if state.tool_orchestration_records and not failed else "warning",
+        evidence=(
+            f"{len(state.tool_orchestration_records)} tool plans, "
+            f"failed={len(failed)}, fallback_used={len(fallback_used)}"
+        ),
+        remediation="Review denied tools, schema failures, and fallback outcomes before pilot.",
+    )
+
+
 def _state_transition_check(state: ProjectState) -> ReadinessCheck:
     warnings = [
         issue
@@ -98,6 +120,32 @@ def _state_transition_check(state: ProjectState) -> ReadinessCheck:
         status="passed" if state.state_transitions and not warnings else "warning",
         evidence=f"{len(state.state_transitions)} transitions, issues={len(warnings)}",
         remediation="Review state transition warnings before pilot handoff.",
+    )
+
+
+def _agent_contract_check(state: ProjectState) -> ReadinessCheck:
+    failed = [
+        report
+        for report in state.agent_contract_reports
+        if "failed" in {report.precondition_status, report.postcondition_status}
+    ]
+    return ReadinessCheck(
+        check_id="agent_contracts",
+        category="Agent Harness",
+        status="passed" if state.agent_contract_reports and not failed else "warning",
+        evidence=f"{len(state.agent_contract_reports)} contract reports, failed={len(failed)}",
+        remediation="Review failed agent contracts before pilot handoff.",
+    )
+
+
+def _workflow_decision_check(state: ProjectState) -> ReadinessCheck:
+    critical = [decision for decision in state.workflow_decisions if decision.severity == "critical"]
+    return ReadinessCheck(
+        check_id="workflow_decisions",
+        category="Workflow Routing",
+        status="passed" if state.workflow_decisions and not critical else "warning",
+        evidence=f"{len(state.workflow_decisions)} routing decisions, critical={len(critical)}",
+        remediation="Resolve critical workflow routing decisions before export.",
     )
 
 

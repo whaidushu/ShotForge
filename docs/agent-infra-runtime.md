@@ -9,24 +9,29 @@ This is a v0 implementation. It is intentionally local-first and testable.
 | Component | Current Capability | Production Boundary | Evidence |
 |---|---|---|---|
 | Context Engineering | Each agent receives a built context from project state and knowledge sources | Replaceable retrieval and memory sources | `HarnessContextSnapshot` |
-| Tool Orchestration | `SkillRegistry` records skill calls, latency, status, and permission scope | Replaceable tool registry and stricter permission policy | `ToolCallRecord` |
+| Tool Orchestration | `SkillRegistry` records skill calls, latency, permission scope, tool plan, schema status, and fallback outcome | Replaceable tool registry and stricter permission policy | `ToolCallRecord`, `ToolOrchestrationRecord` |
 | MCP Adapter | Local MCP-like tool/resource adapter exposes knowledge search and run package access | Official MCP transport can replace adapter | `LocalMCPAdapter` |
 | Sandbox | Local command sandbox enforces allowlist, timeout, cwd, and dry-run policy | Docker/container isolation planned | `LocalSandboxRunner` |
 | Memory | JSONL local memory store supports cross-run searchable records | Redis/SQLite/vector memory can replace store | `LocalMemoryStore` |
 | Runtime Policy | Execution and sandbox policy are captured per agent context | Policy can be customer/project specific | `ExecutionPolicy`, `SandboxPolicy` |
 | Agent Catalog | Agents have explicit roles, IO contracts, dependencies, skills, tags, and extension points | Dynamic registry and marketplace-style agent loading can replace static catalog | `AgentSpec`, `AgentCatalog` |
+| Agent Contracts | Runtime validates agent preconditions and postconditions around every known agent | Contract severity, repair strategy, and human approval can become customer policy | `AgentContractReport` |
+| Workflow Routing | Runtime records route decisions such as continue, review, repair, block, and complete | LangGraph conditional edges can consume these decisions directly | `WorkflowDecisionRecord` |
 | State Transitions | Runtime records before/after summaries, changed fields, and invariants for every agent | Stronger schema-level validation and rollback can be added | `StateTransitionRecord` |
 
 ## Runtime Flow
 
 ```text
 Agent node starts
+  -> AgentHarnessRuntime validates agent preconditions
   -> AgentHarnessRuntime builds ranked/budgeted context
   -> runtime records knowledge refs, memory hits, available skills, MCP tools, policies, agent spec
   -> agent handler runs
+  -> runtime validates agent output contract
   -> SkillRegistry records tool calls
   -> runtime records state transition and invariants
-  -> ProjectState stores trace, context snapshot, tool call records, and transition records
+  -> runtime records workflow routing decision
+  -> ProjectState stores trace, context snapshot, tool calls, contracts, routing, and transitions
 ```
 
 ## Why This Matters
@@ -38,16 +43,21 @@ The target solution-architect scenario is not only about generating text or vide
 - Which tools were called.
 - What safety policy constrained execution.
 - Whether memory or knowledge sources influenced the answer.
+- Whether each agent satisfied its input/output contract.
+- What the harness recommended after each agent step.
 - How the run can be audited after execution.
 
 ShotForge stores this evidence in `ProjectState`:
 
 - `harness_contexts`
 - `tool_call_records`
+- `tool_orchestration_records`
 - `knowledge_refs`
 - `memory_refs`
 - `trace_logs`
 - `state_transitions`
+- `agent_contract_reports`
+- `workflow_decisions`
 
 The same evidence is available through:
 
@@ -57,6 +67,30 @@ shotforge audit data/runs/{run_id}/package.json
 ```
 
 This gives a reviewer a compact audit view without opening internal code.
+
+## Agent Contract Strategy v1
+
+`AgentContract` defines explicit runtime expectations for each known agent:
+
+- required inputs, such as `creative_intent` before `storyboard_agent`
+- required outputs, such as `shots.motion` after `motion_agent`
+- cross-field conditions, such as audio cue count matching shot count
+- blocking preconditions before an agent can run
+- advisory postconditions that can trigger repair routing
+
+This changes the main pipeline from a blind function chain into a governed execution path. If a downstream agent is invoked before upstream state exists, the runtime records a failed `AgentContractReport`, emits a `block` workflow decision, and raises before the agent mutates state.
+
+## Workflow Decision Strategy v1
+
+`WorkflowController` records an advisory decision after each agent:
+
+- `continue` for the normal static route
+- `review` when delivery readiness warns or fails
+- `repair` when an agent output contract fails
+- `block` when preconditions fail
+- `complete` after export
+
+The current LangGraph path still runs as a deterministic POC flow, but these records are the strategy surface for the next step: conditional graph edges that consume routing decisions instead of hard-coded linear edges.
 
 ## MCP v0
 
@@ -130,6 +164,48 @@ This makes the context supplied to each agent reproducible and reviewable.
 - high-risk approval policy
 
 Denied tool calls are recorded as failed `ToolCallRecord` entries with authorization metadata.
+
+## Tool Orchestration v3
+
+`SkillRegistry` now acts as a lightweight tool orchestrator, not just a function registry. Each tool call can carry:
+
+- `agent_name`
+- `purpose`
+- `expected_output`
+- `fallback_tools`
+- `tool_plan_id`
+
+The registry records a `ToolOrchestrationRecord` for every planned call:
+
+- requested tool
+- selected tool
+- attempted tools
+- authorization decision and reasons
+- schema status and schema issues
+- fallback usage and outcome
+- policy snapshot
+
+The current schema validation is intentionally simple and local-first:
+
+- input schema can require positional argument count
+- input schema can require keyword names
+- output schema can validate primitive return type
+
+This is enough to demonstrate the harness strategy boundary without locking the POC into a specific external tool framework. Later production adapters can replace this with JSON Schema, Pydantic models, OpenAPI tool contracts, or MCP tool schemas.
+
+Example behavior:
+
+```text
+primary tool planned
+  -> policy authorization
+  -> input schema validation
+  -> tool execution
+  -> output schema validation
+  -> fallback if enabled and primary fails
+  -> orchestration record stored in ProjectState
+```
+
+This gives the reviewer a concrete answer to "how are skills orchestrated?" instead of only seeing a list of callable functions.
 
 ## JD Alignment
 

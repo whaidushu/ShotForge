@@ -180,6 +180,22 @@ def audit(
         tools.add_row(item["tool_name"], item["status"], item["permission_scope"])
     console.print(tools)
 
+    tool_plans = Table(title="Tool Orchestration")
+    tool_plans.add_column("Requested")
+    tool_plans.add_column("Selected")
+    tool_plans.add_column("Status")
+    tool_plans.add_column("Schema")
+    tool_plans.add_column("Fallback")
+    for item in report.get("tool_orchestration", []):
+        tool_plans.add_row(
+            item["requested_tool"],
+            item["selected_tool"],
+            item["status"],
+            item["schema_status"],
+            str(item["fallback_used"]),
+        )
+    console.print(tool_plans)
+
     transitions = Table(title="State Transitions")
     transitions.add_column("Agent")
     transitions.add_column("Status")
@@ -193,6 +209,35 @@ def audit(
             ", ".join(item["invariant_issues"]) or "none",
         )
     console.print(transitions)
+
+    contracts = Table(title="Agent Contracts")
+    contracts.add_column("Agent")
+    contracts.add_column("Pre")
+    contracts.add_column("Post")
+    contracts.add_column("Missing", overflow="fold")
+    for item in report.get("agent_contracts", []):
+        missing = ", ".join(item.get("missing_inputs", []) + item.get("missing_outputs", []))
+        contracts.add_row(
+            item["agent_name"],
+            item["precondition_status"],
+            item["postcondition_status"],
+            missing or "none",
+        )
+    console.print(contracts)
+
+    decisions = Table(title="Workflow Decisions")
+    decisions.add_column("Agent")
+    decisions.add_column("Decision")
+    decisions.add_column("Next")
+    decisions.add_column("Reason", overflow="fold")
+    for item in report.get("workflow_decisions", []):
+        decisions.add_row(
+            item["agent_name"],
+            item["decision"],
+            str(item.get("next_agent") or "none"),
+            item.get("reason", ""),
+        )
+    console.print(decisions)
 
 
 @app.command()

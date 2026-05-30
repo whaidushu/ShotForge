@@ -30,6 +30,8 @@ def build_default_registry() -> SkillRegistry:
         description="Deterministic local mock LLM completion.",
         permission_scope="local_inference",
         risk_level="low",
+        input_schema={"required_arg_count": 1, "required_kwargs": ["purpose"]},
+        output_schema={"type": "str"},
     )
     registry.register(
         "export.json",
