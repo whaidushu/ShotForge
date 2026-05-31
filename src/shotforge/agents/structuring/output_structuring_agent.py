@@ -83,6 +83,39 @@ class OutputStructuringAgent:
             )
             prompt.prompt = self._append(prompt.prompt, str(operation.value))
             return
+        if operation.operation_type == "append_negative_prompt":
+            prompt = next(
+                item for item in state.prompt_package.prompts if item.shot_id == operation.target_id
+            )
+            prompt.negative_prompt = self._append_comma_list(
+                prompt.negative_prompt,
+                str(operation.value),
+            )
+            return
+        if operation.operation_type == "append_structured_template_text":
+            prompt = next(
+                item for item in state.prompt_package.prompts if item.shot_id == operation.target_id
+            )
+            if prompt.structured_template is not None:
+                field_name = operation.field_path.rsplit(".", 1)[-1]
+                current = getattr(prompt.structured_template, field_name, "")
+                if isinstance(current, str):
+                    setattr(prompt.structured_template, field_name, self._append(current, str(operation.value)))
+            return
+        if operation.operation_type == "append_structured_template_list":
+            prompt = next(
+                item for item in state.prompt_package.prompts if item.shot_id == operation.target_id
+            )
+            if prompt.structured_template is not None:
+                field_name = operation.field_path.rsplit(".", 1)[-1]
+                current = getattr(prompt.structured_template, field_name, None)
+                if isinstance(current, list):
+                    values = operation.value if isinstance(operation.value, list) else [str(operation.value)]
+                    for value in values:
+                        text = str(value).strip()
+                        if text and text not in current:
+                            current.append(text)
+            return
         if operation.operation_type == "append_scene_description":
             scene = next(item for item in state.scenes if item.scene_id == operation.target_id)
             scene.description = self._append(scene.description, str(operation.value))
@@ -143,6 +176,14 @@ class OutputStructuringAgent:
         if note in current:
             return current
         return f"{current} {note}".strip()
+
+    def _append_comma_list(self, current: str, note: str) -> str:
+        existing = [part.strip() for part in current.split(",") if part.strip()]
+        additions = [part.strip() for part in note.split(",") if part.strip()]
+        for addition in additions:
+            if addition not in existing:
+                existing.append(addition)
+        return ", ".join(existing)
 
     def _explanation(
         self,

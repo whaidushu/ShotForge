@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from shotforge.core.context_builder import ContextBuilder
+from shotforge.core.physical_targets import physical_contract_text, required_element_labels
 from shotforge.core.project_state import (
     ProjectState,
     PromptItem,
@@ -21,6 +22,12 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
                 for character in state.characters
             ]
         )
+        physical_targets = state.metadata.get("physical_targets") or {}
+        target_contract = str(
+            physical_targets.get("prompt_contract")
+            or physical_contract_text(physical_targets.get("targets", []))
+        )
+        required_elements = required_element_labels(physical_targets)
         for shot in state.shots:
             motion = shot.motion
             audio = next(item for item in state.audio_cues if item.shot_id == shot.shot_id)
@@ -29,6 +36,13 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
             structured_template = StructuredPromptTemplate(
                 character_identity=character_identity,
                 scene_constraints=f"{scene.title}: {scene.description}",
+                physical_constraints=[
+                    target_contract,
+                    f"MANDATORY VISIBLE ELEMENTS: {', '.join(required_elements)}.",
+                    "Keep the exact requested subject count; do not duplicate or drop primary subjects.",
+                    "Preserve named colors, materials, props, and scene anchors.",
+                    f"Required visible elements: {', '.join(shot.key_visuals)}",
+                ],
                 action_sequence=shot.description,
                 emotional_direction=scene.emotional_goal,
                 camera_direction=shot.shot_type,
@@ -36,6 +50,7 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
                 narrative_beat=f"{', '.join(shot.key_visuals)}. Audio: {audio.music}",
                 style_constraints=f"{state.style}, {state.target_platform}, 16:9",
                 success_criteria=[
+                    f"all mandatory physical targets are visible: {', '.join(required_elements)}",
                     "primary subject is visible",
                     "main action is readable",
                     "camera, motion, and audio cues align with the beat",
@@ -50,8 +65,16 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
             prompts.append(
                 PromptItem(
                     shot_id=shot.shot_id,
-                    prompt=_render_legacy_prompt(state, shot, motion_text, audio.music),
+                    prompt=_render_legacy_prompt(
+                        state,
+                        shot,
+                        motion_text,
+                        audio.music,
+                        target_contract,
+                        required_elements,
+                    ),
                     structured_template=structured_template,
+                    negative_prompt=_negative_prompt(required_elements),
                     parameters={
                         "duration_seconds": shot.duration_seconds,
                         "aspect_ratio": "16:9",
@@ -68,11 +91,39 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
     return state
 
 
-def _render_legacy_prompt(state: ProjectState, shot, motion_text: str, audio_music: str) -> str:
+def _render_legacy_prompt(
+    state: ProjectState,
+    shot,
+    motion_text: str,
+    audio_music: str,
+    target_contract: str,
+    required_elements: list[str],
+) -> str:
     return (
+        f"{target_contract} "
+        f"MANDATORY VISIBLE ELEMENTS: {', '.join(required_elements)}. "
         f"{shot.description}. {shot.shot_type}, {motion_text}. "
         f"{t(state.language, 'prompt_visual_style')}: {state.style}. "
         f"{t(state.language, 'prompt_key_visuals')}: "
         f"{', '.join(shot.key_visuals)}. "
         f"{t(state.language, 'prompt_audio_intent')}: {audio_music}."
+    )
+
+
+def _negative_prompt(required_elements: list[str]) -> str:
+    missing_terms = [
+        f"missing {element}"
+        for element in required_elements
+    ]
+    return ", ".join(
+        [
+            "low quality",
+            "distorted anatomy",
+            "unreadable text",
+            "flicker",
+            "missing primary subject",
+            "missing required object",
+            "missing location",
+            *missing_terms,
+        ]
     )

@@ -6,7 +6,12 @@ from shotforge.agents.structuring import OutputStructuringAgent
 from shotforge.core.project_state import CorrectionPatch, EvaluationReport, ProjectState
 from shotforge.core.regression_check import RegressionCheckBuilder, ScoreDeltaBuilder
 from shotforge.core.trace_log import TraceLog
-from shotforge.workflows.evaluation_workflow import run_evaluation, run_generation, run_verification
+from shotforge.workflows.evaluation_workflow import (
+    observe_generation,
+    run_evaluation,
+    run_generation,
+    run_verification,
+)
 from shotforge.workflows.redesign_planning_workflow import run_redesign_planning
 
 
@@ -56,6 +61,7 @@ def run_redesign(
                 state.metadata.get("generator_provider_id", "mock")
             )
             generated_result = run_generation(next_state, provider_id=active_provider_id)
+            observe_generation(next_state, generated_result)
             run_verification(next_state, generated_result)
             after_report = run_evaluation(
                 next_state,

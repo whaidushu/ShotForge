@@ -65,3 +65,71 @@
 先在 `StructuredPromptTemplate` 增加字段，再在 `prompt_adapter_agent.py` 初始化该字段，最后让 rubric 里的维度通过 `prompt_fields` 指向它。这样 Evaluation → Issue → RedesignPlan → CorrectionPlan 都能携带字段定位。
 
 后续可以把 `CorrectionOperation` 从当前的 append 型操作升级为字段级替换、合并和保护策略，接口已经通过 `field_path` 和 `prompt_fields` 预留了方向。
+## Physical Effect Layer
+
+The first convergence layer is now `physical_effect`. It is intentionally strict and checks directly observable facts before style or narrative optimization:
+
+- `subject_count`: requested primary subject count is preserved.
+- `color_alignment`: named colors and visible color attributes are preserved.
+- `element_presence`: required props, scene anchors, and visual elements are present.
+- `element_description`: physical attributes are concrete enough to generate and evaluate.
+
+The evaluator is `physical_effect_static`. It reads `GeneratedShotResult.detected_elements` and `observed_summary` when a provider or future CV/VLM observer supplies them. If no visual observation is available, it falls back to the structured prompt as a proxy and records `visual_observation_missing=true` in signal metadata. This keeps the framework usable today while leaving a clean replacement point for real frame/video inspection.
+# Current Layer Model
+
+ShotForge now uses a from-real-to-abstract convergence order:
+
+| Layer | layer_id | Responsibility |
+| --- | --- | --- |
+| L0 | `physical_effect` | Single-shot physical facts: subject count, object existence, required elements, concrete element descriptions. |
+| L1 | `frame_consistency` | Single-shot frame-to-frame stability now; multi-shot continuity later. Covers element drift, action drift, and face/identity drift. |
+| L2 | `style_color` | Color alignment, visual style, and camera language after facts and consistency are stable. |
+| L3 | `emotion_atmosphere` | Emotion, atmosphere, reveal/reversal, audio timing, and other soft expressive goals. |
+| L4 | `prompt_execution` | Prompt completeness and executability, checked throughout as a technical support layer. |
+
+The current product flow starts with one generated shot. Future multi-shot support should reuse the same layer ids and add shot-level observations beside frame-level observations instead of changing `EvaluationReport`.
+
+`FrameConsistencyEvaluator` reads future-ready `GeneratedShotResult.metadata.frame_observations`:
+
+```json
+[
+  {
+    "frame_index": 0,
+    "detected_elements": ["woman", "red umbrella"],
+    "face_identity": "woman_a",
+    "action_summary": "woman lifting umbrella"
+  }
+]
+```
+
+If frame observations are missing, the evaluator emits a single-shot baseline signal with `single_shot_mode=true` and `frame_observation_missing=true`; this keeps today's single-shot flow stable while reserving the interface for real frame/VLM inspection.
+
+## Observation Pipeline
+
+Generated videos are observed before verification and evaluation:
+
+```text
+Generate video -> extract frames -> observe frames -> write frame_observations -> evaluate consistency
+```
+
+The implementation lives in `shotforge.observation`:
+
+- `VideoFrameExtractor`: uses local `ffmpeg` when available to extract sampled frames from a generated MP4.
+- `HeuristicFrameObserver`: fills frame observations from prompt/package context when no VLM is connected yet.
+- `VLMFrameObserver`: adapts external frame descriptions into `FrameObservation`.
+- `observation.providers`: selects prompt-proxy, OpenAI-compatible vision, Ollama vision, or vLLM VLM providers from runtime configuration.
+- `VideoObservationService`: updates each `GeneratedShotResult.metadata.frame_observations` before evaluators run.
+
+This is intentionally single-shot first. Multi-shot support should add shot-level or sequence-level observations alongside the existing per-shot `frame_observations`.
+
+## Physical Target Contract
+
+The physical layer now extracts hard targets from the user idea before prompt generation. A request such as `A cyber cat chases a glowing drone across rainy Shanghai rooftops` becomes a target contract containing:
+
+- required elements: cyber cat, glowing drone, Shanghai, rooftop, rainy night
+- action: chasing
+- subject count: one primary subject
+
+These targets are injected into creative intent, storyboard key visuals, structured prompt fields, success criteria, and negative prompts. During evaluation, missing observed elements become low-layer issues so the redesign loop corrects physical facts before abstract style or mood.
+
+`prompt-proxy` keeps the loop runnable when no visual model is configured, but real improvement should use an observer provider that inspects frames from the rendered video.

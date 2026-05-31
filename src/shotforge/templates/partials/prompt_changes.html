@@ -1,0 +1,36 @@
+<article class="surface">
+  <div class="rail-title">
+    <h3>{{ ui.prompt_changes_title }}</h3>
+    {% if prompt_changes %}<span class="badge">{{ prompt_changes | length }}</span>{% endif %}
+  </div>
+  {% if prompt_changes %}
+    <div class="timeline">
+      {% for change in prompt_changes[:3] %}
+        <div class="timeline-row">
+          <div class="metric-strip">
+            <div class="metric"><strong>Version</strong><span>{{ change.version }}</span></div>
+            <div class="metric"><strong>Change</strong><span>{{ change.change_type }}</span></div>
+          </div>
+          <p class="muted">{{ change.path }}</p>
+          <div class="prompt-change">
+            <div class="prompt-side">
+              <strong>{{ ui.version_diff_before }}</strong>
+              <pre>{{ change.before if change.before else "n/a" }}</pre>
+            </div>
+            <div class="prompt-side">
+              <strong>{{ ui.version_diff_after }}</strong>
+              <pre>{{ change.after }}</pre>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-preview">
+      <div>
+        <strong>{{ ui.empty_prompt_title }}</strong>
+        <p>{{ ui.empty_prompt_body }}</p>
+      </div>
+    </div>
+  {% endif %}
+</article>

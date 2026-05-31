@@ -15,8 +15,11 @@ build/
 !.env.example
 data/runs/
 data/versions/
+data/*-runs/
+data/*-versions/
 data/knowledge_base.json
 data/memory.jsonl
+data/provider_profiles.json
 data/*.log
 *.log
 

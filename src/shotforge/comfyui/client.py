@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import time
 from typing import Any
+from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from uuid import uuid4
@@ -54,9 +55,19 @@ class ComfyUIClient:
     def download_file(self, filename: str, subfolder: str = "", file_type: str = "output") -> bytes:
         query = urlencode({"filename": filename, "subfolder": subfolder, "type": file_type})
         request = Request(f"{self.base_url}/view?{query}", method="GET")
-        with urlopen(request, timeout=60) as response:
-            return response.read()
+        try:
+            with urlopen(request, timeout=60) as response:
+                return response.read()
+        except (OSError, URLError, TimeoutError) as exc:
+            raise ConnectionError(
+                f"ComfyUI is not reachable at {self.base_url}. Failed request: {request.full_url}. {exc}"
+            ) from exc
 
     def _read_json(self, request: Request) -> dict[str, Any]:
-        with urlopen(request, timeout=30) as response:
-            return json.loads(response.read().decode("utf-8"))
+        try:
+            with urlopen(request, timeout=30) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except (OSError, URLError, TimeoutError) as exc:
+            raise ConnectionError(
+                f"ComfyUI is not reachable at {self.base_url}. Failed request: {request.full_url}. {exc}"
+            ) from exc

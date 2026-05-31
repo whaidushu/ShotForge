@@ -16,7 +16,7 @@ ToolRiskLevel = Literal["low", "medium", "high"]
 
 class ToolExecutionPolicy(BaseModel):
     allowed_permission_scopes: set[str] = Field(
-        default_factory=lambda: {"local", "local_inference", "local_file_write"}
+        default_factory=lambda: {"local", "local_inference", "external_llm", "local_file_write"}
     )
     max_total_calls: int = 100
     max_calls_per_tool: int = 20

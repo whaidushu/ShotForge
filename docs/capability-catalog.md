@@ -13,6 +13,7 @@ The catalog includes:
 - MCP/Sandbox/Memory/Knowledge Base capabilities
 - generator provider catalog
 - LLM provider catalog
+- visual observer provider catalog
 - packaged industry playbooks
 - supported export formats
 - main API routes
@@ -26,7 +27,9 @@ Important sections:
 - `infra`: MCP, sandbox, memory, and knowledge capabilities.
 - `generator_providers`: available and planned video generation adapters.
 - `llm_providers`: available and planned LLM adapters.
+- `observer_providers`: prompt-proxy and VLM-backed frame observers exposed through `/api/observer-providers`.
 - `playbooks`: reusable industry scenario assets.
+- `api_routes`: run creation, package-view retrieval, run status, provider profiles, observer providers, ComfyUI workflow discovery, preflight, internal test chain, exports, and artifact download routes.
 
 Example:
 
@@ -40,4 +43,6 @@ CLI:
 shotforge capabilities
 ```
 
-The provider catalog intentionally includes unavailable planned providers. This helps explain model selection strategy while keeping the POC safe and local-first by default.
+The provider catalog intentionally includes unavailable planned providers. User-facing provider selectors hide the internal test provider by default; `/api/test-chain` is the explicit deployment diagnostic path for exercising that provider.
+
+Visual observer providers are intentionally separate from LLM and video providers. The LLM provider evaluates or rewrites text, the video provider renders MP4 artifacts, and the observer provider inspects frames so physical and consistency evaluators can compare the requested targets against visible output.

@@ -1,6 +1,13 @@
 from __future__ import annotations
 
-from shotforge.agents.correction._helpers import localized_note, operation, target_issues, target_shot_ids
+from shotforge.agents.correction._helpers import (
+    effect_contracts_for_shot,
+    localized_note,
+    negative_constraints_for_issues,
+    operation,
+    target_issues,
+    target_shot_ids,
+)
 from shotforge.agents.correction.base import CorrectionAgent
 from shotforge.core.project_state import CorrectionPatch, CorrectionPlan, ProjectState
 
@@ -11,16 +18,43 @@ class PromptCorrectionAgent(CorrectionAgent):
 
     def apply(self, state: ProjectState, plan: CorrectionPlan, target_version: int) -> CorrectionPatch:
         issues = target_issues(state, plan)
-        operations = [
-            operation(
-                "append_prompt_text",
-                shot_id,
-                f"prompt_package.prompts[{shot_id}].prompt",
-                self._prompt_addendum(state, shot_id),
-                plan.correction_strategy,
+        operations = []
+        for shot_id in target_shot_ids(state, plan):
+            shot_issues = [issue for issue in issues if issue.shot_id == shot_id]
+            contracts = effect_contracts_for_shot(shot_issues, shot_id, state.language)
+            addendum = " ".join([self._prompt_addendum(state, shot_id), *contracts]).strip()
+            operations.append(
+                operation(
+                    "append_prompt_text",
+                    shot_id,
+                    f"prompt_package.prompts[{shot_id}].prompt",
+                    addendum,
+                    plan.correction_strategy,
+                    metadata={"effect_contract": bool(contracts)},
+                )
             )
-            for shot_id in target_shot_ids(state, plan)
-        ]
+            if contracts:
+                operations.append(
+                    operation(
+                        "append_structured_template_list",
+                        shot_id,
+                        f"prompt_package.prompts[{shot_id}].structured_template.success_criteria",
+                        contracts,
+                        plan.correction_strategy,
+                        metadata={"effect_contract": True},
+                    )
+                )
+            negative = negative_constraints_for_issues(shot_issues)
+            if negative:
+                operations.append(
+                    operation(
+                        "append_negative_prompt",
+                        shot_id,
+                        f"prompt_package.prompts[{shot_id}].negative_prompt",
+                        negative,
+                        plan.correction_strategy,
+                    )
+                )
         return CorrectionPatch(
             plan_id=plan.plan_id,
             agent_name=self.agent_name,

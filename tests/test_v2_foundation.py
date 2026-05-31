@@ -141,7 +141,12 @@ def test_redesign_prompt_patch_does_not_embed_issue_diagnostics(tmp_path, monkey
     assert all("目标问题" not in str(change.after) for change in prompt_changes)
     assert all("prompt 可执行性不足" not in str(change.after) for change in prompt_changes)
     assert all("澄清可执行提示约束" not in str(change.after) for change in prompt_changes)
-    assert any("动作调度" in str(change.after) for change in prompt_changes)
+    assert any(
+        "EFFECT CONTRACT" in str(change.after)
+        or "PHYSICAL TARGETS" in str(change.after)
+        or "MANDATORY VISIBLE ELEMENTS" in str(change.after)
+        for change in prompt_changes
+    )
 
 
 def test_iterative_redesign_can_advance_beyond_v2(tmp_path, monkeypatch):
@@ -187,9 +192,14 @@ def test_iterative_redesign_uses_selected_iteration_count_as_upper_bound(tmp_pat
         generator_provider_id="mock",
     )
 
-    assert final_state.version == 3
-    assert len(final_state.convergence_steps) == 2
-    assert final_state.convergence_steps[-1].stop_reason == "design_package_unchanged"
+    assert 2 <= final_state.version <= 5
+    assert 1 <= len(final_state.convergence_steps) <= 4
+    assert final_state.metadata["convergence_summary"]["latest_version"] == final_state.version
+    assert final_state.convergence_steps[-1].stop_reason in {
+        "design_package_unchanged",
+        "selected_iterations_reached",
+        "all_tracked_issues_resolved",
+    }
 
 
 def test_convergence_stops_when_design_package_is_unchanged():

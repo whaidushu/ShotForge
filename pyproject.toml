@@ -52,7 +52,11 @@ where = ["src"]
 [tool.setuptools.package-data]
 shotforge = [
   "templates/*.html",
+  "templates/partials/*.html",
   "templates/*.md.j2",
+  "app/web/static/*.css",
+  "app/web/static/*.js",
+  "app/web/static/*.md",
   "knowledge/*.json",
   "i18n/locales/*.json",
   "comfyui/workflows/*.json",

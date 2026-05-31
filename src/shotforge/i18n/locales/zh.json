@@ -154,28 +154,85 @@
       "sound_design": "声音设计",
       "prompt": "提示词",
       "trace": "执行链路",
-      "solution_architecture": "??????",
-      "industry": "??",
-      "scenario": "??",
-      "business_objective": "????",
-      "model_strategy": "????",
-      "agent_components": "Agent ??",
-      "poc_success_criteria": "POC ????",
-      "rollout_plan": "????",
-      "value_metrics": "????",
-      "delivery_readiness": "?????",
-      "overall_status": "????",
-      "readiness_checks": "?????",
-      "handoff_deliverables": "????",
-      "next_actions": "?????",
-      "knowledge_assets": "????",
-      "scenario_patterns": "????",
-      "evaluation_metrics": "????"
+      "solution_architecture": "解决方案架构",
+      "industry": "行业",
+      "scenario": "场景",
+      "business_objective": "业务目标",
+      "model_strategy": "模型策略",
+      "agent_components": "Agent 组件",
+      "poc_success_criteria": "POC 成功标准",
+      "rollout_plan": "上线计划",
+      "value_metrics": "价值指标",
+      "delivery_readiness": "交付就绪度",
+      "overall_status": "整体状态",
+      "readiness_checks": "就绪检查",
+      "handoff_deliverables": "交付物",
+      "next_actions": "下一步行动",
+      "knowledge_assets": "知识资产",
+      "scenario_patterns": "场景模式",
+      "evaluation_metrics": "评测指标"
     }
   },
   "web": {
     "header": {
-      "subtitle": "面向 AI 视频创作的 Evaluation-driven Agent Harness"
+      "subtitle": "AI 视频创意、评估与交付工作台"
+    },
+    "nav": {
+      "workflow": "流程",
+      "config": "配置"
+    },
+    "config": {
+      "title": "生成服务配置",
+      "subtitle": "保存可复用的服务方案，完成连通性检查后回到流程页执行交付。"
+    },
+    "profile": {
+      "label": "服务方案",
+      "name": "方案名称",
+      "save": "保存方案",
+      "preflight": "测试服务",
+      "test_chain": "运行测试链路",
+      "test_chain_running": "正在运行内置流程测试...",
+      "test_chain_label": "测试链路",
+      "test_chain_passed": "测试链路通过",
+      "back_to_workflow": "返回流程",
+      "default_name": "本地真实生成方案",
+      "saved": "已保存",
+      "checking": "正在检查本地服务配置...",
+      "check_label": "服务检查"
+    },
+    "provider_state": {
+      "config_required": "需要配置",
+      "unavailable": "不可用"
+    },
+    "recent_runs": {
+      "title": "最近运行"
+    },
+    "kpi": {
+      "profile": "方案",
+      "mode": "模式",
+      "video": "视频",
+      "progress": "进度"
+    },
+    "assets": {
+      "count": "个产物"
+    },
+    "prompt_changes": {
+      "title": "提示词变更"
+    },
+    "empty": {
+      "video_title": "还没有生成视频",
+      "video_body": "运行流程后，这里会展示视频、提示词和工作流产物。",
+      "prompt_title": "还没有提示词差异",
+      "prompt_body": "使用评估迭代模式后，可以对比 v1 与优化后 v2 的提示词。"
+    },
+    "storyboard": {
+      "title": "分镜"
+    },
+    "js": {
+      "running": "运行中...",
+      "disabled": "不可用",
+      "local": "本地",
+      "callable": "可调用"
     },
     "form": {
       "title": "创建任务包",
@@ -187,10 +244,39 @@
       "language_en": "English",
       "mode": "运行模式",
       "mode_design": "仅设计",
-      "mode_full_loop": "设计 + 模拟评测",
+      "mode_full_loop": "设计 + 评测",
       "mode_planning": "设计 + 评测 + V2 重设计",
       "rubric": "评测规则",
-      "generator_provider": "生成器 Provider",
+      "generator_provider": "生成服务",
+      "llm_provider": "LLM / 评测服务",
+      "video_provider": "视频服务",
+      "provider_config": "服务配置",
+      "evaluator_mode": "评测模式",
+      "llm_model": "LLM 模型",
+      "llm_base_url": "LLM Base URL",
+      "llm_api_key": "LLM API Key",
+      "video_config": "视频服务配置",
+      "comfyui_base_url": "ComfyUI Base URL",
+      "comfyui_workflows_dir": "本地工作流目录",
+      "comfyui_workflow": "ComfyUI 工作流",
+      "comfyui_search": "搜索工作流",
+      "comfyui_searching": "正在搜索工作流...",
+      "comfyui_search_failed": "工作流搜索失败",
+      "comfyui_search_found": "已找到工作流",
+      "comfyui_search_empty": "这个目录下没有找到工作流",
+      "comfyui_width": "宽度",
+      "comfyui_height": "高度",
+      "comfyui_length": "帧数",
+      "comfyui_fps": "FPS",
+      "comfyui_max_shots": "最大镜头数",
+      "observer_provider": "视觉观察服务",
+      "observer_config": "视觉观察服务配置",
+      "vlm_model": "VLM 模型",
+      "vlm_base_url": "VLM Base URL",
+      "vlm_api_key": "VLM API Key",
+      "vlm_frame_sample_count": "抽帧检测数",
+      "vlm_confidence_threshold": "置信度阈值",
+      "vlm_require_json": "要求 JSON 输出",
       "duration": "时长秒",
       "max_iterations": "最大重设计轮数",
       "submit": "运行流程"
@@ -207,9 +293,9 @@
       "csv": "CSV",
       "markdown": "Markdown",
       "evaluation_csv": "评测 CSV",
-      "manifest": "Manifest",
-      "trace": "Trace",
-      "run_summary": "Run Summary"
+      "manifest": "清单",
+      "trace": "执行链路",
+      "run_summary": "运行摘要"
     },
     "evaluation": {
       "title": "评测",
@@ -224,8 +310,8 @@
       "target_issues": "目标问题"
     },
     "correction_patches": {
-      "title": "修正 Patch",
-      "agent": "Agent",
+      "title": "修正补丁",
+      "agent": "智能体",
       "expected_effect": "预期效果",
       "operations": "操作",
       "rationale": "依据"
@@ -299,55 +385,70 @@
       "threshold": "阈值"
     },
     "harness": {
-      "title": "Harness Inspector",
-      "subtitle": "运行时视图：上下文、工具、状态、策略、MCP、Sandbox 和 Memory。",
-      "context": "上下文",
-      "tools": "工具调用",
+      "title": "运行详情",
+      "subtitle": "本次运行的执行记录、工具调用、参考信息和状态变化。",
+      "context": "执行上下文",
+      "tools": "工具记录",
       "policy": "执行策略",
-      "mcp": "MCP 工具",
-      "sandbox": "Sandbox",
-      "memory": "Memory",
+      "mcp": "已连接工具",
+      "sandbox": "执行限制",
+      "memory": "参考记忆",
       "state": "状态",
-      "agent": "Agent",
+      "agent": "智能体",
       "sources": "来源数",
       "chars": "字符数",
       "no_records": "暂无记录",
       "tool_status": "状态",
       "latency": "耗时",
-      "transitions": "????",
-      "changed_fields": "????",
-      "invariant_status": "?????",
-      "topology": "Agent ??",
-      "nodes": "??",
-      "edges": "?"
+      "transitions": "状态变化",
+      "changed_fields": "变更字段",
+      "invariant_status": "校验状态",
+      "topology": "流程图",
+      "nodes": "节点",
+      "edges": "边"
     },
     "solution": {
-      "title": "??????",
-      "subtitle": "?????? Agent Harness ??????????",
-      "industry": "??",
-      "scenario": "??",
-      "objective": "????",
-      "model_strategy": "????",
-      "components": "Agent ??",
-      "integrations": "???",
-      "success": "POC ????",
-      "rollout": "????",
-      "value": "????",
-      "safety": "????",
-      "knowledge": "????",
-      "patterns": "????",
-      "metrics": "????"
+      "title": "解决方案架构",
+      "subtitle": "从场景洞察到可交付视频方案的客户路径。",
+      "industry": "行业",
+      "scenario": "场景",
+      "objective": "业务目标",
+      "model_strategy": "模型策略",
+      "components": "智能体组件",
+      "integrations": "集成点",
+      "success": "POC 成功标准",
+      "rollout": "上线计划",
+      "value": "价值指标",
+      "safety": "安全控制",
+      "knowledge": "知识资产",
+      "patterns": "场景模式",
+      "metrics": "评测指标"
     },
     "readiness": {
-      "title": "?????",
-      "subtitle": "???????Pilot ????????? POC ???",
-      "overall": "????",
-      "checks": "???",
-      "handoff": "????",
-      "next_actions": "?????",
-      "risks": "??",
-      "required": "Pilot ??",
-      "remediation": "????"
+      "title": "交付就绪度",
+      "subtitle": "面向客户交付、Pilot 设置和生产加固的 POC 检查。",
+      "overall": "整体状态",
+      "checks": "检查项",
+      "handoff": "交付物",
+      "next_actions": "下一步行动",
+      "risks": "风险",
+      "required": "Pilot 必需",
+      "remediation": "修复建议"
+    },
+    "generation": {
+      "title": "生成产物",
+      "provider": "生成器",
+      "video": "视频",
+      "prompt": "提示词",
+      "prompt_json": "提示词 JSON",
+      "workflow": "工作流 JSON",
+      "iteration": "迭代版本",
+      "artifacts": "产物"
+    },
+    "comfyui": {
+      "workflows_title": "ComfyUI 工作流",
+      "workflow_available": "可调用",
+      "workflow_unavailable": "需导出 API"
     }
   }
 }

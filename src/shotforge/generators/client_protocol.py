@@ -17,13 +17,3 @@ class VideoGenerationResult(BaseModel):
 class VideoModelClient(Protocol):
     def submit(self, prompt: PromptItem) -> VideoGenerationResult:
         """Submit a scene prompt to an external video generation provider."""
-
-
-class MockVideoModelClient:
-    def submit(self, prompt: PromptItem) -> VideoGenerationResult:
-        return VideoGenerationResult(
-            provider=prompt.provider,
-            request_id=f"mock-{prompt.shot_id}",
-            status="mocked",
-            asset_uri=None,
-        )

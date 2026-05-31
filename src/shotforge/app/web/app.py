@@ -5,23 +5,36 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Form, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from shotforge.core.capability_catalog import build_capability_catalog
-from shotforge.config import get_settings
+from shotforge.app.api.providers import build_provider_router
+from shotforge.app.api.runs import build_run_router
+from shotforge.app.api.system import build_system_router
+from shotforge.app.errors import runtime_error_payload
+from shotforge.app.services.artifact_service import ArtifactService
+from shotforge.app.services.provider_service import ProviderService
+from shotforge.app.services.run_service import RunService
+from shotforge.comfyui import default_user_workflows_dir
 from shotforge.core.harness_audit import build_harness_audit
 from shotforge.core.project_state import OutputLanguage, ProjectState
-from shotforge.core.version_manager import VersionManager
-from shotforge.generators import build_default_generator_registry, build_generator_catalog
 from shotforge.i18n import get_translator
-from shotforge.workflows.design_workflow import run_design_pipeline
-from shotforge.workflows.full_loop_workflow import run_full_loop_pipeline
-from shotforge.workflows.iterative_redesign_workflow import run_iterative_redesign
 
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parents[2] / "templates"))
 app = FastAPI(title="ShotForge / 镜铸", version="0.1.0")
+app.mount(
+    "/static",
+    StaticFiles(directory=str(Path(__file__).resolve().parent / "static")),
+    name="static",
+)
+provider_service = ProviderService()
+run_service = RunService(provider_service=provider_service)
+artifact_service = ArtifactService()
+app.include_router(build_run_router(run_service, artifact_service))
+app.include_router(build_provider_router(provider_service))
+app.include_router(build_system_router())
 
 
 def _format_diff_value(value: Any) -> str:
@@ -33,26 +46,6 @@ def _format_diff_value(value: Any) -> str:
 templates.env.filters["diff_value"] = _format_diff_value
 
 
-class RunRequest(BaseModel):
-    idea: str = Field(min_length=2)
-    style: str = "cinematic"
-    language: OutputLanguage = "zh"
-    duration_seconds: int = Field(default=24, ge=6, le=180)
-    with_evaluation: bool = False
-    with_planning: bool = False
-    rubric_id: str = "baseline_v1"
-    max_iterations: int = Field(default=3, ge=2, le=10)
-    generator_provider_id: str = "mock"
-
-
-class RunResponse(BaseModel):
-    project_id: str
-    run_id: str
-    version: int
-    exports: dict[str, str]
-    state: ProjectState
-
-
 class FormState(BaseModel):
     idea: str
     style: str = "cinematic"
@@ -61,13 +54,70 @@ class FormState(BaseModel):
     rubric_id: str = "baseline_v1"
     duration_seconds: int = 24
     max_iterations: int = 3
-    generator_provider_id: str = "mock"
+    provider_profile_id: str = "local-real"
+    provider_profile_name: str = "Local real generation"
+    generator_provider_id: str = "comfyui"
+    llm_provider_id: str = "ollama"
+    llm_model: str = "qwen2.5:7b"
+    llm_base_url: str = ""
+    llm_api_key: str = ""
+    evaluator_mode: str = "llm"
+    comfyui_base_url: str = ""
+    comfyui_workflows_dir: str = ""
+    comfyui_workflow_id: str = "wan2_2_i2v_empty_start"
+    comfyui_width: int = 320
+    comfyui_height: int = 320
+    comfyui_length: int = 9
+    comfyui_fps: float = 8.0
+    comfyui_max_shots: int = 0
+    observer_provider_id: str = "prompt-proxy"
+    vlm_model: str = ""
+    vlm_base_url: str = ""
+    vlm_api_key: str = ""
+    vlm_frame_sample_count: int = 4
+    vlm_confidence_threshold: float = 0.65
+    vlm_require_json: bool = True
 
 
 def _web_ui_labels(language: OutputLanguage) -> dict[str, str]:
     translator = get_translator()
     keys = {
         "header_subtitle": "web.header.subtitle",
+        "nav_workflow": "web.nav.workflow",
+        "nav_config": "web.nav.config",
+        "config_title": "web.config.title",
+        "config_subtitle": "web.config.subtitle",
+        "profile_label": "web.profile.label",
+        "profile_name": "web.profile.name",
+        "profile_save": "web.profile.save",
+        "profile_preflight": "web.profile.preflight",
+        "profile_test_chain": "web.profile.test_chain",
+        "profile_test_chain_running": "web.profile.test_chain_running",
+        "profile_test_chain_label": "web.profile.test_chain_label",
+        "profile_test_chain_passed": "web.profile.test_chain_passed",
+        "profile_back": "web.profile.back_to_workflow",
+        "profile_default": "web.profile.default_name",
+        "profile_saved": "web.profile.saved",
+        "profile_checking": "web.profile.checking",
+        "profile_check_label": "web.profile.check_label",
+        "recent_runs": "web.recent_runs.title",
+        "kpi_profile": "web.kpi.profile",
+        "kpi_mode": "web.kpi.mode",
+        "kpi_video": "web.kpi.video",
+        "kpi_progress": "web.kpi.progress",
+        "assets_count": "web.assets.count",
+        "prompt_changes_title": "web.prompt_changes.title",
+        "empty_video_title": "web.empty.video_title",
+        "empty_video_body": "web.empty.video_body",
+        "empty_prompt_title": "web.empty.prompt_title",
+        "empty_prompt_body": "web.empty.prompt_body",
+        "storyboard_title": "web.storyboard.title",
+        "js_running": "web.js.running",
+        "js_disabled": "web.js.disabled",
+        "js_local": "web.js.local",
+        "js_callable": "web.js.callable",
+        "provider_config_required": "web.provider_state.config_required",
+        "provider_unavailable": "web.provider_state.unavailable",
         "form_title": "web.form.title",
         "form_idea": "web.form.idea",
         "form_default_idea": "web.form.default_idea",
@@ -83,12 +133,52 @@ def _web_ui_labels(language: OutputLanguage) -> dict[str, str]:
         "form_duration": "web.form.duration",
         "form_max_iterations": "web.form.max_iterations",
         "form_generator_provider": "web.form.generator_provider",
+        "form_llm_provider": "web.form.llm_provider",
+        "form_video_provider": "web.form.video_provider",
+        "form_provider_config": "web.form.provider_config",
+        "form_evaluator_mode": "web.form.evaluator_mode",
+        "form_llm_model": "web.form.llm_model",
+        "form_llm_base_url": "web.form.llm_base_url",
+        "form_llm_api_key": "web.form.llm_api_key",
+        "form_video_config": "web.form.video_config",
+        "form_comfyui_base_url": "web.form.comfyui_base_url",
+        "form_comfyui_workflows_dir": "web.form.comfyui_workflows_dir",
+        "form_comfyui_workflow": "web.form.comfyui_workflow",
+        "form_comfyui_search": "web.form.comfyui_search",
+        "form_comfyui_searching": "web.form.comfyui_searching",
+        "form_comfyui_search_failed": "web.form.comfyui_search_failed",
+        "form_comfyui_search_found": "web.form.comfyui_search_found",
+        "form_comfyui_search_empty": "web.form.comfyui_search_empty",
+        "form_comfyui_width": "web.form.comfyui_width",
+        "form_comfyui_height": "web.form.comfyui_height",
+        "form_comfyui_length": "web.form.comfyui_length",
+        "form_comfyui_fps": "web.form.comfyui_fps",
+        "form_comfyui_max_shots": "web.form.comfyui_max_shots",
+        "form_observer_provider": "web.form.observer_provider",
+        "form_observer_config": "web.form.observer_config",
+        "form_vlm_model": "web.form.vlm_model",
+        "form_vlm_base_url": "web.form.vlm_base_url",
+        "form_vlm_api_key": "web.form.vlm_api_key",
+        "form_vlm_frame_sample_count": "web.form.vlm_frame_sample_count",
+        "form_vlm_confidence_threshold": "web.form.vlm_confidence_threshold",
+        "form_vlm_require_json": "web.form.vlm_require_json",
         "form_submit": "web.form.submit",
         "run_title": "web.run.title",
         "run_scene": "web.run.scene",
         "run_issues": "web.run.issues",
         "run_ready_title": "web.run.ready_title",
         "run_ready_body": "web.run.ready_body",
+        "generation_title": "web.generation.title",
+        "generation_provider": "web.generation.provider",
+        "generation_video": "web.generation.video",
+        "generation_prompt": "web.generation.prompt",
+        "generation_prompt_json": "web.generation.prompt_json",
+        "generation_workflow": "web.generation.workflow",
+        "generation_iteration": "web.generation.iteration",
+        "generation_artifacts": "web.generation.artifacts",
+        "comfyui_workflows_title": "web.comfyui.workflows_title",
+        "comfyui_workflow_available": "web.comfyui.workflow_available",
+        "comfyui_workflow_unavailable": "web.comfyui.workflow_unavailable",
         "exports_json": "web.exports.json",
         "exports_csv": "web.exports.csv",
         "exports_markdown": "web.exports.markdown",
@@ -202,49 +292,8 @@ def _enum_labels(language: OutputLanguage, category: str, values: list[str]) -> 
     }
 
 
-def _version_snapshots(state: ProjectState | None) -> list[dict[str, str]]:
-    if state is None:
-        return []
-    return VersionManager().list_snapshots(state.project_id)
-
-
-def _available_generator_providers() -> list[dict[str, Any]]:
-    registry = build_generator_catalog()
-    providers = []
-    for provider_id in registry.list(available_only=False):
-        provider = registry.get(provider_id, require_available=False)
-        providers.append(
-            {
-                "provider_id": provider.provider_id,
-                "display_name": provider.display_name,
-                "supports_real_generation": provider.supports_real_generation(),
-                "available": registry.is_available(provider_id),
-            }
-        )
-    return providers
-
-
 def _harness_inspector(state: ProjectState | None) -> dict[str, Any]:
     return build_harness_audit(state)
-
-
-def _validate_generator_provider_id(provider_id: str) -> str:
-    try:
-        build_default_generator_registry().get(provider_id)
-    except KeyError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return provider_id
-
-
-def _package_path(run_id: str) -> Path:
-    return get_settings().runs_dir / run_id / "package.json"
-
-
-def _load_run(run_id: str) -> ProjectState:
-    path = _package_path(run_id)
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
-    return ProjectState.model_validate_json(path.read_text(encoding="utf-8"))
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -253,9 +302,35 @@ def index(
     run_id: str | None = None,
     language: OutputLanguage = "zh",
 ) -> HTMLResponse:
-    state = _load_run(run_id) if run_id else None
+    return _render_web_page(request, run_id=run_id, language=language, active_page="workflow")
+
+
+@app.get("/config", response_class=HTMLResponse)
+def config_page(
+    request: Request,
+    run_id: str | None = None,
+    language: OutputLanguage = "zh",
+) -> HTMLResponse:
+    return _render_web_page(request, run_id=run_id, language=language, active_page="config")
+
+
+def _render_web_page(
+    request: Request,
+    *,
+    run_id: str | None,
+    language: OutputLanguage,
+    active_page: str,
+    runtime_error: dict[str, Any] | None = None,
+    status_code: int = 200,
+) -> HTMLResponse:
+    try:
+        state = run_service.load_run(run_id) if run_id else None
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     active_language = state.language if state else language
     translator = get_translator()
+    default_profile = provider_service.default_provider_profile()
+    metadata = state.metadata if state else {}
     form_state = FormState(
         idea=state.user_idea if state else translator.t(active_language, "web.form.default_idea"),
         style=state.style if state else "cinematic",
@@ -264,10 +339,44 @@ def index(
         rubric_id=str(state.metadata.get("rubric_id", "baseline_v1")) if state else "baseline_v1",
         duration_seconds=state.duration_seconds if state else 24,
         max_iterations=int(state.metadata.get("max_iterations", 3)) if state else 3,
+        provider_profile_id=str(metadata.get("provider_profile_id", default_profile.profile_id)),
+        provider_profile_name=str(metadata.get("provider_profile_name", default_profile.name)),
         generator_provider_id=str(state.metadata.get("generator_provider_id", "mock"))
         if state
-        else "mock",
+        else default_profile.generator_provider_id,
+        llm_provider_id=str(metadata.get("llm_provider_id", default_profile.llm_provider_id)),
+        llm_model=str(metadata.get("llm_model", default_profile.llm_model)),
+        llm_base_url=str(metadata.get("llm_base_url", default_profile.llm_base_url)),
+        llm_api_key="",
+        evaluator_mode=str(metadata.get("evaluator_mode", default_profile.evaluator_mode)),
+        comfyui_base_url=str(metadata.get("comfyui_base_url", default_profile.comfyui_base_url)),
+        comfyui_workflows_dir=str(
+            metadata.get(
+                "comfyui_workflows_dir",
+                default_profile.comfyui_workflows_dir or str(default_user_workflows_dir()),
+            )
+        ),
+        comfyui_workflow_id=str(metadata.get("comfyui_workflow_id", default_profile.comfyui_workflow_id)),
+        comfyui_width=int(metadata.get("comfyui_width", default_profile.comfyui_width)),
+        comfyui_height=int(metadata.get("comfyui_height", default_profile.comfyui_height)),
+        comfyui_length=int(metadata.get("comfyui_length", default_profile.comfyui_length)),
+        comfyui_fps=float(metadata.get("comfyui_fps", default_profile.comfyui_fps)),
+        comfyui_max_shots=int(metadata.get("comfyui_max_shots", default_profile.comfyui_max_shots)),
+        observer_provider_id=str(
+            metadata.get("observer_provider_id", default_profile.observer_provider_id)
+        ),
+        vlm_model=str(metadata.get("vlm_model", default_profile.vlm_model)),
+        vlm_base_url=str(metadata.get("vlm_base_url", default_profile.vlm_base_url)),
+        vlm_api_key="",
+        vlm_frame_sample_count=int(
+            metadata.get("vlm_frame_sample_count", default_profile.vlm_frame_sample_count)
+        ),
+        vlm_confidence_threshold=float(
+            metadata.get("vlm_confidence_threshold", default_profile.vlm_confidence_threshold)
+        ),
+        vlm_require_json=bool(metadata.get("vlm_require_json", default_profile.vlm_require_json)),
     )
+    workflow_status = provider_service.comfyui_workflow_status()
     response = templates.TemplateResponse(
         request,
         "index.html",
@@ -298,10 +407,23 @@ def index(
                 "change_type",
                 ["added", "removed", "modified"],
             ),
-            "snapshots": _version_snapshots(state),
-            "generator_providers": _available_generator_providers(),
+            "snapshots": run_service.version_snapshots(state),
+            "llm_providers": provider_service.available_llm_providers(include_test=False),
+            "generator_providers": provider_service.available_generator_providers(include_test=False),
+            "observer_providers": provider_service.available_observer_providers(include_test=True),
+            "comfyui_workflows": workflow_status["workflows"],
+            "service_warnings": workflow_status["warnings"],
+            "provider_profiles": provider_service.provider_profiles(include_test=False)
+            or [default_profile.public_dict()],
+            "run_history": run_service.list_run_history(),
+            "generation_artifacts": artifact_service.generation_artifacts(state),
+            "prompt_changes": run_service.prompt_change_cards(state),
+            "run_progress": run_service.run_progress(state),
             "harness_inspector": _harness_inspector(state),
+            "active_page": active_page,
+            "runtime_error": runtime_error,
         },
+        status_code=status_code,
     )
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -309,6 +431,7 @@ def index(
 
 @app.post("/runs")
 def create_run_form(
+    request: Request,
     idea: str = Form(...),
     style: str = Form("cinematic"),
     language: OutputLanguage = Form("zh"),
@@ -316,164 +439,79 @@ def create_run_form(
     mode: str = Form("design"),
     rubric_id: str = Form("baseline_v1"),
     max_iterations: int = Form(3),
-    generator_provider_id: str = Form("mock"),
+    provider_profile_id: str = Form("local-real"),
+    provider_profile_name: str = Form("Local real generation"),
+    generator_provider_id: str = Form("comfyui"),
+    llm_provider_id: str = Form("ollama"),
+    llm_model: str = Form("qwen2.5:7b"),
+    llm_base_url: str = Form(""),
+    llm_api_key: str = Form(""),
+    evaluator_mode: str = Form("llm"),
+    comfyui_base_url: str = Form(""),
+    comfyui_workflows_dir: str = Form(""),
+    comfyui_workflow_id: str = Form("wan2_2_i2v_empty_start"),
+    comfyui_width: int = Form(320),
+    comfyui_height: int = Form(320),
+    comfyui_length: int = Form(9),
+    comfyui_fps: float = Form(8.0),
+    comfyui_max_shots: int = Form(0),
+    observer_provider_id: str = Form("prompt-proxy"),
+    vlm_model: str = Form(""),
+    vlm_base_url: str = Form(""),
+    vlm_api_key: str = Form(""),
+    vlm_frame_sample_count: int = Form(4),
+    vlm_confidence_threshold: float = Form(0.65),
+    vlm_require_json: bool = Form(True),
 ) -> RedirectResponse:
-    generator_provider_id = _validate_generator_provider_id(generator_provider_id)
-    if mode in {"full_loop", "planning"}:
-        state = run_full_loop_pipeline(
+    profile = provider_service.profile_from_form(
+        provider_profile_id=provider_profile_id,
+        provider_profile_name=provider_profile_name,
+        llm_provider_id=llm_provider_id,
+        llm_model=llm_model,
+        llm_base_url=llm_base_url,
+        llm_api_key=llm_api_key,
+        evaluator_mode=evaluator_mode,
+        generator_provider_id=generator_provider_id,
+        comfyui_base_url=comfyui_base_url,
+        comfyui_workflows_dir=comfyui_workflows_dir,
+        comfyui_workflow_id=comfyui_workflow_id,
+        comfyui_width=comfyui_width,
+        comfyui_height=comfyui_height,
+        comfyui_length=comfyui_length,
+        comfyui_fps=comfyui_fps,
+        comfyui_max_shots=comfyui_max_shots,
+        observer_provider_id=observer_provider_id,
+        vlm_model=vlm_model,
+        vlm_base_url=vlm_base_url,
+        vlm_api_key=vlm_api_key,
+        vlm_frame_sample_count=vlm_frame_sample_count,
+        vlm_confidence_threshold=vlm_confidence_threshold,
+        vlm_require_json=vlm_require_json,
+    )
+    try:
+        state = run_service.create_run(
             idea=idea,
             style=style,
             duration_seconds=duration_seconds,
             language=language,
+            mode=mode,
             rubric_id=rubric_id,
-            generator_provider_id=generator_provider_id,
+            max_iterations=max_iterations,
+            profile=profile,
+            persist_profile=True,
         )
-        if mode == "planning":
-            state = run_iterative_redesign(
-                state,
-                max_iterations=max_iterations,
-                generator_provider_id=generator_provider_id,
-            )
-    else:
-        state = run_design_pipeline(
-            idea=idea,
-            style=style,
-            duration_seconds=duration_seconds,
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        return _render_web_page(
+            request,
+            run_id=None,
             language=language,
+            active_page="workflow",
+            runtime_error=runtime_error_payload(exc),
+            status_code=503,
         )
-    state.metadata["run_mode"] = mode
-    state.metadata["rubric_id"] = rubric_id
-    state.metadata["max_iterations"] = max_iterations
-    state.metadata["generator_provider_id"] = generator_provider_id
-    from shotforge.exporters import ExportManager
-
-    ExportManager().export_all(state)
     return RedirectResponse(url=f"/?run_id={state.run_id}", status_code=303)
 
-
-@app.post("/api/runs", response_model=RunResponse)
-def create_run(payload: RunRequest) -> RunResponse:
-    generator_provider_id = _validate_generator_provider_id(payload.generator_provider_id)
-    if payload.with_evaluation or payload.with_planning:
-        state = run_full_loop_pipeline(
-            idea=payload.idea,
-            style=payload.style,
-            duration_seconds=payload.duration_seconds,
-            language=payload.language,
-            rubric_id=payload.rubric_id,
-            generator_provider_id=generator_provider_id,
-        )
-        if payload.with_planning:
-            state = run_iterative_redesign(
-                state,
-                max_iterations=payload.max_iterations,
-                generator_provider_id=generator_provider_id,
-            )
-            from shotforge.exporters import ExportManager
-
-            ExportManager().export_all(state)
-    else:
-        state = run_design_pipeline(
-            idea=payload.idea,
-            style=payload.style,
-            duration_seconds=payload.duration_seconds,
-            language=payload.language,
-        )
-    return RunResponse(
-        project_id=state.project_id,
-        run_id=state.run_id,
-        version=state.version,
-        exports={artifact.format: artifact.path for artifact in state.exports},
-        state=state,
-    )
-
-
-@app.get("/api/capabilities")
-def get_capabilities() -> dict[str, Any]:
-    return build_capability_catalog()
-
-
-@app.get("/api/health")
-def get_health() -> dict[str, Any]:
-    settings = get_settings()
-    return {
-        "status": "ok",
-        "app_name": settings.app_name,
-        "storage": {
-            "storage_root": str(settings.storage_root),
-            "runs_dir": str(settings.runs_dir),
-            "versions_dir": str(settings.versions_dir),
-            "knowledge_base_path": str(settings.knowledge_base_path),
-            "memory_store_path": str(settings.memory_store_path),
-            "runs_dir_exists": settings.runs_dir.exists(),
-            "versions_dir_exists": settings.versions_dir.exists(),
-        },
-    }
-
-
-@app.get("/api/runs/{run_id}", response_model=ProjectState)
-def get_run(run_id: str) -> ProjectState:
-    return _load_run(run_id)
-
-
-@app.get("/api/runs/{run_id}/trace")
-def get_trace(run_id: str) -> list[dict]:
-    return json.loads(_load_run(run_id).model_dump_json())["trace_logs"]
-
-
-@app.get("/api/runs/{run_id}/harness")
-def get_harness_audit(run_id: str) -> dict[str, Any]:
-    return build_harness_audit(_load_run(run_id))
-
-
-@app.get("/api/runs/{run_id}/readiness")
-def get_readiness(run_id: str) -> dict[str, Any]:
-    state = _load_run(run_id)
-    if state.delivery_readiness is None:
-        raise HTTPException(status_code=404, detail=f"Readiness report not found: {run_id}")
-    report = state.delivery_readiness
-    return {
-        "project_id": state.project_id,
-        "run_id": state.run_id,
-        "overall_status": report.overall_status,
-        "checks": [item.model_dump(mode="json") for item in report.checks],
-        "summary": {
-            "passed": len([item for item in report.checks if item.status == "passed"]),
-            "warnings": len([item for item in report.checks if item.status == "warning"]),
-            "failed": len([item for item in report.checks if item.status == "failed"]),
-        },
-        "handoff_deliverables": report.handoff_deliverables,
-        "next_actions": report.next_actions,
-        "risk_register": report.risk_register,
-    }
-
-
-@app.get("/api/runs/{run_id}/versions")
-def get_versions(run_id: str) -> list[dict[str, str]]:
-    state = _load_run(run_id)
-    return VersionManager().list_snapshots(state.project_id)
-
-
-@app.get("/api/runs/{run_id}/export/{export_format}")
-def download_export(run_id: str, export_format: str) -> FileResponse:
-    mapping = {
-        "json": ("package.json", "application/json"),
-        "csv": ("package.csv", "text/csv"),
-        "markdown": ("package.md", "text/markdown"),
-        "md": ("package.md", "text/markdown"),
-        "manifest": ("manifest.json", "application/json"),
-        "trace": ("trace.json", "application/json"),
-        "run_summary": ("run_summary.md", "text/markdown"),
-        "summary": ("run_summary.md", "text/markdown"),
-        "evaluation_csv": ("evaluation.csv", "text/csv"),
-        "evaluation": ("evaluation.csv", "text/csv"),
-    }
-    if export_format not in mapping:
-        raise HTTPException(status_code=400, detail="export_format must be json, csv, or markdown")
-    filename, media_type = mapping[export_format]
-    path = get_settings().runs_dir / run_id / filename
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"Export not found: {export_format}")
-    return FileResponse(path, media_type=media_type, filename=filename)
 
 __all__ = ["app"]

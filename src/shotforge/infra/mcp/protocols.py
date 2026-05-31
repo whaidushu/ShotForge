@@ -9,11 +9,3 @@ class MCPToolProvider(Protocol):
 
     def call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
         """Call an MCP tool by name."""
-
-
-class DeferredMCPProvider:
-    def list_tools(self) -> list[str]:
-        return []
-
-    def call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
-        raise NotImplementedError("MCP integration is reserved for stage two.")

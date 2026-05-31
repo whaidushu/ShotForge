@@ -1,0 +1,34 @@
+<article class="surface">
+  <div class="rail-title">
+    <h3>{{ ui.generation_title }}</h3>
+    {% if generation_artifacts %}<span class="badge">{{ generation_artifacts | length }} {{ ui.assets_count }}</span>{% endif %}
+  </div>
+  {% if generation_artifacts %}
+    <div class="artifact-grid">
+      {% for artifact in generation_artifacts[:3] %}
+        <div class="artifact-card">
+          <div class="artifact-meta">
+            <strong>{{ artifact.iteration }} / {{ artifact.shot_id }}</strong>
+            <div class="muted">{{ ui.generation_provider }}: {{ artifact.provider }} / {{ artifact.video_filename }}</div>
+          </div>
+          {% if artifact.video_filename.endswith(".mp4") %}
+            <video class="artifact-video" controls preload="metadata" src="{{ artifact.video_url }}"></video>
+          {% endif %}
+          <div class="artifact-links">
+            <a href="{{ artifact.video_url }}">{{ ui.generation_video }}</a>
+            {% if artifact.prompt_text_path %}<a href="{{ artifact.prompt_url }}">{{ ui.generation_prompt }}</a>{% endif %}
+            {% if artifact.prompt_json_path %}<a href="{{ artifact.prompt_json_url }}">{{ ui.generation_prompt_json }}</a>{% endif %}
+            {% if artifact.workflow_api_path %}<a href="{{ artifact.workflow_url }}">{{ ui.generation_workflow }}</a>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-preview">
+      <div>
+        <strong>{{ ui.empty_video_title }}</strong>
+        <p>{{ ui.empty_video_body }}</p>
+      </div>
+    </div>
+  {% endif %}
+</article>

@@ -1,0 +1,132 @@
+<section class="surface inspector-card">
+  <div class="rail-title">
+    <h3>{{ ui.form_provider_config }}</h3>
+    <span class="badge">{{ form_state.provider_profile_name }}</span>
+  </div>
+  <label for="provider_profile_id">{{ ui.profile_label }}</label>
+  <select id="provider_profile_id" name="provider_profile_id">
+    {% for profile in provider_profiles %}
+      <option value="{{ profile.profile_id }}" {% if form_state.provider_profile_id == profile.profile_id %}selected{% endif %}>{{ profile.name }}</option>
+    {% endfor %}
+  </select>
+  <label for="provider_profile_name">{{ ui.profile_name }}</label>
+  <input id="provider_profile_name" name="provider_profile_name" value="{{ form_state.provider_profile_name }}">
+
+  <div class="config-divider"></div>
+  <h4>{{ ui.form_llm_provider }}</h4>
+  <label for="llm_provider_id">{{ ui.form_llm_provider }}</label>
+  <select id="llm_provider_id" name="llm_provider_id">
+    {% for provider in llm_providers %}
+      <option value="{{ provider.provider_id }}" {% if form_state.llm_provider_id == provider.provider_id %}selected{% endif %}>
+        {{ provider.display_name }}{% if not provider.available %} / {{ ui.provider_config_required }}{% endif %}
+      </option>
+    {% endfor %}
+  </select>
+  <label for="evaluator_mode">{{ ui.form_evaluator_mode }}</label>
+  <select id="evaluator_mode" name="evaluator_mode">
+    {% for mode in ["llm", "hybrid"] %}
+      <option value="{{ mode }}" {% if form_state.evaluator_mode == mode %}selected{% endif %}>{{ mode }}</option>
+    {% endfor %}
+  </select>
+  <label for="llm_model">{{ ui.form_llm_model }}</label>
+  <input id="llm_model" name="llm_model" value="{{ form_state.llm_model }}">
+  <label for="llm_base_url">{{ ui.form_llm_base_url }}</label>
+  <input id="llm_base_url" name="llm_base_url" value="{{ form_state.llm_base_url }}">
+  <label for="llm_api_key">{{ ui.form_llm_api_key }}</label>
+  <input id="llm_api_key" name="llm_api_key" type="password" value="{{ form_state.llm_api_key }}" autocomplete="off">
+
+  <div class="config-divider"></div>
+  <h4>{{ ui.form_video_provider }}</h4>
+  <label for="generator_provider_id">{{ ui.form_video_provider }}</label>
+  <select id="generator_provider_id" name="generator_provider_id">
+    {% for provider in generator_providers %}
+      <option value="{{ provider.provider_id }}" {% if form_state.generator_provider_id == provider.provider_id %}selected{% endif %} {% if not provider.available and provider.provider_id != "comfyui" %}disabled{% endif %}>
+        {{ provider.display_name }}{% if not provider.available %} / {{ ui.provider_config_required }}{% endif %}
+      </option>
+    {% endfor %}
+  </select>
+  <div id="comfyui_config" class="{% if form_state.generator_provider_id != 'comfyui' %}hidden{% endif %}">
+    <label for="comfyui_base_url">{{ ui.form_comfyui_base_url }}</label>
+    <input id="comfyui_base_url" name="comfyui_base_url" value="{{ form_state.comfyui_base_url }}">
+    <label for="comfyui_workflow_id">{{ ui.form_comfyui_workflow }}</label>
+    <select id="comfyui_workflow_id" name="comfyui_workflow_id">
+      {% for workflow in comfyui_workflows %}
+        <option value="{{ workflow.workflow_id }}" {% if form_state.comfyui_workflow_id == workflow.workflow_id %}selected{% endif %} {% if not workflow.callable %}disabled{% endif %}>
+          {{ workflow.workflow_id }}{% if not workflow.callable %} / {{ ui.comfyui_workflow_unavailable }}{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+    <div class="inline-action">
+      <div>
+        <label for="comfyui_workflows_dir">{{ ui.form_comfyui_workflows_dir }}</label>
+        <input id="comfyui_workflows_dir" name="comfyui_workflows_dir" value="{{ form_state.comfyui_workflows_dir }}">
+      </div>
+      <button id="comfyui_search" type="button">{{ ui.form_comfyui_search }}</button>
+    </div>
+    <p id="comfyui_search_status" class="muted"></p>
+    <div class="field-row compact-fields">
+      <div>
+        <label for="comfyui_width">{{ ui.form_comfyui_width }}</label>
+        <input id="comfyui_width" name="comfyui_width" type="number" value="{{ form_state.comfyui_width }}" min="64" max="2048">
+      </div>
+      <div>
+        <label for="comfyui_height">{{ ui.form_comfyui_height }}</label>
+        <input id="comfyui_height" name="comfyui_height" type="number" value="{{ form_state.comfyui_height }}" min="64" max="2048">
+      </div>
+      <div>
+        <label for="comfyui_length">{{ ui.form_comfyui_length }}</label>
+        <input id="comfyui_length" name="comfyui_length" type="number" value="{{ form_state.comfyui_length }}" min="1" max="512">
+      </div>
+      <div>
+        <label for="comfyui_fps">{{ ui.form_comfyui_fps }}</label>
+        <input id="comfyui_fps" name="comfyui_fps" type="number" value="{{ form_state.comfyui_fps }}" min="1" max="60" step="0.1">
+      </div>
+      <div>
+        <label for="comfyui_max_shots">{{ ui.form_comfyui_max_shots }}</label>
+        <input id="comfyui_max_shots" name="comfyui_max_shots" type="number" value="{{ form_state.comfyui_max_shots }}" min="0" max="32">
+      </div>
+    </div>
+  </div>
+
+  <div class="config-divider"></div>
+  <h4>{{ ui.form_observer_provider }}</h4>
+  <label for="observer_provider_id">{{ ui.form_observer_provider }}</label>
+  <select id="observer_provider_id" name="observer_provider_id">
+    {% for provider in observer_providers %}
+      <option value="{{ provider.provider_id }}" {% if form_state.observer_provider_id == provider.provider_id %}selected{% endif %}>
+        {{ provider.display_name }}{% if not provider.available and provider.provider_id != "prompt-proxy" %} / {{ ui.provider_config_required }}{% endif %}
+      </option>
+    {% endfor %}
+  </select>
+  <div id="vlm_config" class="{% if form_state.observer_provider_id == 'prompt-proxy' %}hidden{% endif %}">
+    <label for="vlm_model">{{ ui.form_vlm_model }}</label>
+    <input id="vlm_model" name="vlm_model" value="{{ form_state.vlm_model }}">
+    <label for="vlm_base_url">{{ ui.form_vlm_base_url }}</label>
+    <input id="vlm_base_url" name="vlm_base_url" value="{{ form_state.vlm_base_url }}">
+    <label for="vlm_api_key">{{ ui.form_vlm_api_key }}</label>
+    <input id="vlm_api_key" name="vlm_api_key" type="password" value="{{ form_state.vlm_api_key }}" autocomplete="off">
+    <div class="field-row compact-fields">
+      <div>
+        <label for="vlm_frame_sample_count">{{ ui.form_vlm_frame_sample_count }}</label>
+        <input id="vlm_frame_sample_count" name="vlm_frame_sample_count" type="number" value="{{ form_state.vlm_frame_sample_count }}" min="1" max="16">
+      </div>
+      <div>
+        <label for="vlm_confidence_threshold">{{ ui.form_vlm_confidence_threshold }}</label>
+        <input id="vlm_confidence_threshold" name="vlm_confidence_threshold" type="number" value="{{ form_state.vlm_confidence_threshold }}" min="0" max="1" step="0.05">
+      </div>
+    </div>
+    <label class="checkbox-line">
+      <input id="vlm_require_json" name="vlm_require_json" type="checkbox" value="true" {% if form_state.vlm_require_json %}checked{% endif %}>
+      <span>{{ ui.form_vlm_require_json }}</span>
+    </label>
+  </div>
+</section>
+
+<section class="surface inspector-card">
+  <div class="actions">
+    <button id="save_provider_profile" class="secondary-action" type="button">{{ ui.profile_save }}</button>
+    <button id="preflight_check" class="secondary-action" type="button">{{ ui.profile_preflight }}</button>
+    <button id="test_chain" class="secondary-action" type="button">{{ ui.profile_test_chain }}</button>
+  </div>
+  <div id="preflight_status" class="status-list"></div>
+</section>

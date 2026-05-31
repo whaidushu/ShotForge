@@ -4,117 +4,612 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ShotForge</title>
+    <link rel="stylesheet" href="/static/design-system.css">
     <style>
       :root {
         color-scheme: light;
-        --bg: #f7f7f4;
-        --ink: #1f2528;
-        --muted: #647074;
-        --line: #d9ded9;
+        --bg: #eef1f3;
         --panel: #ffffff;
+        --panel-soft: #f7f9fb;
+        --ink: #162025;
+        --muted: #64737c;
+        --line: #d8e0e5;
         --accent: #0f766e;
         --accent-dark: #115e59;
-        --before-bg: #fff1f0;
-        --before-line: #f3b4ad;
-        --after-bg: #ecfdf3;
-        --after-line: #9bd4ad;
-        --code-bg: #101418;
-        --code-ink: #e7ecef;
+        --blue: #2563eb;
+        --amber: #b45309;
+        --red: #b91c1c;
+        --green: #15803d;
+        --nav: #162129;
+        --nav-soft: #22313b;
+        --warm: #f4b860;
+        --shadow: 0 18px 42px rgba(22, 32, 37, 0.08);
+        --shadow-soft: 0 10px 28px rgba(22, 32, 37, 0.06);
+        --code-bg: #111827;
+        --code-ink: #e5e7eb;
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: var(--bg);
+        background:
+          linear-gradient(180deg, #f8fafb 0, var(--bg) 260px),
+          var(--bg);
         color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
-      header {
-        padding: 20px 28px;
-        border-bottom: 1px solid var(--line);
-        background: var(--panel);
-      }
-      main {
-        display: grid;
-        grid-template-columns: minmax(320px, 420px) 1fr;
-        min-height: calc(100vh - 73px);
-      }
-      aside {
-        padding: 24px;
-        border-right: 1px solid var(--line);
-        background: #fbfbf8;
-      }
-      section { padding: 24px; }
-      h1 { margin: 0; font-size: 24px; }
-      h2 { margin: 0 0 16px; font-size: 18px; }
-      label { display: block; margin: 14px 0 6px; color: var(--muted); font-size: 13px; }
-      textarea, input, select {
-        width: 100%;
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        padding: 10px 12px;
+      a { color: var(--accent-dark); text-decoration: none; font-weight: 700; }
+      button, input, select, textarea {
         font: inherit;
-        background: var(--panel);
       }
-      textarea { min-height: 150px; resize: vertical; }
       button {
-        width: 100%;
-        margin-top: 16px;
         border: 0;
-        border-radius: 6px;
-        padding: 11px 14px;
+        border-radius: 7px;
+        padding: 10px 14px;
         background: var(--accent);
-        color: white;
-        font-weight: 700;
+        color: #fff;
+        font-weight: 800;
         cursor: pointer;
+        box-shadow: 0 8px 18px rgba(15, 118, 110, 0.18);
       }
       button:hover { background: var(--accent-dark); }
+      button:disabled { opacity: 0.65; cursor: wait; }
+      input, select, textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 10px 11px;
+        background: var(--panel);
+        color: var(--ink);
+        outline: none;
+        transition: border-color 160ms ease, box-shadow 160ms ease;
+      }
+      input:focus, select:focus, textarea:focus {
+        border-color: #52a9a0;
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+      }
+      textarea { min-height: 132px; resize: vertical; }
+      label {
+        display: block;
+        margin: 12px 0 6px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        border-radius: 7px;
+        padding: 12px;
+        background: var(--code-bg);
+        color: var(--code-ink);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--nav);
+        color: #fff;
+        padding: 15px 24px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 12px 34px rgba(17, 24, 39, 0.18);
+      }
+      .brand h1 { margin: 0; font-size: 22px; line-height: 1; }
+      .brand p { margin: 5px 0 0; color: #a8bac4; font-size: 13px; }
+      .brand h1::before {
+        content: "";
+        display: inline-block;
+        width: 11px;
+        height: 11px;
+        margin-right: 9px;
+        border-radius: 3px;
+        background: var(--warm);
+        box-shadow: 13px 0 0 var(--accent), 26px 0 0 #8bb6ff;
+      }
+      .nav {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+      .nav a {
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 999px;
+        padding: 8px 12px;
+        color: #c9d5dc;
+        background: var(--nav-soft);
+        font-size: 13px;
+      }
+      .nav a.active {
+        border-color: rgba(244, 184, 96, 0.5);
+        color: #fff;
+        background: #305047;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 340px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+        padding: 24px;
+        max-width: 1680px;
+        margin: 0 auto;
+      }
+      .workbench-layout {
+        display: grid;
+        grid-template-columns: 290px minmax(0, 1fr) 360px;
+        gap: 16px;
+        align-items: start;
+        padding: 18px;
+        max-width: 1880px;
+        margin: 0 auto;
+      }
+      .config-layout {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      .sidebar {
+        position: sticky;
+        top: 92px;
+        align-self: start;
+        display: grid;
+        gap: 14px;
+      }
+      .history-rail,
+      .inspector-rail {
+        position: sticky;
+        top: 86px;
+        align-self: start;
+        display: grid;
+        gap: 14px;
+        max-height: calc(100vh - 104px);
+        overflow: auto;
+        padding-bottom: 2px;
+      }
+      .workbench-layout > .history-rail {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      .workbench-layout > .content {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      .workbench-layout > .inspector-rail {
+        grid-column: 3;
+        grid-row: 1;
+      }
+      .history-rail::-webkit-scrollbar,
+      .inspector-rail::-webkit-scrollbar {
+        width: 8px;
+      }
+      .history-rail::-webkit-scrollbar-thumb,
+      .inspector-rail::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: #c8d2d8;
+      }
+      .task-card {
+        border-top: 4px solid var(--accent);
+      }
+      .task-card textarea {
+        min-height: 110px;
+      }
+      .inspector-card {
+        border-top: 4px solid #5b8def;
+      }
+      .config-divider {
+        height: 1px;
+        margin: 16px 0 12px;
+        background: var(--line);
+      }
+      .compact-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .workbench-layout .content {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .workbench-layout .review-stack {
+        grid-column: 1;
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .surface {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        padding: 17px;
+        box-shadow: var(--shadow-soft);
+      }
+      .sidebar > .surface:first-child {
+        border-top: 4px solid var(--accent);
+      }
+      .hero-panel {
+        position: relative;
+        overflow: hidden;
+        border-color: #cbd7dd;
+        box-shadow: var(--shadow);
+      }
+      .hero-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 5px;
+        background: linear-gradient(90deg, var(--accent), var(--warm), #5b8def);
+      }
+      .surface h2, .surface h3, .surface h4 {
+        margin: 0 0 10px;
+      }
+      .surface h2 { font-size: 18px; }
+      .surface h3 { font-size: 15px; }
+      .surface h4 { font-size: 13px; }
+      .muted { color: var(--muted); }
       .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+      }
+      .config-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .wide-field { grid-column: 1 / -1; }
+      .inline-action {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: end;
+      }
+      .inline-action button { white-space: nowrap; }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .actions button, .actions a {
+        flex: 1 1 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .secondary-action {
+        background: #334155;
+        box-shadow: 0 8px 18px rgba(51, 65, 85, 0.12);
+      }
+      .secondary-action:hover {
+        background: #1f2937;
+      }
+      .hidden { display: none; }
+      .content {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(340px, 430px);
+        gap: 16px;
+        min-width: 0;
+        align-items: start;
+      }
+      .hero-panel {
+        grid-column: 1 / -1;
+      }
+      .main-panel {
+        grid-column: 1;
+      }
+      .review-panel {
+        grid-column: 2;
+      }
+      .review-stack {
+        grid-column: 2;
+        display: grid;
+        gap: 16px;
+        position: sticky;
+        top: 92px;
+        min-width: 0;
+      }
+      .review-stack .surface {
+        overflow: hidden;
+      }
+      .empty-preview {
+        display: grid;
+        place-items: center;
+        min-height: 240px;
+        border: 1px dashed #b8c5cc;
+        border-radius: 10px;
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(244, 184, 96, 0.08)),
+          #fbfcfd;
+        color: var(--muted);
+        text-align: center;
+        padding: 20px;
+      }
+      .studio-kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+        align-items: stretch;
+      }
+      .studio-kpi {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 10px 11px;
+        background: rgba(248, 250, 252, 0.86);
+      }
+      .studio-kpi strong {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 4px;
+      }
+      .studio-kpi span {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+      .rail-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .rail-title h3 {
+        margin: 0;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        padding-top: 6px;
+      }
+      .hero-title {
+        margin: 0;
+        font-size: 26px;
+        letter-spacing: 0;
+      }
+      .export-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .export-links a, .pill, .badge {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: var(--panel-soft);
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .export-links a:hover, .pill:hover {
+        border-color: #a7c7c1;
+        background: #edf8f6;
+        color: var(--accent-dark);
+      }
+      .pipeline {
+        display: grid;
+        gap: 12px;
+      }
+      .progress-track {
+        overflow: hidden;
+        height: 12px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
+      }
+      .progress-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--accent), #2aa198, var(--warm));
+        transition: width 240ms ease;
+      }
+      body.submitting .progress-fill {
+        width: 72% !important;
+      }
+      .step-row {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .step {
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 9px 10px;
+        background: var(--panel-soft);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-align: center;
+      }
+      .step.done {
+        border-color: #9bd4ad;
+        background: #effaf4;
+        color: var(--green);
+      }
+      .artifact-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         gap: 14px;
       }
-      .card {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 16px;
+      .review-stack .artifact-grid {
+        grid-template-columns: 1fr;
       }
-      .muted { color: var(--muted); }
-      .inline-toggle {
+      .artifact-card {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        overflow: hidden;
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+      }
+      .artifact-meta {
+        padding: 11px 12px;
+        border-bottom: 1px solid var(--line);
+        background: #fbfcfd;
+      }
+      .artifact-meta strong,
+      .artifact-meta div {
+        display: block;
+        overflow-wrap: anywhere;
+      }
+      .artifact-video {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        background: #0f172a;
+      }
+      .artifact-links {
         display: flex;
-        align-items: center;
+        flex-wrap: wrap;
         gap: 8px;
-        margin: 8px 0 14px;
+        padding: 10px 12px 12px;
+      }
+      .prompt-change {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .review-stack .prompt-change {
+        grid-template-columns: 1fr;
+      }
+      .prompt-change pre {
+        min-height: 132px;
+      }
+      .prompt-side {
+        min-width: 0;
+      }
+      .prompt-side strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 12px;
         color: var(--muted);
-        font-size: 13px;
       }
-      .inline-toggle input {
-        width: auto;
+      .metric-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 10px;
       }
-      .range-field {
+      .metric {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--panel-soft);
+        padding: 10px 12px;
+      }
+      .metric strong {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .metric span {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+      .timeline {
         display: grid;
         gap: 8px;
       }
-      .range-row {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 10px;
-        align-items: center;
-      }
-      input[type="range"] {
-        padding: 0;
-        accent-color: var(--accent);
-      }
-      .range-value {
-        min-width: 42px;
+      .timeline-row {
         border: 1px solid var(--line);
-        border-radius: 6px;
-        padding: 6px 8px;
-        background: var(--panel);
-        text-align: center;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-weight: 700;
+        border-radius: 9px;
+        padding: 10px 12px;
+        background: #fbfcfd;
       }
+      .compact-list {
+        display: grid;
+        gap: 8px;
+      }
+      .compact-row {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 9px 10px;
+        background: #fbfcfd;
+      }
+      .compact-row strong {
+        display: block;
+        font-size: 12px;
+      }
+      .compact-row p {
+        margin: 5px 0 0;
+      }
+      .status-list {
+        display: grid;
+        gap: 7px;
+        margin-top: 10px;
+      }
+      .status-row {
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 9px 10px;
+        background: var(--panel-soft);
+        font-size: 12px;
+      }
+      .status-row.failed { border-color: #fca5a5; background: #fff1f0; color: var(--red); }
+      .status-row.warning { border-color: #facc15; background: #fffbeb; color: var(--amber); }
+      .status-row.passed { border-color: #86efac; background: #f0fdf4; color: var(--green); }
+      .runtime-banner {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+        max-width: 1880px;
+        margin: 14px auto 0;
+        border: 1px solid var(--line);
+        border-left-width: 5px;
+        border-radius: 10px;
+        background: var(--panel);
+        padding: 14px 18px;
+        box-shadow: var(--shadow-soft);
+      }
+      .runtime-banner strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+      .runtime-banner p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .runtime-banner.failed { border-left-color: var(--red); }
+      .runtime-banner.warning { border-left-color: var(--amber); }
+      .run-history {
+        display: grid;
+        gap: 8px;
+      }
+      .run-history a {
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 9px 10px;
+        background: var(--panel);
+        color: inherit;
+        transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+      }
+      .run-history a:hover {
+        border-color: #9fc3bd;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+      }
+      .run-history strong, .run-history span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .run-history strong { font-size: 12px; }
+      .run-history span { margin-top: 3px; color: var(--muted); font-size: 12px; }
       .signal-source {
         display: none;
         border-left: 3px solid var(--line);
@@ -123,708 +618,633 @@
         color: var(--muted);
         font-size: 13px;
       }
-      body.show-signals .signal-source {
-        display: block;
-      }
-      pre {
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
-        background: #eef4f2;
-        border-radius: 6px;
-        padding: 12px;
-      }
-      .links a { margin-right: 12px; color: var(--accent-dark); font-weight: 700; }
-      .run-layout {
+      body.show-signals .signal-source { display: block; }
+      .field-row {
         display: grid;
-        gap: 16px;
-      }
-      .summary-strip {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
         gap: 10px;
-        margin: 10px 0 16px;
       }
-      .metric {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 10px 12px;
-        background: #fbfbf8;
-      }
-      .metric strong {
-        display: block;
-        font-size: 13px;
-        color: var(--muted);
-        margin-bottom: 6px;
-      }
-      .metric span {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 14px;
-      }
-      .inspector-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 12px;
-      }
-      .inspector-panel {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 12px;
-        background: #fbfbf8;
-        min-width: 0;
-      }
-      .inspector-panel h4 {
-        margin: 0 0 8px;
-        font-size: 13px;
-      }
-      .pill-row {
+      .checkbox-line {
         display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 8px;
-      }
-      .diff-panel {
-        display: grid;
-        gap: 12px;
-      }
-      .version-chain {
-        display: grid;
-        gap: 12px;
-      }
-      .version-card {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel);
-        overflow: hidden;
-      }
-      .version-card summary {
-        display: grid;
-        grid-template-columns: minmax(130px, auto) 1fr auto;
-        gap: 14px;
         align-items: center;
-        padding: 12px 14px;
-        cursor: pointer;
-        background: #fbfbf8;
-      }
-      .version-card summary::-webkit-details-marker { display: none; }
-      .version-title {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-weight: 800;
-      }
-      .version-reason {
-        min-width: 0;
-        color: var(--muted);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .version-body {
-        padding: 14px;
-        border-top: 1px solid var(--line);
-      }
-      .diff-row {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        overflow: hidden;
-        background: var(--panel);
-      }
-      .diff-meta {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        align-items: center;
-        border-bottom: 1px solid var(--line);
-        background: #fbfbf8;
-        padding: 9px 12px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 12px;
-      }
-      .badge {
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 3px 8px;
-        color: var(--muted);
-        background: var(--panel);
-        white-space: nowrap;
-      }
-      .diff-code {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-      .diff-side {
-        min-width: 0;
-      }
-      .diff-side:first-child {
-        border-right: 1px solid var(--line);
-      }
-      .diff-title {
-        padding: 8px 12px;
-        font-size: 12px;
+        gap: 8px;
+        margin-top: 10px;
+        color: var(--text);
         font-weight: 700;
-        border-bottom: 1px solid var(--line);
       }
-      .diff-before .diff-title {
-        background: var(--before-bg);
-        color: #8d3028;
-      }
-      .diff-after .diff-title {
-        background: var(--after-bg);
-        color: #1f7a3b;
-      }
-      .diff-code pre {
-        min-height: 118px;
+      .checkbox-line input {
+        width: auto;
         margin: 0;
-        border-radius: 0;
-        background: var(--code-bg);
-        color: var(--code-ink);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 12px;
-        line-height: 1.55;
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
+        accent-color: var(--accent);
       }
-      @media (max-width: 860px) {
-        main { grid-template-columns: 1fr; }
-        aside { border-right: 0; border-bottom: 1px solid var(--line); }
-        .version-card summary { grid-template-columns: 1fr; }
-        .version-reason { white-space: normal; }
-        .diff-code { grid-template-columns: 1fr; }
-        .diff-side:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
+      input[type="range"] {
+        padding: 0;
+        accent-color: var(--accent);
+      }
+      .range-row {
+        display: grid;
+        grid-template-columns: 1fr 44px;
+        gap: 10px;
+        align-items: center;
+      }
+      .range-value {
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 7px 8px;
+        text-align: center;
+        font-weight: 800;
+        background: var(--panel-soft);
+      }
+      @media (max-width: 1240px) {
+        .workbench-layout { grid-template-columns: 260px minmax(0, 1fr); }
+        .workbench-layout > .history-rail { grid-column: 1; grid-row: 1; }
+        .workbench-layout > .content { grid-column: 2; grid-row: 1; }
+        .inspector-rail {
+          grid-column: 1 / -1;
+          grid-row: 2;
+          position: static;
+          max-height: none;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .content { grid-template-columns: 1fr; }
+        .hero-panel, .main-panel, .review-panel, .review-stack { grid-column: 1; }
+        .review-stack { position: static; }
+      }
+      @media (max-width: 980px) {
+        .layout, .workbench-layout { grid-template-columns: 1fr; }
+        .workbench-layout > .history-rail,
+        .workbench-layout > .content,
+        .workbench-layout > .inspector-rail {
+          grid-column: auto;
+          grid-row: auto;
+        }
+        .sidebar, .history-rail, .inspector-rail { position: static; max-height: none; overflow: visible; }
+        .inspector-rail, .workbench-layout .review-stack { grid-template-columns: 1fr; }
+        .hero { grid-template-columns: 1fr; }
+        .studio-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .runtime-banner { grid-template-columns: 1fr; margin: 14px; }
+      }
+      @media (max-width: 720px) {
+        .topbar { grid-template-columns: 1fr; }
+        .layout, .config-layout { padding: 14px; }
+        .config-grid, .prompt-change, .step-row { grid-template-columns: 1fr; }
+        .studio-kpis { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
-    <header>
-      <h1>ShotForge</h1>
-      <div class="muted">{{ ui.header_subtitle }}</div>
+    <header class="topbar">
+      <div class="brand">
+        <h1>ShotForge</h1>
+        <p>{{ ui.header_subtitle }}</p>
+      </div>
+      <nav class="nav">
+        <a href="/?language={{ form_state.language }}{% if state %}&run_id={{ state.run_id }}{% endif %}" class="{% if active_page == 'workflow' %}active{% endif %}">{{ ui.nav_workflow }}</a>
+        <a href="/config?language={{ form_state.language }}{% if state %}&run_id={{ state.run_id }}{% endif %}" class="{% if active_page == 'config' %}active{% endif %}">{{ ui.nav_config }}</a>
+      </nav>
     </header>
-    <main>
-      <aside>
-        <h2>{{ ui.form_title }}</h2>
-        <form method="post" action="/runs">
-          <label for="idea">{{ ui.form_idea }}</label>
-          <textarea id="idea" name="idea" required>{{ form_state.idea }}</textarea>
-          <label for="style">{{ ui.form_style }}</label>
-          <input id="style" name="style" value="{{ form_state.style }}">
-          <label for="language">{{ ui.form_language }}</label>
-          <select id="language" name="language">
-            <option value="zh" {% if form_state.language == "zh" %}selected{% endif %}>{{ ui.form_language_zh }}</option>
-            <option value="en" {% if form_state.language == "en" %}selected{% endif %}>{{ ui.form_language_en }}</option>
-          </select>
-          <label for="mode">{{ ui.form_mode }}</label>
-          <select id="mode" name="mode">
-            <option value="design" {% if form_state.mode == "design" %}selected{% endif %}>{{ ui.form_mode_design }}</option>
-            <option value="full_loop" {% if form_state.mode == "full_loop" %}selected{% endif %}>{{ ui.form_mode_full_loop }}</option>
-            <option value="planning" {% if form_state.mode == "planning" %}selected{% endif %}>{{ ui.form_mode_planning }}</option>
-          </select>
-          <label for="rubric_id">{{ ui.form_rubric }}</label>
-          <input id="rubric_id" name="rubric_id" value="{{ form_state.rubric_id }}">
-          <label for="generator_provider_id">{{ ui.form_generator_provider }}</label>
-          <select id="generator_provider_id" name="generator_provider_id">
-            {% for provider in generator_providers %}
-              <option value="{{ provider.provider_id }}" {% if form_state.generator_provider_id == provider.provider_id %}selected{% endif %} {% if not provider.available %}disabled{% endif %}>
-                {{ provider.display_name }}{% if not provider.supports_real_generation %} · mock{% elif not provider.available %} · planned{% endif %}
-              </option>
-            {% endfor %}
-          </select>
-          <label for="duration_seconds">{{ ui.form_duration }}</label>
-          <input id="duration_seconds" name="duration_seconds" type="number" value="{{ form_state.duration_seconds }}" min="6" max="180">
-          <label for="max_iterations">{{ ui.form_max_iterations }}</label>
-          <div class="range-field">
-            <div class="range-row">
-              <input id="max_iterations" name="max_iterations" type="range" value="{{ form_state.max_iterations }}" min="2" max="10" step="1">
-              <output id="max_iterations_value" class="range-value" for="max_iterations">{{ form_state.max_iterations }}</output>
+
+    {% if runtime_error %}
+      <section class="runtime-banner failed">
+        <div>
+          <strong>{{ runtime_error.title }}</strong>
+          <p>{{ runtime_error.message }}</p>
+        </div>
+        <div class="status-list">
+          {% for check in runtime_error.checks %}
+            <div class="status-row {{ check.status }}">{{ check.label }}: {{ check.detail }}</div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if service_warnings %}
+      <section class="runtime-banner warning">
+        <div>
+          <strong>Local service check</strong>
+          <p>Some local paths or services need attention before real generation.</p>
+        </div>
+        <div class="status-list">
+          {% for warning in service_warnings %}
+            <div class="status-row {{ warning.status }}">{{ warning.check_id }}: {{ warning.detail }}</div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if active_page == "config" %}
+      <main class="config-layout">
+        <section class="surface">
+          <h2>{{ ui.config_title }}</h2>
+          <p class="muted">{{ ui.config_subtitle }}</p>
+          <div class="config-grid">
+            <div>
+              <label for="provider_profile_id">{{ ui.profile_label }}</label>
+              <select id="provider_profile_id" name="provider_profile_id">
+                {% for profile in provider_profiles %}
+                  <option value="{{ profile.profile_id }}" {% if form_state.provider_profile_id == profile.profile_id %}selected{% endif %}>{{ profile.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label for="provider_profile_name">{{ ui.profile_name }}</label>
+              <input id="provider_profile_name" name="provider_profile_name" value="{{ form_state.provider_profile_name }}">
             </div>
           </div>
-          <button type="submit">{{ ui.form_submit }}</button>
-        </form>
-      </aside>
-      <section>
-        {% if state %}
-          <div class="run-layout">
-            <div>
-              <h2>{{ ui.run_title }} {{ state.run_id }}</h2>
-              <p class="links">
-                <a href="/api/runs/{{ state.run_id }}/export/json">{{ ui.exports_json }}</a>
-                <a href="/api/runs/{{ state.run_id }}/export/csv">{{ ui.exports_csv }}</a>
-                <a href="/api/runs/{{ state.run_id }}/export/markdown">{{ ui.exports_markdown }}</a>
-                <a href="/api/runs/{{ state.run_id }}/export/manifest">{{ ui.exports_manifest }}</a>
-                <a href="/api/runs/{{ state.run_id }}/export/trace">{{ ui.exports_trace }}</a>
-                <a href="/api/runs/{{ state.run_id }}/export/run_summary">{{ ui.exports_run_summary }}</a>
-                {% if state.evaluation_reports %}
-                  <a href="/api/runs/{{ state.run_id }}/export/evaluation_csv">{{ ui.exports_evaluation_csv }}</a>
-                {% endif %}
-              </p>
-            </div>
-          {% if state.solution_architecture %}
-            {% set solution = state.solution_architecture %}
-            <article class="card">
-              <h3>{{ ui.solution_title }}</h3>
-              <p class="muted">{{ ui.solution_subtitle }}</p>
-              <div class="summary-strip">
-                <div class="metric">
-                  <strong>{{ ui.solution_industry }}</strong>
-                  <span>{{ solution.industry }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.solution_scenario }}</strong>
-                  <span>{{ solution.scenario }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.solution_success }}</strong>
-                  <span>{{ solution.poc_success_criteria | length }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.solution_value }}</strong>
-                  <span>{{ solution.value_metrics | length }}</span>
-                </div>
-              </div>
-              <p><strong>{{ ui.solution_objective }}</strong>: {{ solution.business_objective }}</p>
-              <p><strong>{{ ui.solution_model_strategy }}</strong>: {{ solution.model_strategy }}</p>
-              <p><strong>{{ ui.solution_knowledge }}</strong>: {{ solution.knowledge_assets | join(", ") }}</p>
-              <p><strong>{{ ui.solution_patterns }}</strong>: {{ solution.scenario_patterns | join(", ") }}</p>
-              <p><strong>{{ ui.solution_metrics }}</strong>: {{ solution.evaluation_metrics | join(", ") }}</p>
-              <div class="inspector-grid">
-                <div class="inspector-panel">
-                  <h4>{{ ui.solution_components }}</h4>
-                  {% for component in solution.components %}
-                    <p>
-                      <strong>{{ component.name }}</strong><br>
-                      <span class="muted">{{ component.owner_agent }} / {{ component.responsibility }}</span>
-                    </p>
-                  {% endfor %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.solution_integrations }}</h4>
-                  {% for integration in solution.integration_points %}
-                    <p>
-                      <strong>{{ integration.system }}</strong>
-                      <span class="badge">{{ integration.status }}</span><br>
-                      <span class="muted">{{ integration.interface }}</span>
-                    </p>
-                  {% endfor %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.solution_success }}</h4>
-                  {% for criterion in solution.poc_success_criteria %}
-                    <p><strong>{{ criterion.metric }}</strong><br><span class="muted">{{ criterion.target }}</span></p>
-                  {% endfor %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.solution_rollout }}</h4>
-                  {% for phase in solution.rollout_plan %}
-                    <p><strong>{{ phase.phase }}</strong><br><span class="muted">{{ phase.objective }}</span></p>
-                  {% endfor %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.solution_value }}</h4>
-                  {% for metric in solution.value_metrics %}
-                    <p><strong>{{ metric.name }}</strong><br><span class="muted">{{ metric.business_value }}</span></p>
-                  {% endfor %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.solution_safety }}</h4>
-                  {% for control in solution.safety_controls %}
-                    <p class="muted">{{ control }}</p>
-                  {% endfor %}
-                </div>
-              </div>
-            </article>
-          {% endif %}
-          {% if state.delivery_readiness %}
-            {% set readiness = state.delivery_readiness %}
-            <article class="card">
-              <h3>{{ ui.readiness_title }}</h3>
-              <p class="muted">{{ ui.readiness_subtitle }}</p>
-              <div class="summary-strip">
-                <div class="metric">
-                  <strong>{{ ui.readiness_overall }}</strong>
-                  <span>{{ readiness.overall_status }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.readiness_checks }}</strong>
-                  <span>{{ readiness.checks | length }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.readiness_handoff }}</strong>
-                  <span>{{ readiness.handoff_deliverables | length }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.readiness_risks }}</strong>
-                  <span>{{ readiness.risk_register | length }}</span>
-                </div>
-              </div>
-              <div class="inspector-grid">
-                <div class="inspector-panel">
-                  <h4>{{ ui.readiness_checks }}</h4>
-                  {% for check in readiness.checks %}
-                    <p>
-                      <strong>{{ check.category }}</strong>
-                      <span class="badge">{{ check.status }}</span><br>
-                      <span class="muted">{{ check.check_id }} / {{ check.evidence }}</span>
-                      {% if check.remediation %}
-                        <br><span class="muted">{{ ui.readiness_remediation }}: {{ check.remediation }}</span>
-                      {% endif %}
-                    </p>
-                  {% endfor %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.readiness_handoff }}</h4>
-                  {% for deliverable in readiness.handoff_deliverables %}
-                    <p class="muted">{{ deliverable }}</p>
-                  {% endfor %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.readiness_next_actions }}</h4>
-                  {% for action in readiness.next_actions %}
-                    <p class="muted">{{ action }}</p>
-                  {% endfor %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.readiness_risks }}</h4>
-                  {% for risk in readiness.risk_register %}
-                    <p class="muted">{{ risk }}</p>
-                  {% endfor %}
-                </div>
-              </div>
-            </article>
-          {% endif %}
-          {% if state.evaluation_reports %}
-            {% set report = state.evaluation_reports[-1] %}
-            <article class="card">
-              <h3>{{ ui.evaluation_title }} · {{ "%.2f"|format(report.score_card.overall_score) }}</h3>
-              <p class="muted">{{ report.rubric_id }} · {{ report.issues | length }} {{ ui.run_issues }}</p>
-              <label class="inline-toggle">
-                <input id="show-signals" type="checkbox">
-                {{ ui.evaluation_show_signals }}
-              </label>
-              <div class="signal-source">
-                {{ ui.signal_source_evaluators }}: {{ report.metadata.evaluator_sources | join(", ") if report.metadata.evaluator_sources else "n/a" }}<br>
-                {{ ui.signal_source_signals }}: {{ report.metadata.signal_count if report.metadata.signal_count else 0 }}
-              </div>
-              <div class="grid">
-                {% for score in report.score_card.dimension_scores %}
-                  <div>
-                    <strong>{{ score.label }}</strong>
-                    <p class="muted">{{ "%.2f"|format(score.score) }}</p>
-                  </div>
-                {% endfor %}
-              </div>
-              {% for issue in report.issues[:6] %}
-                <p>[{{ issue.severity }}] {{ issue.shot_id }} · {{ issue.dimension_label }} · {{ issue.correction_type }}<br>{{ issue.description }}</p>
-                <div class="signal-source">
-                  {{ ui.signal_source_source }}: {{ issue.metadata.signal_source if issue.metadata.signal_source else "n/a" }}<br>
-                  {{ ui.signal_source_signal }}: {{ issue.metadata.signal_id if issue.metadata.signal_id else "n/a" }}<br>
-                  {{ ui.signal_source_score }}: {{ "%.2f"|format(issue.metadata.score) if issue.metadata.score is defined else "n/a" }}
-                  {% if issue.metadata.threshold is defined %} · {{ ui.signal_source_threshold }}: {{ "%.2f"|format(issue.metadata.threshold) }}{% endif %}
-                </div>
+        </section>
+
+        <section class="grid" style="margin-top: 14px;">
+          <article class="surface">
+            <h3>{{ ui.form_llm_provider }}</h3>
+            <label for="llm_provider_id">{{ ui.form_llm_provider }}</label>
+            <select id="llm_provider_id" name="llm_provider_id">
+              {% for provider in llm_providers %}
+                <option value="{{ provider.provider_id }}" {% if form_state.llm_provider_id == provider.provider_id %}selected{% endif %}>
+                  {{ provider.display_name }}{% if not provider.available %} / {{ ui.provider_config_required }}{% endif %}
+                </option>
               {% endfor %}
-            </article>
-          {% endif %}
-          {% if state.correction_plans %}
-            <article class="card">
-              <h3>{{ ui.correction_plans_title }}</h3>
-              {% if state.metadata.next_version_preview %}
-                <p class="muted">
-                  {{ ui.correction_plans_version_preview }}:
-                  v{{ state.metadata.next_version_preview.current_version }}
-                  &rarr; v{{ state.metadata.next_version_preview.next_version }}
-                  · {{ state.metadata.next_version_preview.fork_reason }}
-                </p>
-              {% endif %}
-              <div class="grid">
-                {% for plan in state.correction_plans %}
-                  <div>
-                    <strong>{{ plan.selected_agent }}</strong>
-                    <p class="muted">{{ plan.correction_strategy }}</p>
-                    <p>{{ ui.correction_plans_priority }}: {{ plan.priority }}</p>
-                    <p>{{ ui.correction_plans_risk }}: {{ plan.risk }}</p>
-                    <p class="muted">{{ ui.correction_plans_affected_fields }}: {{ plan.affected_fields | join(", ") }}</p>
-                    <p class="muted">{{ ui.correction_plans_target_issues }}: {{ plan.target_issue_ids | join(", ") }}</p>
+            </select>
+            <label for="evaluator_mode">{{ ui.form_evaluator_mode }}</label>
+            <select id="evaluator_mode" name="evaluator_mode">
+              {% for mode in ["llm", "hybrid"] %}
+                <option value="{{ mode }}" {% if form_state.evaluator_mode == mode %}selected{% endif %}>{{ mode }}</option>
+              {% endfor %}
+            </select>
+            <label for="llm_model">{{ ui.form_llm_model }}</label>
+            <input id="llm_model" name="llm_model" value="{{ form_state.llm_model }}">
+            <label for="llm_base_url">{{ ui.form_llm_base_url }}</label>
+            <input id="llm_base_url" name="llm_base_url" value="{{ form_state.llm_base_url }}">
+            <label for="llm_api_key">{{ ui.form_llm_api_key }}</label>
+            <input id="llm_api_key" name="llm_api_key" type="password" value="{{ form_state.llm_api_key }}" autocomplete="off">
+          </article>
+
+          <article class="surface">
+            <h3>{{ ui.form_video_provider }}</h3>
+            <label for="generator_provider_id">{{ ui.form_video_provider }}</label>
+            <select id="generator_provider_id" name="generator_provider_id">
+              {% for provider in generator_providers %}
+                <option value="{{ provider.provider_id }}" {% if form_state.generator_provider_id == provider.provider_id %}selected{% endif %} {% if not provider.available and provider.provider_id != "comfyui" %}disabled{% endif %}>
+                  {{ provider.display_name }}{% if not provider.available %} / {{ ui.provider_config_required }}{% endif %}
+                </option>
+              {% endfor %}
+            </select>
+            <div id="comfyui_config" class="{% if form_state.generator_provider_id != 'comfyui' %}hidden{% endif %}">
+              <label for="comfyui_base_url">{{ ui.form_comfyui_base_url }}</label>
+              <input id="comfyui_base_url" name="comfyui_base_url" value="{{ form_state.comfyui_base_url }}">
+              <label for="comfyui_workflow_id">{{ ui.form_comfyui_workflow }}</label>
+              <select id="comfyui_workflow_id" name="comfyui_workflow_id">
+                {% for workflow in comfyui_workflows %}
+                  <option value="{{ workflow.workflow_id }}" {% if form_state.comfyui_workflow_id == workflow.workflow_id %}selected{% endif %} {% if not workflow.callable %}disabled{% endif %}>
+                    {{ workflow.workflow_id }}{% if not workflow.callable %} / {{ ui.comfyui_workflow_unavailable }}{% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+              <div class="inline-action">
+                <div>
+                  <label for="comfyui_workflows_dir">{{ ui.form_comfyui_workflows_dir }}</label>
+                  <input id="comfyui_workflows_dir" name="comfyui_workflows_dir" value="{{ form_state.comfyui_workflows_dir }}">
+                </div>
+                <button id="comfyui_search" type="button">{{ ui.form_comfyui_search }}</button>
+              </div>
+              <p id="comfyui_search_status" class="muted"></p>
+              <div class="field-row">
+                <div>
+                  <label for="comfyui_width">{{ ui.form_comfyui_width }}</label>
+                  <input id="comfyui_width" name="comfyui_width" type="number" value="{{ form_state.comfyui_width }}" min="64" max="2048">
+                </div>
+                <div>
+                  <label for="comfyui_height">{{ ui.form_comfyui_height }}</label>
+                  <input id="comfyui_height" name="comfyui_height" type="number" value="{{ form_state.comfyui_height }}" min="64" max="2048">
+                </div>
+                <div>
+                  <label for="comfyui_length">{{ ui.form_comfyui_length }}</label>
+                  <input id="comfyui_length" name="comfyui_length" type="number" value="{{ form_state.comfyui_length }}" min="1" max="512">
+                </div>
+                <div>
+                  <label for="comfyui_fps">{{ ui.form_comfyui_fps }}</label>
+                  <input id="comfyui_fps" name="comfyui_fps" type="number" value="{{ form_state.comfyui_fps }}" min="1" max="60" step="0.1">
+                </div>
+                <div>
+                  <label for="comfyui_max_shots">{{ ui.form_comfyui_max_shots }}</label>
+                  <input id="comfyui_max_shots" name="comfyui_max_shots" type="number" value="{{ form_state.comfyui_max_shots }}" min="0" max="32">
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="surface">
+            <h3>{{ ui.form_observer_provider }}</h3>
+            <label for="observer_provider_id">{{ ui.form_observer_provider }}</label>
+            <select id="observer_provider_id" name="observer_provider_id">
+              {% for provider in observer_providers %}
+                <option value="{{ provider.provider_id }}" {% if form_state.observer_provider_id == provider.provider_id %}selected{% endif %}>
+                  {{ provider.display_name }}{% if not provider.available and provider.provider_id != "prompt-proxy" %} / {{ ui.provider_config_required }}{% endif %}
+                </option>
+              {% endfor %}
+            </select>
+            <div id="vlm_config" class="{% if form_state.observer_provider_id == 'prompt-proxy' %}hidden{% endif %}">
+              <label for="vlm_model">{{ ui.form_vlm_model }}</label>
+              <input id="vlm_model" name="vlm_model" value="{{ form_state.vlm_model }}">
+              <label for="vlm_base_url">{{ ui.form_vlm_base_url }}</label>
+              <input id="vlm_base_url" name="vlm_base_url" value="{{ form_state.vlm_base_url }}">
+              <label for="vlm_api_key">{{ ui.form_vlm_api_key }}</label>
+              <input id="vlm_api_key" name="vlm_api_key" type="password" value="{{ form_state.vlm_api_key }}" autocomplete="off">
+              <div class="field-row">
+                <div>
+                  <label for="vlm_frame_sample_count">{{ ui.form_vlm_frame_sample_count }}</label>
+                  <input id="vlm_frame_sample_count" name="vlm_frame_sample_count" type="number" value="{{ form_state.vlm_frame_sample_count }}" min="1" max="16">
+                </div>
+                <div>
+                  <label for="vlm_confidence_threshold">{{ ui.form_vlm_confidence_threshold }}</label>
+                  <input id="vlm_confidence_threshold" name="vlm_confidence_threshold" type="number" value="{{ form_state.vlm_confidence_threshold }}" min="0" max="1" step="0.05">
+                </div>
+              </div>
+              <label class="checkbox-line">
+                <input id="vlm_require_json" name="vlm_require_json" type="checkbox" value="true" {% if form_state.vlm_require_json %}checked{% endif %}>
+                <span>{{ ui.form_vlm_require_json }}</span>
+              </label>
+            </div>
+          </article>
+        </section>
+
+        <section class="surface" style="margin-top: 14px;">
+          <div class="actions">
+            <button id="save_provider_profile" type="button">{{ ui.profile_save }}</button>
+            <button id="preflight_check" class="secondary-action" type="button">{{ ui.profile_preflight }}</button>
+            <button id="test_chain" class="secondary-action" type="button">{{ ui.profile_test_chain }}</button>
+            <a class="pill" href="/?language={{ form_state.language }}">{{ ui.profile_back }}</a>
+          </div>
+          <div id="preflight_status" class="status-list"></div>
+        </section>
+      </main>
+    {% else %}
+      <form id="run_form" method="post" action="/runs">
+      <main class="workbench-layout">
+        <aside class="history-rail">
+          <section class="surface task-card">
+            <h2>{{ ui.form_title }}</h2>
+              <label for="idea">{{ ui.form_idea }}</label>
+              <textarea id="idea" name="idea" required>{{ form_state.idea }}</textarea>
+              <label for="style">{{ ui.form_style }}</label>
+              <input id="style" name="style" value="{{ form_state.style }}">
+              <div class="field-row">
+                <div>
+                  <label for="language">{{ ui.form_language }}</label>
+                  <select id="language" name="language">
+                    <option value="zh" {% if form_state.language == "zh" %}selected{% endif %}>{{ ui.form_language_zh }}</option>
+                    <option value="en" {% if form_state.language == "en" %}selected{% endif %}>{{ ui.form_language_en }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="mode">{{ ui.form_mode }}</label>
+                  <select id="mode" name="mode">
+                    <option value="design" {% if form_state.mode == "design" %}selected{% endif %}>{{ ui.form_mode_design }}</option>
+                    <option value="full_loop" {% if form_state.mode == "full_loop" %}selected{% endif %}>{{ ui.form_mode_full_loop }}</option>
+                    <option value="planning" {% if form_state.mode == "planning" %}selected{% endif %}>{{ ui.form_mode_planning }}</option>
+                  </select>
+                </div>
+              </div>
+              <label for="rubric_id">{{ ui.form_rubric }}</label>
+              <input id="rubric_id" name="rubric_id" value="{{ form_state.rubric_id }}">
+              <div class="field-row">
+                <div>
+                  <label for="duration_seconds">{{ ui.form_duration }}</label>
+                  <input id="duration_seconds" name="duration_seconds" type="number" value="{{ form_state.duration_seconds }}" min="6" max="180">
+                </div>
+                <div>
+                  <label for="max_iterations">{{ ui.form_max_iterations }}</label>
+                  <div class="range-row">
+                    <input id="max_iterations" name="max_iterations" type="range" value="{{ form_state.max_iterations }}" min="2" max="10" step="1">
+                    <output id="max_iterations_value" class="range-value" for="max_iterations">{{ form_state.max_iterations }}</output>
                   </div>
+                </div>
+              </div>
+              <div class="actions">
+                <button id="run_submit" type="submit">{{ ui.form_submit }}</button>
+                <a class="pill" href="/config?language={{ form_state.language }}">{{ ui.nav_config }}</a>
+              </div>
+          </section>
+
+          {% if run_history %}
+            <section class="surface">
+              <h3>{{ ui.recent_runs }}</h3>
+              <div class="run-history">
+                {% for run in run_history[:8] %}
+                  <a href="/?run_id={{ run.run_id }}&language={{ run.language }}">
+                    <strong>{{ run.run_id }} / v{{ run.version }} / {{ ui.profile_test_chain_label if "mock" in run.generator_provider_id else run.generator_provider_id }}</strong>
+                    <span>{{ run.idea }}</span>
+                  </a>
                 {% endfor %}
               </div>
-            </article>
+            </section>
           {% endif %}
-          {% if state.correction_patches %}
-            <article class="card">
+        </aside>
+
+        <aside class="inspector-rail">
+          {% include "partials/provider_config_panel.html" %}
+        </aside>
+
+        <section class="content">
+          {% include "partials/run_hero.html" %}
+
+          <aside class="review-stack">
+            {% include "partials/generation_artifacts.html" %}
+            {% include "partials/prompt_changes.html" %}
+          </aside>
+
+          {% if state and state.correction_patches %}
+            <article class="surface main-panel">
               <h3>{{ ui.correction_patches_title }}</h3>
               <div class="grid">
                 {% for patch in state.correction_patches %}
                   <div>
                     <strong>{{ ui.correction_patches_agent }}: {{ patch.agent_name }}</strong>
                     <p class="muted">{{ ui.correction_patches_expected_effect }}: {{ patch.expected_effect }}</p>
-                    <p>{{ ui.correction_patches_operations }}: {{ patch.operations | length }}</p>
-                    <p class="muted">{{ ui.correction_patches_rationale }}: {{ patch.rationale }}</p>
-                    {% for operation in patch.operations[:3] %}
-                      <p class="muted">{{ operation.operation_type }} 路 {{ operation.field_path }}<br>{{ operation.value }}</p>
+                    {% for operation in patch.operations[:4] %}
+                      <p><span class="badge">{{ operation.operation_type }}</span> {{ operation.field_path }}</p>
+                      <pre>{{ operation.value | diff_value }}</pre>
                     {% endfor %}
+                    <p class="muted">{{ ui.correction_patches_rationale }}: {{ patch.rationale }}</p>
                   </div>
                 {% endfor %}
               </div>
             </article>
           {% endif %}
-          {% if state.version_diffs %}
-            <article class="card">
+
+          {% if state and state.score_deltas and state.regression_checks %}
+            {% set score_delta = state.score_deltas[-1] %}
+            {% set regression = state.regression_checks[-1] %}
+            <article class="surface main-panel">
+              <h3>{{ ui.convergence_title }} v{{ score_delta.from_version }} -> v{{ score_delta.to_version }}</h3>
+              <div class="metric-strip">
+                <div class="metric"><strong>{{ ui.convergence_overall_delta }}</strong><span>{{ "%+.3f"|format(score_delta.overall_delta) }}</span></div>
+                <div class="metric"><strong>{{ ui.convergence_status }}</strong><span>{{ status_labels.get(regression.status, regression.status) }}</span></div>
+                <div class="metric"><strong>{{ ui.convergence_resolved }}</strong><span>{{ regression.resolved_issue_ids | length }}</span></div>
+                <div class="metric"><strong>{{ ui.convergence_remaining }}</strong><span>{{ regression.remaining_issue_ids | length }}</span></div>
+              </div>
+              <p class="muted">{{ regression.summary }}</p>
+              {% if state.convergence_steps %}
+                <div class="timeline">
+                  {% for step in state.convergence_steps %}
+                    <div class="timeline-row">
+                      <strong>v{{ step.from_version }} -> v{{ step.to_version }}</strong>
+                      <span class="badge">{{ "%+.3f"|format(step.overall_delta) }}</span>
+                      <span class="badge">{{ status_labels.get(step.status, step.status) }}</span>
+                      {% if step.stop_reason %}<p class="muted">{{ ui.convergence_stop_reason }}: {{ stop_reason_labels.get(step.stop_reason, step.stop_reason) }}</p>{% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </article>
+          {% endif %}
+
+          {% if state and state.version_diffs %}
+            <article class="surface main-panel">
               <h3>{{ ui.version_diff_chain_title }}</h3>
-              <div class="version-chain">
+              <div class="timeline">
                 {% for diff in state.version_diffs %}
-                  <details class="version-card" {% if loop.last %}open{% endif %}>
-                    <summary>
-                      <span class="version-title">v{{ diff.from_version }} &rarr; v{{ diff.to_version }}</span>
-                      <span class="version-reason">{{ diff.explanation }}</span>
-                      <span class="badge">{{ ui.version_diff_open }}</span>
-                    </summary>
-                    <div class="version-body">
-                      <div class="summary-strip">
-                        <div class="metric">
-                          <strong>{{ ui.version_diff_changed_shots }}</strong>
-                          <span>{{ diff.changed_shots | join(", ") if diff.changed_shots else "n/a" }}</span>
-                        </div>
-                        <div class="metric">
-                          <strong>{{ ui.version_diff_changed_prompts }}</strong>
-                          <span>{{ diff.changed_prompts | join(", ") if diff.changed_prompts else "n/a" }}</span>
-                        </div>
-                        <div class="metric">
-                          <strong>{{ ui.version_diff_changed_audio_cues }}</strong>
-                          <span>{{ diff.changed_audio_cues | join(", ") if diff.changed_audio_cues else "n/a" }}</span>
-                        </div>
-                        <div class="metric">
-                          <strong>{{ ui.version_diff_resolved_issues }}</strong>
-                          <span>{{ diff.resolved_issues | length }}</span>
-                        </div>
-                      </div>
-                      <div class="diff-panel">
-                        {% for change in diff.field_changes %}
-                          <div class="diff-row">
-                            <div class="diff-meta">
-                              <span>{{ ui.version_diff_path }}: {{ change.path }}</span>
-                              <span class="badge">
-                                {{ ui.version_diff_change_type }}:
-                                {{ change_type_labels.get(change.change_type, change.change_type) }}
-                              </span>
-                            </div>
-                            <div class="diff-code">
-                              <div class="diff-side diff-before">
-                                <div class="diff-title">{{ ui.version_diff_before }}</div>
-                                <pre>{{ change.before | diff_value }}</pre>
-                              </div>
-                              <div class="diff-side diff-after">
-                                <div class="diff-title">{{ ui.version_diff_after }}</div>
-                                <pre>{{ change.after | diff_value }}</pre>
-                              </div>
-                            </div>
-                          </div>
-                        {% else %}
-                          <p class="muted">{{ ui.version_diff_no_field_changes }}</p>
-                        {% endfor %}
-                      </div>
+                  <details class="timeline-row" {% if loop.last %}open{% endif %}>
+                    <summary><strong>v{{ diff.from_version }} -> v{{ diff.to_version }}</strong> <span class="badge">{{ ui.version_diff_open }}</span></summary>
+                    <p class="muted">{{ diff.explanation }}</p>
+                    <div class="metric-strip">
+                      <div class="metric"><strong>{{ ui.version_diff_changed_shots }}</strong><span>{{ diff.changed_shots | join(", ") if diff.changed_shots else "n/a" }}</span></div>
+                      <div class="metric"><strong>{{ ui.version_diff_changed_prompts }}</strong><span>{{ diff.changed_prompts | join(", ") if diff.changed_prompts else "n/a" }}</span></div>
+                      <div class="metric"><strong>{{ ui.version_diff_resolved_issues }}</strong><span>{{ diff.resolved_issues | length }}</span></div>
                     </div>
                   </details>
                 {% endfor %}
               </div>
             </article>
           {% endif %}
-          {% if state.score_deltas and state.regression_checks %}
-            {% set score_delta = state.score_deltas[-1] %}
-            {% set regression = state.regression_checks[-1] %}
-            <article class="card">
-              <h3>{{ ui.convergence_title }} v{{ score_delta.from_version }} &rarr; v{{ score_delta.to_version }}</h3>
-              <div class="summary-strip">
-                <div class="metric">
-                  <strong>{{ ui.convergence_overall_delta }}</strong>
-                  <span>{{ "%+.3f"|format(score_delta.overall_delta) }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.convergence_status }}</strong>
-                  <span>{{ status_labels.get(regression.status, regression.status) }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.convergence_resolved }}</strong>
-                  <span>{{ regression.resolved_issue_ids | length }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.convergence_remaining }}</strong>
-                  <span>{{ regression.remaining_issue_ids | length }}</span>
-                </div>
-                <div class="metric">
-                  <strong>{{ ui.convergence_new }}</strong>
-                  <span>{{ regression.new_issue_ids | length }}</span>
-                </div>
+
+          {% if state and state.solution_architecture %}
+            <article class="surface main-panel">
+              <h3>{{ ui.solution_title }}</h3>
+              <div class="metric-strip">
+                <div class="metric"><strong>{{ ui.solution_industry }}</strong><span>{{ state.solution_architecture.industry }}</span></div>
+                <div class="metric"><strong>{{ ui.solution_scenario }}</strong><span>{{ state.solution_architecture.scenario }}</span></div>
+                <div class="metric"><strong>{{ ui.solution_success }}</strong><span>{{ state.solution_architecture.poc_success_criteria | length }}</span></div>
               </div>
-              <p class="muted">{{ regression.summary }}</p>
-              {% if state.convergence_steps %}
-                <h4>{{ ui.convergence_history }}</h4>
-                <div class="summary-strip">
-                  {% for step in state.convergence_steps %}
-                    <div class="metric">
-                      <strong>v{{ step.from_version }} &rarr; v{{ step.to_version }}</strong>
-                      <span>{{ "%+.3f"|format(step.overall_delta) }} / {{ status_labels.get(step.status, step.status) }}</span>
-                      {% if step.stop_reason %}
-                        <p class="muted">{{ ui.convergence_stop_reason }}: {{ stop_reason_labels.get(step.stop_reason, step.stop_reason) }}</p>
-                      {% endif %}
-                    </div>
-                  {% endfor %}
-                </div>
-              {% endif %}
+              <p>{{ state.solution_architecture.business_objective }}</p>
               <div class="grid">
-                {% for delta in score_delta.dimension_deltas %}
+                {% for component in state.solution_architecture.components %}
                   <div>
-                    <strong>{{ delta.label }}</strong>
-                    <p class="muted">{{ "%.2f"|format(delta.before_score) }} &rarr; {{ "%.2f"|format(delta.after_score) }} / {{ "%+.3f"|format(delta.delta) }}</p>
+                    <strong>{{ component.name }}</strong>
+                    <p class="muted">{{ component.responsibility }}</p>
                   </div>
                 {% endfor %}
               </div>
             </article>
           {% endif %}
-          {% if snapshots %}
-            <article class="card">
-              <h3>{{ ui.snapshots_title }}</h3>
-              <div class="summary-strip">
-                {% for snapshot in snapshots %}
-                  <div class="metric">
-                    <strong>v{{ snapshot.version }}</strong>
-                    <span>{{ snapshot.label if snapshot.label else ui.snapshots_label }}</span>
-                    <p class="muted">{{ ui.snapshots_file }}: {{ snapshot.name }}</p>
+
+          {% if state and state.delivery_readiness %}
+            <article class="surface main-panel">
+              <h3>{{ ui.readiness_title }}</h3>
+              <div class="metric-strip">
+                <div class="metric"><strong>{{ ui.readiness_overall }}</strong><span>{{ state.delivery_readiness.overall_status }}</span></div>
+                <div class="metric"><strong>{{ ui.readiness_handoff }}</strong><span>{{ state.delivery_readiness.handoff_deliverables | length }}</span></div>
+                <div class="metric"><strong>{{ ui.readiness_checks }}</strong><span>{{ state.delivery_readiness.checks | length }}</span></div>
+              </div>
+              <div class="grid">
+                {% for check in state.delivery_readiness.checks %}
+                  <div>
+                    <strong>{{ check.check_id }} / {{ check.status }}</strong>
+                    <p class="muted">{{ check.evidence }}</p>
                   </div>
                 {% endfor %}
               </div>
             </article>
           {% endif %}
+
+          {% include "partials/evaluation_panel.html" %}
+
           {% if harness_inspector.contexts or harness_inspector.tool_calls %}
             {% set latest_context = harness_inspector.latest_context %}
-            <article class="card">
+            <article class="surface main-panel">
               <h3>{{ ui.harness_title }}</h3>
               <p class="muted">{{ ui.harness_subtitle }}</p>
-              <div class="inspector-grid">
-                <div class="inspector-panel">
+              <div class="grid">
+                <div>
                   <h4>{{ ui.harness_context }}</h4>
-                  {% if harness_inspector.contexts %}
-                    {% for context in harness_inspector.contexts[-4:] %}
-                      <p>
-                        <strong>{{ ui.harness_agent }}: {{ context.agent_name }}</strong><br>
-                        <span class="muted">{{ ui.harness_sources }}: {{ context.source_count }} / {{ ui.harness_chars }}: {{ context.char_count }}</span>
-                      </p>
-                      <div class="pill-row">
-                        {% for source_type in context.source_types[:6] %}
-                          <span class="badge">{{ source_type }}</span>
-                        {% endfor %}
-                      </div>
-                    {% endfor %}
+                  {% for context in harness_inspector.contexts %}
+                    <p><strong>{{ context.agent_name }}</strong><br><span class="muted">{{ context.metadata.agent_spec.role if context.metadata.agent_spec else "" }}</span></p>
                   {% else %}
                     <p class="muted">{{ ui.harness_no_records }}</p>
-                  {% endif %}
+                  {% endfor %}
                 </div>
-                <div class="inspector-panel">
+                <div>
                   <h4>{{ ui.harness_tools }}</h4>
-                  {% if harness_inspector.tool_calls %}
-                    {% for record in harness_inspector.tool_calls[-5:] %}
-                      <p>
-                        <strong>{{ record.tool_name }}</strong><br>
-                        <span class="muted">{{ ui.harness_tool_status }}: {{ record.status }}{% if record.duration_ms %} / {{ ui.harness_latency }}: {{ "%.1f"|format(record.duration_ms) }}ms{% endif %}</span>
-                      </p>
-                    {% endfor %}
+                  {% for record in harness_inspector.tool_calls[-6:] %}
+                    <p><strong>{{ record.tool_name }}</strong><br><span class="muted">{{ ui.harness_tool_status }}: {{ record.status }}</span></p>
                   {% else %}
                     <p class="muted">{{ ui.harness_no_records }}</p>
-                  {% endif %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.harness_state }}</h4>
-                  {% for key, value in harness_inspector.state_summary.items() %}
-                    <p><strong>{{ key }}</strong>: {{ value }}</p>
                   {% endfor %}
                 </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.harness_transitions }}</h4>
-                  {% if harness_inspector.state_transitions %}
-                    {% for transition in harness_inspector.state_transitions[-5:] %}
-                      <p>
-                        <strong>{{ transition.agent_name }}</strong><br>
-                        <span class="muted">{{ ui.harness_invariant_status }}: {{ transition.invariant_status }}</span><br>
-                        <span class="muted">{{ ui.harness_changed_fields }}: {{ transition.changed_fields | join(", ") if transition.changed_fields else "none" }}</span>
-                      </p>
-                    {% endfor %}
-                  {% else %}
-                    <p class="muted">{{ ui.harness_no_records }}</p>
-                  {% endif %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.harness_topology }}</h4>
-                  <p><strong>{{ ui.harness_nodes }}</strong>: {{ harness_inspector.agent_topology.nodes | length }}</p>
-                  <p><strong>{{ ui.harness_edges }}</strong>: {{ harness_inspector.agent_topology.edges | length }}</p>
-                  {% for node in harness_inspector.agent_topology.nodes[:5] %}
-                    <p>
-                      <strong>{{ node.agent_name }}</strong><br>
-                      <span class="muted">{{ node.role }}</span>
-                    </p>
-                  {% endfor %}
-                </div>
-                <div class="inspector-panel">
-                  <h4>{{ ui.harness_policy }}</h4>
-                  <pre>{{ latest_context.execution_policy | diff_value if latest_context.execution_policy else "{}" }}</pre>
-                </div>
-                <div class="inspector-panel">
+                <div>
                   <h4>{{ ui.harness_mcp }}</h4>
-                  <div class="pill-row">
-                    {% for tool_name in latest_context.mcp_tool_names %}
-                      <span class="badge">{{ tool_name }}</span>
-                    {% else %}
-                      <span class="muted">{{ ui.harness_no_records }}</span>
-                    {% endfor %}
-                  </div>
+                  {% for tool_name in latest_context.mcp_tool_names %}
+                    <span class="pill">{{ tool_name }}</span>
+                  {% else %}
+                    <span class="muted">{{ ui.harness_no_records }}</span>
+                  {% endfor %}
                 </div>
-                <div class="inspector-panel">
+                <div>
                   <h4>{{ ui.harness_sandbox }}</h4>
                   <pre>{{ latest_context.sandbox_policy | diff_value if latest_context.sandbox_policy else "{}" }}</pre>
                 </div>
-                <div class="inspector-panel">
+                <div>
                   <h4>{{ ui.harness_memory }}</h4>
                   <pre>{{ latest_context.memory | diff_value if latest_context.memory else "{}" }}</pre>
                 </div>
-              </div>
-            </article>
-          {% endif %}
-          {% if state.verification_reports %}
-            {% set verification = state.verification_reports[-1] %}
-            <article class="card">
-              <h3>{{ ui.verification_title }}</h3>
-              <p class="muted">{{ ui.verification_summary }}: {{ verification.summary }}</p>
-              <div class="summary-strip">
-                <div class="metric">
-                  <strong>{{ ui.verification_failed }}</strong>
-                  <span>{{ verification.metadata.failed_count }}</span>
+                <div>
+                  <h4>{{ ui.harness_transitions }}</h4>
+                  {% for transition in harness_inspector.state_transitions[-5:] %}
+                    <p><strong>{{ transition.agent_name }}</strong><br><span class="muted">{{ ui.harness_invariant_status }}: {{ transition.invariant_status }}</span></p>
+                  {% else %}
+                    <p class="muted">{{ ui.harness_no_records }}</p>
+                  {% endfor %}
                 </div>
-                <div class="metric">
-                  <strong>{{ ui.verification_warnings }}</strong>
-                  <span>{{ verification.metadata.warning_count }}</span>
+                <div>
+                  <h4>{{ ui.harness_topology }}</h4>
+                  <p>{{ ui.harness_nodes }}: {{ harness_inspector.agent_topology.nodes | length }} / {{ ui.harness_edges }}: {{ harness_inspector.agent_topology.edges | length }}</p>
                 </div>
               </div>
             </article>
           {% endif %}
-          <div class="grid">
-            {% for beat in state.shots %}
-              <article class="card">
-                <h3>{{ ui.run_scene }} {{ beat.index }}: {{ beat.title }}</h3>
-                <p>{{ beat.description }}</p>
-                <p class="muted">{{ beat.duration_seconds }}s · {{ beat.shot_type }}</p>
-                {% set prompt = (state.prompt_package.prompts | selectattr("shot_id", "equalto", beat.shot_id) | list | first) %}
-                {% if prompt %}<pre>{{ prompt.prompt }}</pre>{% endif %}
-              </article>
-            {% endfor %}
-          </div>
-          </div>
-        {% else %}
-          <h2>{{ ui.run_ready_title }}</h2>
-          <p class="muted">{{ ui.run_ready_body }}</p>
-        {% endif %}
-      </section>
-    </main>
+
+          {% if state %}
+            <article class="surface main-panel">
+              <h3>{{ ui.storyboard_title }}</h3>
+              <div class="grid">
+                {% for beat in state.shots %}
+                  <div>
+                    <strong>{{ ui.run_scene }} {{ beat.index }}: {{ beat.title }}</strong>
+                    <p>{{ beat.description }}</p>
+                    <p class="muted">{{ beat.duration_seconds }}s / {{ beat.shot_type }}</p>
+                  </div>
+                {% endfor %}
+              </div>
+            </article>
+          {% endif %}
+        </section>
+      </main>
+      </form>
+    {% endif %}
+
+    <script src="/static/shotforge-ui.js" defer></script>
     <script>
-      const signalToggle = document.getElementById("show-signals");
-      if (signalToggle) {
-        signalToggle.addEventListener("change", () => {
-          document.body.classList.toggle("show-signals", signalToggle.checked);
-        });
+      const providerProfiles = {{ provider_profiles | tojson }};
+      const fieldValue = (id) => {
+        const element = document.getElementById(id);
+        return element ? element.value : "";
+      };
+      const numberValue = (id, fallback) => {
+        const parsed = Number(fieldValue(id));
+        return Number.isFinite(parsed) ? parsed : fallback;
+      };
+      const setValue = (id, value) => {
+        const element = document.getElementById(id);
+        if (element && value !== undefined && value !== null) {
+          element.value = value;
+        }
+      };
+      const currentProviderPayload = () => ({
+        profile_id: fieldValue("provider_profile_id") || fieldValue("provider_profile_name") || "default",
+        name: fieldValue("provider_profile_name") || fieldValue("provider_profile_id") || {{ ui.profile_default | tojson }},
+        llm_provider_id: fieldValue("llm_provider_id") || "ollama",
+        llm_model: fieldValue("llm_model") || "qwen2.5:7b",
+        llm_base_url: fieldValue("llm_base_url"),
+        llm_api_key: fieldValue("llm_api_key"),
+        evaluator_mode: fieldValue("evaluator_mode") || "llm",
+        generator_provider_id: fieldValue("generator_provider_id") || "comfyui",
+        comfyui_base_url: fieldValue("comfyui_base_url"),
+        comfyui_workflows_dir: fieldValue("comfyui_workflows_dir"),
+        comfyui_workflow_id: fieldValue("comfyui_workflow_id") || "wan2_2_i2v_empty_start",
+        comfyui_width: numberValue("comfyui_width", 320),
+        comfyui_height: numberValue("comfyui_height", 320),
+        comfyui_length: numberValue("comfyui_length", 9),
+        comfyui_fps: numberValue("comfyui_fps", 8),
+        comfyui_max_shots: numberValue("comfyui_max_shots", 0),
+        observer_provider_id: fieldValue("observer_provider_id") || "prompt-proxy",
+        vlm_model: fieldValue("vlm_model"),
+        vlm_base_url: fieldValue("vlm_base_url"),
+        vlm_api_key: fieldValue("vlm_api_key"),
+        vlm_frame_sample_count: numberValue("vlm_frame_sample_count", 4),
+        vlm_confidence_threshold: numberValue("vlm_confidence_threshold", 0.65),
+        vlm_require_json: document.getElementById("vlm_require_json")?.checked ?? true
+      });
+      const currentPreflightPayload = () => {
+        const payload = currentProviderPayload();
+        payload.provider_profile_id = payload.profile_id;
+        payload.provider_profile_name = payload.name;
+        delete payload.profile_id;
+        delete payload.name;
+        return payload;
+      };
+      const toggleComfyConfig = () => {
+        const videoProvider = document.getElementById("generator_provider_id");
+        const comfyConfig = document.getElementById("comfyui_config");
+        if (videoProvider && comfyConfig) {
+          comfyConfig.classList.toggle("hidden", videoProvider.value !== "comfyui");
+        }
+      };
+      const syncProfileFields = () => {
+        const providerProfileSelect = document.getElementById("provider_profile_id");
+        if (!providerProfileSelect) {
+          return;
+        }
+        const profile = providerProfiles.find((item) => item.profile_id === providerProfileSelect.value);
+        if (!profile) {
+          return;
+        }
+        setValue("provider_profile_name", profile.name);
+        setValue("llm_provider_id", profile.llm_provider_id);
+        setValue("llm_model", profile.llm_model);
+        setValue("llm_base_url", profile.llm_base_url);
+        setValue("evaluator_mode", profile.evaluator_mode);
+        setValue("generator_provider_id", profile.generator_provider_id);
+        setValue("comfyui_base_url", profile.comfyui_base_url);
+        setValue("comfyui_workflows_dir", profile.comfyui_workflows_dir);
+        setValue("comfyui_workflow_id", profile.comfyui_workflow_id);
+        setValue("comfyui_width", profile.comfyui_width);
+        setValue("comfyui_height", profile.comfyui_height);
+        setValue("comfyui_length", profile.comfyui_length);
+        setValue("comfyui_fps", profile.comfyui_fps);
+        setValue("comfyui_max_shots", profile.comfyui_max_shots);
+        setValue("observer_provider_id", profile.observer_provider_id);
+        setValue("vlm_model", profile.vlm_model);
+        setValue("vlm_base_url", profile.vlm_base_url);
+        setValue("vlm_frame_sample_count", profile.vlm_frame_sample_count);
+        setValue("vlm_confidence_threshold", profile.vlm_confidence_threshold);
+        const vlmRequireJson = document.getElementById("vlm_require_json");
+        if (vlmRequireJson) {
+          vlmRequireJson.checked = profile.vlm_require_json !== false;
+        }
+        toggleComfyConfig();
+        toggleVlmConfig();
+      };
+      const providerProfileSelect = document.getElementById("provider_profile_id");
+      if (providerProfileSelect) {
+        providerProfileSelect.addEventListener("change", syncProfileFields);
       }
+      const videoProvider = document.getElementById("generator_provider_id");
+      if (videoProvider) {
+        videoProvider.addEventListener("change", toggleComfyConfig);
+      }
+      toggleComfyConfig();
+      const toggleVlmConfig = () => {
+        const observerProvider = document.getElementById("observer_provider_id");
+        const vlmConfig = document.getElementById("vlm_config");
+        if (observerProvider && vlmConfig) {
+          vlmConfig.classList.toggle("hidden", observerProvider.value === "prompt-proxy");
+        }
+      };
+      const observerProvider = document.getElementById("observer_provider_id");
+      if (observerProvider) {
+        observerProvider.addEventListener("change", toggleVlmConfig);
+      }
+      toggleVlmConfig();
+
       const languageSelect = document.getElementById("language");
       if (languageSelect) {
         languageSelect.addEventListener("change", () => {
@@ -839,6 +1259,166 @@
       if (iterationSlider && iterationValue) {
         iterationSlider.addEventListener("input", () => {
           iterationValue.textContent = iterationSlider.value;
+        });
+      }
+      const signalToggle = document.getElementById("show-signals");
+      if (signalToggle) {
+        signalToggle.addEventListener("change", () => {
+          document.body.classList.toggle("show-signals", signalToggle.checked);
+        });
+      }
+      const runForm = document.getElementById("run_form");
+      if (runForm) {
+        runForm.addEventListener("submit", () => {
+          syncProfileFields();
+          document.body.classList.add("submitting");
+          const submit = document.getElementById("run_submit");
+          if (submit) {
+            submit.disabled = true;
+            submit.textContent = {{ ui.js_running | tojson }};
+          }
+        });
+      }
+
+      const preflightStatus = document.getElementById("preflight_status");
+      const renderPreflight = (payload) => {
+        if (!preflightStatus) {
+          return;
+        }
+        preflightStatus.innerHTML = "";
+        const summary = document.createElement("div");
+        summary.className = `status-row ${payload.status || "warning"}`;
+        summary.textContent = `${ {{ ui.profile_preflight | tojson }} }: ${payload.status} / failed ${payload.failed || 0} / warnings ${payload.warnings || 0}`;
+        preflightStatus.appendChild(summary);
+        for (const check of payload.checks || []) {
+          const row = document.createElement("div");
+          row.className = `status-row ${check.status}`;
+          row.textContent = `${check.label}: ${check.status} / ${check.detail}`;
+          preflightStatus.appendChild(row);
+        }
+      };
+      const saveProviderProfile = document.getElementById("save_provider_profile");
+      if (saveProviderProfile) {
+        saveProviderProfile.addEventListener("click", async () => {
+          saveProviderProfile.disabled = true;
+          try {
+            const response = await fetch("/api/provider-profiles", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify(currentProviderPayload())
+            });
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}`);
+            }
+            const payload = await response.json();
+            renderPreflight({status: "passed", failed: 0, warnings: 0, checks: [
+              {label: {{ ui.profile_label | tojson }}, status: "passed", detail: `${ {{ ui.profile_saved | tojson }} } ${payload.profile.profile_id}`}
+            ]});
+          } catch (error) {
+            renderPreflight({status: "failed", failed: 1, warnings: 0, checks: [
+              {label: {{ ui.profile_label | tojson }}, status: "failed", detail: `${error}`}
+            ]});
+          } finally {
+            saveProviderProfile.disabled = false;
+          }
+        });
+      }
+      const preflightCheck = document.getElementById("preflight_check");
+      if (preflightCheck) {
+        preflightCheck.addEventListener("click", async () => {
+          preflightCheck.disabled = true;
+          renderPreflight({status: "warning", failed: 0, warnings: 1, checks: [
+            {label: {{ ui.profile_check_label | tojson }}, status: "warning", detail: {{ ui.profile_checking | tojson }}}
+          ]});
+          try {
+            const response = await fetch("/api/preflight", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify(currentPreflightPayload())
+            });
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}`);
+            }
+            renderPreflight(await response.json());
+          } catch (error) {
+            renderPreflight({status: "failed", failed: 1, warnings: 0, checks: [
+              {label: {{ ui.profile_check_label | tojson }}, status: "failed", detail: `${error}`}
+            ]});
+          } finally {
+            preflightCheck.disabled = false;
+          }
+        });
+      }
+      const testChain = document.getElementById("test_chain");
+      if (testChain) {
+        testChain.addEventListener("click", async () => {
+          testChain.disabled = true;
+          renderPreflight({status: "warning", failed: 0, warnings: 1, checks: [
+            {label: {{ ui.profile_test_chain_label | tojson }}, status: "warning", detail: {{ ui.profile_test_chain_running | tojson }}}
+          ]});
+          try {
+            const response = await fetch("/api/test-chain", {method: "POST"});
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}`);
+            }
+            const payload = await response.json();
+            renderPreflight(payload);
+          } catch (error) {
+            renderPreflight({status: "failed", failed: 1, warnings: 0, checks: [
+              {label: {{ ui.profile_test_chain_label | tojson }}, status: "failed", detail: `${error}`}
+            ]});
+          } finally {
+            testChain.disabled = false;
+          }
+        });
+      }
+      const workflowSearch = document.getElementById("comfyui_search");
+      const workflowSelect = document.getElementById("comfyui_workflow_id");
+      if (workflowSearch && workflowSelect) {
+        workflowSearch.addEventListener("click", async () => {
+          const workflowsDir = document.getElementById("comfyui_workflows_dir");
+          const workflowStatus = document.getElementById("comfyui_search_status");
+          workflowSearch.disabled = true;
+          if (workflowStatus) {
+            workflowStatus.textContent = {{ ui.form_comfyui_searching | tojson }};
+          }
+          const url = new URL("/api/comfyui/workflows", window.location.origin);
+          if (workflowsDir && workflowsDir.value.trim()) {
+            url.searchParams.set("root", workflowsDir.value.trim());
+          }
+          try {
+            const response = await fetch(url);
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}`);
+            }
+            const payload = await response.json();
+            const previousValue = workflowSelect.value;
+            const workflows = payload.workflows || [];
+            workflowSelect.innerHTML = "";
+            for (const workflow of workflows) {
+              const option = document.createElement("option");
+              option.value = workflow.workflow_id;
+              option.textContent = workflow.workflow_id + (workflow.callable ? "" : ` / ${ {{ ui.js_disabled | tojson }} }`);
+              option.disabled = !workflow.callable;
+              workflowSelect.appendChild(option);
+            }
+            if ([...workflowSelect.options].some((option) => option.value === previousValue)) {
+              workflowSelect.value = previousValue;
+            }
+            const localCount = workflows.filter((workflow) => workflow.source === "local").length;
+            const callableCount = workflows.filter((workflow) => workflow.callable).length;
+            if (workflowStatus) {
+              workflowStatus.textContent = workflows.length
+                ? `${ {{ ui.form_comfyui_search_found | tojson }} }: ${workflows.length} / ${ {{ ui.js_local | tojson }} } ${localCount} / ${ {{ ui.js_callable | tojson }} } ${callableCount}`
+                : {{ ui.form_comfyui_search_empty | tojson }};
+            }
+          } catch (error) {
+            if (workflowStatus) {
+              workflowStatus.textContent = `${ {{ ui.form_comfyui_search_failed | tojson }} }: ${error}`;
+            }
+          } finally {
+            workflowSearch.disabled = false;
+          }
         });
       }
     </script>

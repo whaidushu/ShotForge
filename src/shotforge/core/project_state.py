@@ -6,6 +6,12 @@ from uuid import uuid4
 
 from pydantic import AliasChoices, BaseModel, Field
 
+from shotforge.core.schemas.observation import (
+    FrameObservation,
+    ObservationReport,
+    SequenceObservation,  # noqa: F401 - re-exported for legacy imports
+    ShotObservation,  # noqa: F401 - re-exported for legacy imports
+)
 from shotforge.core.runtime_models import (
     AgentContractReport,
     HarnessContextSnapshot,
@@ -22,6 +28,7 @@ ExportFormat = Literal[
     "markdown",
     "evaluation_csv",
     "manifest",
+    "package_view",
     "trace",
     "run_summary",
 ]
@@ -102,6 +109,7 @@ class AudioCue(BaseModel):
 class StructuredPromptTemplate(BaseModel):
     character_identity: str = ""
     scene_constraints: str = ""
+    physical_constraints: list[str] = Field(default_factory=list)
     action_sequence: str = ""
     emotional_direction: str = ""
     camera_direction: str = ""
@@ -116,6 +124,9 @@ class StructuredPromptTemplate(BaseModel):
         parts = [
             self.character_identity,
             self.scene_constraints,
+            "Physical constraints: " + "; ".join(self.physical_constraints)
+            if self.physical_constraints
+            else "",
             self.action_sequence,
             self.emotional_direction,
             self.camera_direction,
@@ -235,6 +246,7 @@ class GeneratedShotResult(BaseModel):
     motion_summary: str = ""
     audio_summary: str = ""
     quality_signals: dict[str, float] = Field(default_factory=dict)
+    frame_observations: list[FrameObservation] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -248,6 +260,7 @@ class GeneratedResult(BaseModel):
     created_at: datetime = Field(default_factory=utc_now)
     shots: list[GeneratedShotResult] = Field(default_factory=list)
     artifact_refs: list[str] = Field(default_factory=list)
+    observation_report_id: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -391,6 +404,9 @@ class CorrectionOperation(BaseModel):
         "append_motion_subject",
         "append_motion_camera",
         "append_prompt_text",
+        "append_negative_prompt",
+        "append_structured_template_text",
+        "append_structured_template_list",
         "append_scene_description",
         "append_scene_emotional_goal",
         "append_audio_sound_design",
@@ -473,6 +489,7 @@ class ProjectState(BaseModel):
     delivery_readiness: DeliveryReadinessReport | None = None
 
     generation_results: list[GeneratedResult] = Field(default_factory=list)
+    observation_reports: list[ObservationReport] = Field(default_factory=list)
     verification_reports: list[VerificationReport] = Field(default_factory=list)
     evaluation_reports: list[EvaluationReport] = Field(default_factory=list)
     issue_history: list[Issue] = Field(default_factory=list)

@@ -1,0 +1,32 @@
+<article class="surface hero-panel">
+  <div class="hero">
+    <div>
+      <h2 class="hero-title">{% if state %}{{ ui.run_title }} {{ state.run_id }}{% else %}{{ ui.run_ready_title }}{% endif %}</h2>
+      <p class="muted">{% if state %}{{ state.user_idea }}{% else %}{{ ui.run_ready_body }}{% endif %}</p>
+    </div>
+    {% if state %}
+      <div class="export-links">
+        <a href="/api/runs/{{ state.run_id }}/export/json">{{ ui.exports_json }}</a>
+        <a href="/api/runs/{{ state.run_id }}/export/package_view">Package View</a>
+        <a href="/api/runs/{{ state.run_id }}/export/markdown">{{ ui.exports_markdown }}</a>
+        <a href="/api/runs/{{ state.run_id }}/export/manifest">{{ ui.exports_manifest }}</a>
+        <a href="/api/runs/{{ state.run_id }}/export/run_summary">{{ ui.exports_run_summary }}</a>
+        {% if state.evaluation_reports %}<a href="/api/runs/{{ state.run_id }}/export/evaluation_csv">{{ ui.exports_evaluation_csv }}</a>{% endif %}
+      </div>
+    {% endif %}
+  </div>
+  <div class="studio-kpis">
+    <div class="studio-kpi"><strong>{{ ui.kpi_profile }}</strong><span>{{ form_state.provider_profile_name }}</span></div>
+    <div class="studio-kpi"><strong>{{ ui.kpi_mode }}</strong><span>{{ form_state.mode }}</span></div>
+    <div class="studio-kpi"><strong>{{ ui.kpi_video }}</strong><span>{{ ui.profile_test_chain_label if "mock" in form_state.generator_provider_id else form_state.generator_provider_id }}</span></div>
+    <div class="studio-kpi"><strong>{{ ui.kpi_progress }}</strong><span>{{ run_progress.percent }}%</span></div>
+  </div>
+  <div class="pipeline">
+    <div class="progress-track"><div class="progress-fill" style="width: {{ run_progress.percent }}%;"></div></div>
+    <div class="step-row">
+      {% for step in run_progress.steps %}
+        <div class="step {% if step.done %}done{% endif %}">{{ step.label }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</article>

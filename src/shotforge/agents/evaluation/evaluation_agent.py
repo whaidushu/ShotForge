@@ -111,6 +111,8 @@ class EvaluationAgent:
             metadata={
                 "target": dimension.target,
                 "signal_key": dimension.signal_key or dimension.id,
+                "strategy": dimension.strategy,
+                "dimension_metadata": dimension.metadata,
                 **self._layer_metadata(dimension),
             },
         )
@@ -172,6 +174,7 @@ class EvaluationAgent:
         return {
             "layer_id": dimension.layer_id,
             "layer_index": dimension.layer_index,
+            "dimension_strategy": dimension.strategy,
             "prompt_fields": dimension.prompt_fields,
             "hard_target": dimension.hard_target,
         }
@@ -214,7 +217,10 @@ class EvaluationAgent:
                     "issue_count": sum(
                         1 for issue in issues if issue.metadata.get("layer_id") == layer_id
                     ),
+                    "objective": layer.objective if layer else "",
+                    "strategy": layer.strategy if layer else "",
                     "convergence_policy": layer.convergence_policy if layer else "",
+                    "metadata": layer.metadata if layer else {},
                 }
             )
         return summaries

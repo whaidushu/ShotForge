@@ -18,12 +18,23 @@ from shotforge.core.harness_runtime import AgentHarnessRuntime
 from shotforge.core.project_state import ProjectState
 from shotforge.core.version_manager import VersionManager
 from shotforge.exporters import ExportManager
+from shotforge.llm import build_default_llm_registry
 from shotforge.mock_llm import MockLLM
 from shotforge.skills import SkillRegistry
 
 
 def build_default_registry() -> SkillRegistry:
     registry = SkillRegistry()
+    llm_registry = build_default_llm_registry()
+    llm_provider_name = "mock"
+    try:
+        from shotforge.config import get_settings
+
+        configured_provider = get_settings().llm_provider
+        llm_registry.get(configured_provider)
+        llm_provider_name = configured_provider
+    except KeyError:
+        llm_provider_name = "mock"
     registry.register(
         "mock_llm.complete",
         MockLLM().complete,
@@ -32,6 +43,21 @@ def build_default_registry() -> SkillRegistry:
         risk_level="low",
         input_schema={"required_arg_count": 1, "required_kwargs": ["purpose"]},
         output_schema={"type": "str"},
+    )
+    provider = llm_registry.get(llm_provider_name)
+    registry.register(
+        "llm.complete",
+        provider.complete,
+        description=f"Configured LLM completion provider: {provider.model_name}.",
+        permission_scope="local_inference" if provider.model_name == "mock" else "external_llm",
+        risk_level="low" if provider.model_name == "mock" else "medium",
+        input_schema={"required_arg_count": 1, "required_kwargs": ["purpose"]},
+        output_schema={"type": "str"},
+        metadata={
+            "provider": provider.model_name,
+            "display_name": getattr(provider, "display_name", provider.model_name),
+            "cost_mode": str(getattr(provider, "cost_mode", "")),
+        },
     )
     registry.register(
         "export.json",
@@ -58,6 +84,13 @@ def build_default_registry() -> SkillRegistry:
         "export.manifest",
         ExportManager().export_manifest,
         description="Export customer handoff manifest.",
+        permission_scope="local_file_write",
+        risk_level="medium",
+    )
+    registry.register(
+        "export.package_view",
+        ExportManager().export_package_view,
+        description="Export domain package view JSON.",
         permission_scope="local_file_write",
         risk_level="medium",
     )
@@ -163,6 +196,7 @@ def build_default_agent_catalog() -> AgentCatalog:
                     "export.csv",
                     "export.markdown",
                     "export.manifest",
+                    "export.package_view",
                     "export.trace",
                     "export.run_summary",
                     "version.save_snapshot",

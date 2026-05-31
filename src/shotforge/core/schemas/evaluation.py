@@ -8,6 +8,7 @@ class EvaluationLayerConfig(BaseModel):
     index: int
     labels: dict[str, str]
     objective: str = ""
+    strategy: str = ""
     convergence_policy: str = "fix-before-next-layer"
     metadata: dict = Field(default_factory=dict)
 
@@ -45,6 +46,7 @@ class EvaluationDimensionConfig(BaseModel):
     signal_key: str | None = None
     layer_id: str = "creative_quality"
     layer_index: int = 99
+    strategy: str = ""
     prompt_fields: list[str] = Field(default_factory=list)
     hard_target: bool = False
     issue_rule: EvaluationIssueRule

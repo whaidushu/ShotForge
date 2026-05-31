@@ -2,76 +2,137 @@
   "rubrics": [
     {
       "id": "baseline_v1",
-      "version": "1.1",
+      "version": "1.2",
       "labels": {
-        "zh": "V1 分层基线评测",
+        "zh": "V1 分层基线评估",
         "en": "V1 Layered Baseline Evaluation"
       },
       "metadata": {
         "extension_policy": "Add, remove, or adjust layers and dimensions here without changing workflow code.",
         "score_range": [0, 1],
-        "layer_policy": "Lower layer_index means earlier convergence priority."
+        "layer_policy": "Lower layer_index means earlier convergence priority.",
+        "shot_policy": "Start with single-shot evaluation; use frame_observations for frame-level consistency and later add cross-shot observations for multi-shot continuity."
       },
       "layers": [
         {
-          "id": "hard_targets",
+          "id": "physical_effect",
+          "index": 0,
+          "labels": {"zh": "物理效果层", "en": "Physical Effect"},
+          "objective": "Verify hard visual facts first: subject count, object existence, required elements, and concrete physical descriptions.",
+          "convergence_policy": "fix-before-next-layer"
+        },
+        {
+          "id": "frame_consistency",
           "index": 1,
-          "labels": {
-            "zh": "硬目标",
-            "en": "Hard Targets"
-          },
-          "objective": "Verify directly observable constraints such as subject identity, existence, count, and scene anchors.",
+          "labels": {"zh": "帧间一致性", "en": "Frame Consistency"},
+          "objective": "Verify that elements, identity, and actions remain stable across frames in one shot, and later across shots.",
           "convergence_policy": "fix-before-next-layer"
         },
         {
-          "id": "motion_timing",
+          "id": "style_color",
           "index": 2,
-          "labels": {
-            "zh": "动作与节奏",
-            "en": "Motion and Timing"
-          },
-          "objective": "Make the main action, movement, and timing legible before optimizing expressive details.",
-          "convergence_policy": "fix-before-next-layer"
-        },
-        {
-          "id": "cinematic_expression",
-          "index": 3,
-          "labels": {
-            "zh": "镜头表达",
-            "en": "Cinematic Expression"
-          },
-          "objective": "Align camera language with the narrative beat.",
+          "labels": {"zh": "风格与颜色", "en": "Style and Color"},
+          "objective": "Align color, visual style, and camera language after physical facts and consistency are stable.",
           "convergence_policy": "optimize-after-foundation"
         },
         {
-          "id": "narrative_emotion",
-          "index": 4,
-          "labels": {
-            "zh": "叙事情绪",
-            "en": "Narrative Emotion"
-          },
-          "objective": "Strengthen emotion, reversal, and sound beats after basic visual correctness is stable.",
+          "id": "emotion_atmosphere",
+          "index": 3,
+          "labels": {"zh": "情绪与氛围", "en": "Emotion and Atmosphere"},
+          "objective": "Strengthen emotion, atmosphere, reversal, and sound beats after visual correctness is stable.",
           "convergence_policy": "optimize-after-foundation"
         },
         {
           "id": "prompt_execution",
-          "index": 5,
-          "labels": {
-            "zh": "Prompt 可执行性",
-            "en": "Prompt Executability"
-          },
+          "index": 4,
+          "labels": {"zh": "Prompt 可执行性", "en": "Prompt Executability"},
           "objective": "Ensure structured prompt fields are concrete enough for a generator provider.",
           "convergence_policy": "always-check"
         }
       ],
       "dimensions": [
         {
+          "id": "subject_count",
+          "labels": {"zh": "主体数量", "en": "Subject Count"},
+          "weight": 1.3,
+          "target": "The generated result keeps the requested number of primary subjects.",
+          "signal_key": "subject_count",
+          "layer_id": "physical_effect",
+          "layer_index": 0,
+          "prompt_fields": ["physical_constraints", "character_identity"],
+          "hard_target": true,
+          "issue_rule": {
+            "threshold": 0.9,
+            "correction_type": "character",
+            "description_templates": {
+              "zh": "{shot_id} 的主体数量没有对齐用户目标。",
+              "en": "Subject count in {shot_id} does not match the target."
+            },
+            "cause_templates": {
+              "zh": "主体数量约束不够明确，或生成结果中出现增减主体。",
+              "en": "The subject-count constraint is not explicit enough, or the generation added/dropped subjects."
+            },
+            "description_template": "Subject count in {shot_id} does not match the target.",
+            "cause_template": "Subject-count constraints are not explicit enough."
+          }
+        },
+        {
+          "id": "element_presence",
+          "labels": {"zh": "元素出现", "en": "Element Presence"},
+          "weight": 1.25,
+          "target": "Required props, scene anchors, and visual elements are present.",
+          "signal_key": "element_presence",
+          "layer_id": "physical_effect",
+          "layer_index": 0,
+          "prompt_fields": ["physical_constraints", "scene_constraints", "action_sequence"],
+          "hard_target": true,
+          "issue_rule": {
+            "threshold": 0.82,
+            "correction_type": "scene",
+            "description_templates": {
+              "zh": "{shot_id} 缺少必要的可见元素或场景锚点。",
+              "en": "{shot_id} is missing required visible elements or scene anchors."
+            },
+            "cause_templates": {
+              "zh": "必要道具、元素或场景锚点没有被列成可检查目标。",
+              "en": "Required props, elements, or scene anchors are not listed as checkable targets."
+            },
+            "description_template": "{shot_id} is missing required visible elements.",
+            "cause_template": "Required elements are not explicit enough."
+          }
+        },
+        {
+          "id": "element_description",
+          "labels": {"zh": "元素描述", "en": "Element Description"},
+          "weight": 1.0,
+          "target": "Physical attributes are described concretely enough to evaluate.",
+          "signal_key": "element_description",
+          "layer_id": "physical_effect",
+          "layer_index": 0,
+          "prompt_fields": ["physical_constraints", "character_identity", "scene_constraints", "success_criteria"],
+          "hard_target": true,
+          "issue_rule": {
+            "threshold": 0.82,
+            "correction_type": "prompt",
+            "description_templates": {
+              "zh": "{shot_id} 的物理元素描述不够具体，难以稳定生成和评估。",
+              "en": "Physical element descriptions in {shot_id} are not concrete enough to generate and evaluate reliably."
+            },
+            "cause_templates": {
+              "zh": "主体、颜色、道具、空间或成功标准缺少可观察细节。",
+              "en": "Subject, color, prop, spatial, or success criteria details are under-specified."
+            },
+            "description_template": "Physical element descriptions in {shot_id} are under-specified.",
+            "cause_template": "Physical constraints are incomplete."
+          }
+        },
+        {
           "id": "character_consistency",
           "labels": {"zh": "角色一致性", "en": "Character Consistency"},
           "weight": 1.0,
-          "target": "Characters remain visually and behaviorally coherent across shots.",
+          "target": "Characters remain visually and behaviorally coherent across shots or frames.",
           "signal_key": "character_consistency",
-          "layer_id": "hard_targets",
+          "layer_id": "frame_consistency",
           "layer_index": 1,
           "prompt_fields": ["character_identity"],
           "hard_target": true,
@@ -91,12 +152,87 @@
           }
         },
         {
+          "id": "frame_element_consistency",
+          "labels": {"zh": "帧间元素一致性", "en": "Frame Element Consistency"},
+          "weight": 1.25,
+          "target": "Required elements keep the same identity across frames within a shot.",
+          "signal_key": "frame_element_consistency",
+          "layer_id": "frame_consistency",
+          "layer_index": 1,
+          "prompt_fields": ["physical_constraints", "scene_constraints"],
+          "hard_target": true,
+          "issue_rule": {
+            "threshold": 0.84,
+            "correction_type": "scene",
+            "description_templates": {
+              "zh": "{shot_id} 的元素在帧间发生漂移或替换。",
+              "en": "Elements in {shot_id} drift or change identity across frames."
+            },
+            "cause_templates": {
+              "zh": "元素身份、位置或持续可见性没有被写成连续性约束。",
+              "en": "Element identity, placement, or persistent visibility is not constrained across frames."
+            },
+            "description_template": "Elements in {shot_id} drift across frames.",
+            "cause_template": "Frame-level element continuity is under-specified."
+          }
+        },
+        {
+          "id": "frame_action_consistency",
+          "labels": {"zh": "帧间动作一致性", "en": "Frame Action Consistency"},
+          "weight": 1.2,
+          "target": "The action remains continuous instead of mutating into a different action.",
+          "signal_key": "frame_action_consistency",
+          "layer_id": "frame_consistency",
+          "layer_index": 1,
+          "prompt_fields": ["action_sequence", "motion_direction"],
+          "hard_target": true,
+          "issue_rule": {
+            "threshold": 0.82,
+            "correction_type": "action",
+            "description_templates": {
+              "zh": "{shot_id} 的动作在帧间不连续或变成了另一个动作。",
+              "en": "Action in {shot_id} is not continuous across frames."
+            },
+            "cause_templates": {
+              "zh": "动作起点、过程、终点和持续约束不够明确。",
+              "en": "Action start, process, end state, and persistence constraints are not explicit enough."
+            },
+            "description_template": "Action in {shot_id} is not continuous across frames.",
+            "cause_template": "Frame-level action continuity is under-specified."
+          }
+        },
+        {
+          "id": "face_identity_consistency",
+          "labels": {"zh": "脸部身份一致性", "en": "Face Identity Consistency"},
+          "weight": 1.2,
+          "target": "A character face remains the same identity across frames.",
+          "signal_key": "face_identity_consistency",
+          "layer_id": "frame_consistency",
+          "layer_index": 1,
+          "prompt_fields": ["character_identity", "physical_constraints"],
+          "hard_target": true,
+          "issue_rule": {
+            "threshold": 0.84,
+            "correction_type": "character",
+            "description_templates": {
+              "zh": "{shot_id} 的人物脸部身份在帧间发生漂移。",
+              "en": "Face identity in {shot_id} drifts across frames."
+            },
+            "cause_templates": {
+              "zh": "脸部、轮廓、年龄、发型、服装等身份锚点不够稳定。",
+              "en": "Face, silhouette, age, hairstyle, wardrobe, or identity anchors are not stable enough."
+            },
+            "description_template": "Face identity in {shot_id} drifts across frames.",
+            "cause_template": "Frame-level face identity continuity is under-specified."
+          }
+        },
+        {
           "id": "scene_consistency",
           "labels": {"zh": "场景一致性", "en": "Scene Consistency"},
           "weight": 1.0,
           "target": "Scene identity and spatial logic remain stable.",
           "signal_key": "scene_consistency",
-          "layer_id": "hard_targets",
+          "layer_id": "frame_consistency",
           "layer_index": 1,
           "prompt_fields": ["scene_constraints"],
           "hard_target": true,
@@ -121,8 +257,8 @@
           "weight": 1.2,
           "target": "The primary action is legible and attributable.",
           "signal_key": "action_clarity",
-          "layer_id": "motion_timing",
-          "layer_index": 2,
+          "layer_id": "frame_consistency",
+          "layer_index": 1,
           "prompt_fields": ["action_sequence", "motion_direction"],
           "issue_rule": {
             "threshold": 0.75,
@@ -140,61 +276,13 @@
           }
         },
         {
-          "id": "emotional_intensity",
-          "labels": {"zh": "情绪强度", "en": "Emotional Intensity"},
-          "weight": 1.1,
-          "target": "The shot expresses the intended emotional beat.",
-          "signal_key": "emotional_intensity",
-          "layer_id": "narrative_emotion",
-          "layer_index": 4,
-          "prompt_fields": ["emotional_direction", "narrative_beat"],
-          "issue_rule": {
-            "threshold": 0.72,
-            "correction_type": "emotion",
-            "description_templates": {
-              "zh": "{shot_id} 的情绪表达不够强，缺少可感知的表情或节奏变化。",
-              "en": "The emotional expression in {shot_id} is not strong enough."
-            },
-            "cause_templates": {
-              "zh": "情绪动作、表情细节或声音转折设计不足。",
-              "en": "Emotional action, facial detail, or audio turn design is insufficient."
-            },
-            "description_template": "Emotional expression in {shot_id} is not strong enough.",
-            "cause_template": "Emotional constraints are insufficient."
-          }
-        },
-        {
-          "id": "camera_expression",
-          "labels": {"zh": "镜头表达", "en": "Camera Expression"},
-          "weight": 1.0,
-          "target": "Camera language supports the narrative beat.",
-          "signal_key": "camera_expression",
-          "layer_id": "cinematic_expression",
-          "layer_index": 3,
-          "prompt_fields": ["camera_direction"],
-          "issue_rule": {
-            "threshold": 0.7,
-            "correction_type": "camera",
-            "description_templates": {
-              "zh": "{shot_id} 的镜头语言没有充分服务叙事重点。",
-              "en": "Camera language in {shot_id} does not support the narrative beat strongly enough."
-            },
-            "cause_templates": {
-              "zh": "镜头类型、运动方式或主体关系描述不足。",
-              "en": "Shot type, camera motion, or subject relationship is under-specified."
-            },
-            "description_template": "Camera language in {shot_id} is under-specified.",
-            "cause_template": "Camera constraints are insufficient."
-          }
-        },
-        {
           "id": "pacing_progression",
           "labels": {"zh": "节奏推进", "en": "Pacing Progression"},
           "weight": 1.0,
           "target": "Pacing escalates or resolves according to the beat.",
           "signal_key": "pacing_progression",
-          "layer_id": "motion_timing",
-          "layer_index": 2,
+          "layer_id": "frame_consistency",
+          "layer_index": 1,
           "prompt_fields": ["motion_direction", "narrative_beat"],
           "issue_rule": {
             "threshold": 0.7,
@@ -212,13 +300,86 @@
           }
         },
         {
+          "id": "color_alignment",
+          "labels": {"zh": "颜色对齐", "en": "Color Alignment"},
+          "weight": 1.15,
+          "target": "Named colors and visible color attributes are preserved.",
+          "signal_key": "color_alignment",
+          "layer_id": "style_color",
+          "layer_index": 2,
+          "prompt_fields": ["physical_constraints", "scene_constraints", "style_constraints"],
+          "hard_target": true,
+          "issue_rule": {
+            "threshold": 0.86,
+            "correction_type": "scene",
+            "description_templates": {
+              "zh": "{shot_id} 的颜色目标没有被稳定保留。",
+              "en": "Named color targets in {shot_id} are not preserved."
+            },
+            "cause_templates": {
+              "zh": "颜色、材质或发光属性没有被写成强约束。",
+              "en": "Color, material, or glow attributes are not written as hard constraints."
+            },
+            "description_template": "Named color targets in {shot_id} are not preserved.",
+            "cause_template": "Color constraints are not explicit enough."
+          }
+        },
+        {
+          "id": "camera_expression",
+          "labels": {"zh": "镜头表达", "en": "Camera Expression"},
+          "weight": 1.0,
+          "target": "Camera language supports the narrative beat.",
+          "signal_key": "camera_expression",
+          "layer_id": "style_color",
+          "layer_index": 2,
+          "prompt_fields": ["camera_direction"],
+          "issue_rule": {
+            "threshold": 0.7,
+            "correction_type": "camera",
+            "description_templates": {
+              "zh": "{shot_id} 的镜头语言没有充分服务叙事重点。",
+              "en": "Camera language in {shot_id} does not support the narrative beat strongly enough."
+            },
+            "cause_templates": {
+              "zh": "镜头类型、运动方式或主体关系描述不足。",
+              "en": "Shot type, camera motion, or subject relationship is under-specified."
+            },
+            "description_template": "Camera language in {shot_id} is under-specified.",
+            "cause_template": "Camera constraints are insufficient."
+          }
+        },
+        {
+          "id": "emotional_intensity",
+          "labels": {"zh": "情绪强度", "en": "Emotional Intensity"},
+          "weight": 1.1,
+          "target": "The shot expresses the intended emotional beat.",
+          "signal_key": "emotional_intensity",
+          "layer_id": "emotion_atmosphere",
+          "layer_index": 3,
+          "prompt_fields": ["emotional_direction", "narrative_beat"],
+          "issue_rule": {
+            "threshold": 0.72,
+            "correction_type": "emotion",
+            "description_templates": {
+              "zh": "{shot_id} 的情绪表达不够强，缺少可感知的表情或节奏变化。",
+              "en": "The emotional expression in {shot_id} is not strong enough."
+            },
+            "cause_templates": {
+              "zh": "情绪动作、表情细节或声音转折设计不足。",
+              "en": "Emotional action, facial detail, or audio turn design is insufficient."
+            },
+            "description_template": "Emotional expression in {shot_id} is not strong enough.",
+            "cause_template": "Emotional constraints are insufficient."
+          }
+        },
+        {
           "id": "reversal_expression",
           "labels": {"zh": "反转表达", "en": "Reversal Expression"},
           "weight": 0.8,
           "target": "If the concept needs a reveal or reversal, it has a visible anchor.",
           "signal_key": "reversal_expression",
-          "layer_id": "narrative_emotion",
-          "layer_index": 4,
+          "layer_id": "emotion_atmosphere",
+          "layer_index": 3,
           "prompt_fields": ["narrative_beat", "scene_constraints"],
           "issue_rule": {
             "threshold": 0.62,
@@ -241,8 +402,8 @@
           "weight": 0.9,
           "target": "Audio cues land on visual beats.",
           "signal_key": "audio_timing",
-          "layer_id": "narrative_emotion",
-          "layer_index": 4,
+          "layer_id": "emotion_atmosphere",
+          "layer_index": 3,
           "prompt_fields": ["narrative_beat"],
           "issue_rule": {
             "threshold": 0.7,
@@ -266,7 +427,7 @@
           "target": "Prompt is specific enough for a video model to execute.",
           "signal_key": "prompt_executability",
           "layer_id": "prompt_execution",
-          "layer_index": 5,
+          "layer_index": 4,
           "prompt_fields": [
             "character_identity",
             "scene_constraints",

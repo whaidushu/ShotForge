@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 
 from shotforge.core.context_builder import ContextBuilder
+from shotforge.core.physical_targets import required_element_labels
 from shotforge.core.project_state import ProjectState, SceneSpec, ShotSpec
 from shotforge.core.trace_log import TraceLog
 from shotforge.l10n import t
@@ -17,6 +18,7 @@ def storyboard_agent(state: ProjectState, context_builder: ContextBuilder) -> Pr
         shot_types = t(state.language, "shot_types")
         scenes: list[SceneSpec] = []
         shots: list[ShotSpec] = []
+        required_elements = required_element_labels(state.metadata.get("physical_targets"))
 
         for index in range(1, scene_count + 1):
             duration = base_duration
@@ -27,6 +29,7 @@ def storyboard_agent(state: ProjectState, context_builder: ContextBuilder) -> Pr
             description = t(state.language, "description").format(title=title, idea=state.user_idea)
             key_visuals = [
                 state.creative_intent.visual_style if state.creative_intent else state.style,
+                *required_elements,
                 *t(state.language, "key_visuals"),
             ]
             scenes.append(

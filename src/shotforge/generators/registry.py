@@ -31,10 +31,15 @@ class GeneratorRegistry:
 
 
 def build_default_generator_registry() -> GeneratorRegistry:
+    from shotforge.config import get_settings
+    from shotforge.generators.comfyui_provider import ComfyUIProvider
     from shotforge.generators.mock_generator import MockGenerator
 
+    settings = get_settings()
     registry = GeneratorRegistry()
     registry.register(MockGenerator())
+    if settings.comfyui_enabled:
+        registry.register(ComfyUIProvider(), available=True)
     return registry
 
 
@@ -46,9 +51,12 @@ def build_generator_catalog() -> GeneratorRegistry:
     from shotforge.generators.open_sora_provider import OpenSoraProvider
     from shotforge.generators.runway_provider import RunwayProvider
 
+    from shotforge.config import get_settings
+
+    settings = get_settings()
     registry = GeneratorRegistry()
     registry.register(MockGenerator(), available=True)
-    registry.register(ComfyUIProvider(), available=False)
+    registry.register(ComfyUIProvider(), available=settings.comfyui_enabled)
     registry.register(OpenSoraProvider(), available=False)
     registry.register(KlingProvider(), available=False)
     registry.register(JimengProvider(), available=False)

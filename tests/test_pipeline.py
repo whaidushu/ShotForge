@@ -1,5 +1,7 @@
 from shotforge.workflows.design_workflow import run_design_pipeline
 from shotforge.workflows.full_loop_workflow import run_full_loop_pipeline
+from shotforge.workflows.redesign_workflow import run_redesign
+from shotforge.core.packages import ProjectPackageView
 from shotforge.core.project_state import ProjectState
 from shotforge.core.solution_playbook import SolutionPlaybookStore
 
@@ -55,6 +57,7 @@ def test_pipeline_exports_all_formats(tmp_path, monkeypatch):
         "csv",
         "markdown",
         "manifest",
+        "package_view",
         "trace",
         "run_summary",
     }
@@ -159,6 +162,8 @@ def test_full_loop_generates_mock_evaluation(tmp_path, monkeypatch):
     assert state.metadata["generator_provider_id"] == "mock"
     assert state.generation_results[-1].metadata["provider_id"] == "mock"
     assert len(report.score_card.dimension_scores) >= 9
+    assert "physical_effect_static" in report.metadata["evaluator_sources"]
+    assert "frame_consistency_static" in report.metadata["evaluator_sources"]
     assert "mock_visual" in report.metadata["evaluator_sources"]
     assert "prompt_static" in report.metadata["evaluator_sources"]
     assert report.metadata["signal_count"] >= len(report.score_card.dimension_scores)
@@ -168,6 +173,30 @@ def test_full_loop_generates_mock_evaluation(tmp_path, monkeypatch):
     assert "action_clarity" in {score.dimension_id for score in report.score_card.dimension_scores}
     assert "evaluation_id" in open(evaluation_csv_path, encoding="utf-8-sig").read()
     assert "Evaluation Report" in open(markdown_path, encoding="utf-8").read()
+
+
+def test_project_package_view_keeps_state_as_aggregate(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_full_loop_pipeline(
+        "A red umbrella opens in a rainy street",
+        duration_seconds=8,
+        language="en",
+        generator_provider_id="mock",
+    )
+    view = ProjectPackageView.from_state(state)
+
+    assert view.project_id == state.project_id
+    assert view.design.prompt_package == state.prompt_package
+    assert view.generation.generation_results == state.generation_results
+    assert view.observation.observation_reports == state.observation_reports
+    assert view.evaluation.evaluation_reports == state.evaluation_reports
+    assert view.runtime.exports == state.exports
 
 
 def test_template_package_metadata_round_trip(tmp_path, monkeypatch):
@@ -190,3 +219,39 @@ def test_template_package_metadata_round_trip(tmp_path, monkeypatch):
     assert loaded.shots[0].metadata["visual_anchor"] == "phone recording close-up"
     assert loaded.audio_cues[0].metadata["audio_anchor"] == "music drops to silence"
     assert loaded.prompt_package.metadata["template_experiment"] == "anchor_fields_v0"
+
+
+def test_redesign_injects_effect_contracts_into_executable_prompt(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_full_loop_pipeline(
+        "A cyber cat chases a glowing neon drone on a rainy Shanghai rooftop",
+        duration_seconds=8,
+        language="en",
+        generator_provider_id="mock",
+    )
+    before_report = state.evaluation_reports[-1]
+
+    next_state = run_redesign(state, report=before_report, generator_provider_id="mock")
+
+    changed_prompts = [
+        prompt
+        for prompt in next_state.prompt_package.prompts
+        if "EFFECT CONTRACT" in prompt.prompt
+    ]
+    assert changed_prompts
+    prompt = changed_prompts[0]
+    assert "ACTION" in prompt.prompt or "COLOR LOCK" in prompt.prompt
+    assert prompt.structured_template is not None
+    assert any("frame" in item.lower() for item in prompt.structured_template.success_criteria)
+    assert any(
+        term in prompt.negative_prompt
+        for term in ["action morphing", "missing glow", "object morphing"]
+    )
+    assert next_state.score_deltas[-1].overall_delta >= 0
+    get_settings.cache_clear()

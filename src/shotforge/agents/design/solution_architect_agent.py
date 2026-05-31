@@ -26,12 +26,14 @@ def solution_architect_agent(
             "Solution Architect Agent",
             ["solution-design", "agent-infra", "customer-value"],
         )
+        tool_name = _llm_tool_name()
         completion = registry.call(
-            "mock_llm.complete",
+            tool_name,
             context.as_prompt(),
             purpose="solution_architecture",
             agent_name="solution_architect_agent",
             expected_output="solution architecture assumptions",
+            fallback_tools=["mock_llm.complete"] if tool_name != "mock_llm.complete" else [],
         )
         industry, scenario = _infer_industry_and_scenario(state.user_idea, state.language)
         playbook = SolutionPlaybookStore().find_for_industry(_canonical_industry(industry))
@@ -322,3 +324,9 @@ def _text(state: ProjectState, en: str, zh: str) -> str:
 
 def _pick(language: str, en: str, zh: str) -> str:
     return zh if language == "zh" else en
+
+
+def _llm_tool_name() -> str:
+    from shotforge.config import get_settings
+
+    return "mock_llm.complete" if get_settings().llm_provider == "mock" else "llm.complete"

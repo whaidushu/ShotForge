@@ -20,6 +20,12 @@ def export_agent(state: ProjectState, registry: SkillRegistry) -> ProjectState:
             agent_name="export_agent",
             expected_output="handoff manifest",
         )
+        registry.call(
+            "export.package_view",
+            state,
+            agent_name="export_agent",
+            expected_output="domain package view",
+        )
         registry.call("export.trace", state, agent_name="export_agent", expected_output="trace json")
         registry.call(
             "export.run_summary",

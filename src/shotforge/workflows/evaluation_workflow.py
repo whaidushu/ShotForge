@@ -11,6 +11,7 @@ from shotforge.core.project_state import (
 )
 from shotforge.exporters import ExportManager
 from shotforge.generators import build_default_generator_registry
+from shotforge.observation import VideoObservationService
 
 
 def run_generation(state: ProjectState, provider_id: str = "mock") -> GeneratedResult:
@@ -49,6 +50,7 @@ def run_evaluation_pipeline(
     export: bool = True,
 ) -> ProjectState:
     generated_result = run_generation(state, provider_id=generator_provider_id)
+    observe_generation(state, generated_result)
     run_verification(state, generated_result)
     run_evaluation(state, generated_result=generated_result, rubric_id=rubric_id)
     if export:
@@ -58,3 +60,10 @@ def run_evaluation_pipeline(
 
 def load_project_state(package_json: Path) -> ProjectState:
     return ProjectState.model_validate_json(package_json.read_text(encoding="utf-8"))
+
+
+def observe_generation(
+    state: ProjectState,
+    generated_result: GeneratedResult,
+) -> GeneratedResult:
+    return VideoObservationService().observe_result(state, generated_result)

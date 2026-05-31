@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from shotforge.config import get_settings
 from shotforge.llm.provider import LLMProvider
 
 
@@ -32,19 +33,70 @@ class LLMRegistry:
 
 def build_default_llm_registry() -> LLMRegistry:
     from shotforge.llm.mock import MockLLMProvider
+    from shotforge.llm.ollama import OllamaProvider
+    from shotforge.llm.openai_compatible import OpenAICompatibleProvider
+    from shotforge.llm.vllm import VLLMProvider
 
+    settings = get_settings()
     registry = LLMRegistry()
-    registry.register(MockLLMProvider())
+    registry.register(MockLLMProvider(), available=True)
+    openai_compatible = OpenAICompatibleProvider(settings=settings)
+    registry.register(
+        openai_compatible,
+        available=settings.llm_provider == "openai-compatible" and openai_compatible.is_configured(),
+    )
+    registry.register(
+        OllamaProvider(
+            model=settings.llm_model if settings.llm_provider == "ollama" else "qwen2.5:7b",
+            base_url=settings.llm_base_url or "http://localhost:11434/v1",
+            api_key=settings.llm_api_key or "ollama",
+            temperature=settings.llm_temperature,
+            timeout_seconds=settings.llm_timeout_seconds,
+        ),
+        available=settings.llm_provider == "ollama",
+    )
+    registry.register(
+        VLLMProvider(
+            model=settings.llm_model if settings.llm_provider == "vllm" else "Qwen/Qwen2.5-7B-Instruct",
+            base_url=settings.llm_base_url or "http://localhost:8000/v1",
+            api_key=settings.llm_api_key or "local",
+            temperature=settings.llm_temperature,
+            timeout_seconds=settings.llm_timeout_seconds,
+        ),
+        available=settings.llm_provider == "vllm",
+    )
     return registry
 
 
 def build_llm_catalog() -> LLMRegistry:
     from shotforge.llm.mock import MockLLMProvider
     from shotforge.llm.ollama import OllamaProvider
+    from shotforge.llm.openai_compatible import OpenAICompatibleProvider
     from shotforge.llm.vllm import VLLMProvider
 
+    settings = get_settings()
     registry = LLMRegistry()
     registry.register(MockLLMProvider(), available=True)
-    registry.register(OllamaProvider(), available=False)
-    registry.register(VLLMProvider(), available=False)
+    openai_compatible = OpenAICompatibleProvider(settings=settings)
+    registry.register(openai_compatible, available=openai_compatible.is_configured())
+    registry.register(
+        OllamaProvider(
+            model=settings.llm_model if settings.llm_provider == "ollama" else "qwen2.5:7b",
+            base_url=settings.llm_base_url or "http://localhost:11434/v1",
+            api_key=settings.llm_api_key or "ollama",
+            temperature=settings.llm_temperature,
+            timeout_seconds=settings.llm_timeout_seconds,
+        ),
+        available=settings.llm_provider == "ollama",
+    )
+    registry.register(
+        VLLMProvider(
+            model=settings.llm_model if settings.llm_provider == "vllm" else "Qwen/Qwen2.5-7B-Instruct",
+            base_url=settings.llm_base_url or "http://localhost:8000/v1",
+            api_key=settings.llm_api_key or "local",
+            temperature=settings.llm_temperature,
+            timeout_seconds=settings.llm_timeout_seconds,
+        ),
+        available=settings.llm_provider == "vllm",
+    )
     return registry

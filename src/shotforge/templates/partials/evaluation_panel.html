@@ -1,0 +1,31 @@
+{% if state and state.evaluation_reports %}
+  <article class="surface main-panel">
+    <h3>{{ ui.evaluation_title }}</h3>
+    <label class="muted" style="display:flex; gap:8px; align-items:center; margin:0 0 10px;">
+      <input id="show-signals" type="checkbox" style="width:auto;"> {{ ui.evaluation_show_signals }}
+    </label>
+    <div class="grid">
+      {% for report in state.evaluation_reports %}
+        <div>
+          <strong>v{{ report.target_version }} / {{ "%.3f"|format(report.score_card.overall_score) }}</strong>
+          <p class="muted">{{ report.suggested_focus | join(", ") }}</p>
+          {% if report.score_card.metadata.layers %}
+            <div class="signal-source">
+              {% for layer in report.score_card.metadata.layers %}
+                <p>
+                  {{ layer.label }}: {{ "%.3f"|format(layer.average_score) }}
+                  {% if layer.strategy %}<br><span class="muted">{{ layer.strategy }}</span>{% endif %}
+                </p>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <div class="signal-source">
+            {% for issue in report.issues[:4] %}
+              <p>{{ issue.dimension_label }}: {{ issue.description }}</p>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </article>
+{% endif %}

@@ -7,6 +7,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from shotforge.comfyui import build_workflow_registry, discover_local_workflows
 from shotforge.config import get_settings
 from shotforge.core.capability_catalog import build_capability_catalog
 from shotforge.core.harness_audit import build_harness_audit
@@ -106,9 +107,7 @@ def full_loop(
             generator_provider_id=generator,
         )
         exporter = ExportManager()
-        exporter.export_json(state)
-        exporter.export_markdown(state)
-        exporter.export_evaluation_csv(state)
+        exporter.export_all(state)
     _print_summary(state)
 
 
@@ -274,6 +273,52 @@ def capabilities() -> None:
     console.print(routes)
 
 
+@app.command("comfyui-workflows")
+def comfyui_workflows(
+    root: Annotated[
+        Path | None,
+        typer.Option("--root", help="Optional local ComfyUI workflows directory."),
+    ] = None,
+) -> None:
+    settings = get_settings()
+    workflow_root = root or (Path(settings.comfyui_workflows_dir) if settings.comfyui_workflows_dir else None)
+    registry = build_workflow_registry()
+    described = registry.describe()
+    described_ids = {item.workflow_id for item in described}
+
+    table = Table(title="ComfyUI Workflows")
+    table.add_column("Workflow ID")
+    table.add_column("Source")
+    table.add_column("Format")
+    table.add_column("Callable")
+    table.add_column("Nodes")
+    table.add_column("Path", overflow="fold")
+    for item in described:
+        table.add_row(
+            item.workflow_id,
+            item.source,
+            item.format,
+            str(item.callable),
+            str(item.node_count),
+            str(item.path or ""),
+        )
+
+    if workflow_root:
+        for item in discover_local_workflows(workflow_root):
+            if item.workflow_id in described_ids:
+                continue
+            table.add_row(
+                item.workflow_id,
+                item.source,
+                item.format,
+                str(item.callable),
+                str(item.node_count),
+                str(item.path or ""),
+            )
+    console.print(table)
+    console.print("Use API-format workflows as SHOTFORGE_COMFYUI_WORKFLOW_ID, or file:<path>.")
+
+
 @app.command()
 def doctor() -> None:
     settings = get_settings()
@@ -292,6 +337,21 @@ def doctor() -> None:
         exists = path.exists()
         table.add_row(name, str(path), "ok" if exists or name.endswith("_path") else "missing")
     console.print(table)
+
+
+@app.command("web")
+def web(
+    host: Annotated[str, typer.Option("--host", help="Host interface to bind.")] = "127.0.0.1",
+    port: Annotated[int, typer.Option("--port", help="Port to bind.")] = 8000,
+    reload: Annotated[
+        bool,
+        typer.Option("--reload/--no-reload", help="Reload the web app when source files change."),
+    ] = False,
+) -> None:
+    import uvicorn
+
+    console.print(f"Starting ShotForge Web at http://{host}:{port}")
+    uvicorn.run("shotforge.app.web.app:app", host=host, port=port, reload=reload)
 
 
 @app.command()

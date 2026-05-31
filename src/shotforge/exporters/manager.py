@@ -6,7 +6,7 @@ from shotforge.core.project_state import ProjectState
 from shotforge.exporters.csv_exporter import export_csv
 from shotforge.exporters.evaluation_csv_exporter import export_evaluation_csv
 from shotforge.exporters.handoff_exporter import export_manifest, export_run_summary, export_trace
-from shotforge.exporters.json_exporter import export_json
+from shotforge.exporters.json_exporter import export_json, export_package_view
 from shotforge.exporters.markdown_exporter import export_markdown
 from shotforge.exporters.mp4_exporter import MP4Exporter
 
@@ -18,7 +18,7 @@ class ExportManager:
         self.runs_dir = runs_dir or get_settings().runs_dir
 
     def run_dir(self, state: ProjectState) -> Path:
-        if not state.exports:
+        if not state.exports and "parent_version" not in state.metadata:
             state.run_id = self._unique_run_id(state.run_id)
         path = self.runs_dir / state.run_id
         path.mkdir(parents=True, exist_ok=True)
@@ -26,6 +26,9 @@ class ExportManager:
 
     def export_json(self, state: ProjectState) -> Path:
         return export_json(state, self.run_dir(state))
+
+    def export_package_view(self, state: ProjectState) -> Path:
+        return export_package_view(state, self.run_dir(state))
 
     def export_csv(self, state: ProjectState) -> Path:
         return export_csv(state, self.run_dir(state))
@@ -67,6 +70,7 @@ class ExportManager:
                 self.export_manifest(state),
                 self.export_trace(state),
                 self.export_run_summary(state),
+                self.export_package_view(state),
                 self.export_json(state),
             ]
         )

@@ -9,19 +9,48 @@
       "No real model calls in POC stage",
       "Keep scene prompts production-ready"
     ],
-    "titles": ["Hook", "Escalation", "Signature Moment", "Resolution", "Afterglow", "Loopback"],
-    "shot_types": ["wide establishing", "tracking medium", "dynamic close-up", "hero wide"],
+    "titles": [
+      "Hook",
+      "Escalation",
+      "Signature Moment",
+      "Resolution",
+      "Afterglow",
+      "Loopback"
+    ],
+    "shot_types": [
+      "wide establishing",
+      "tracking medium",
+      "dynamic close-up",
+      "hero wide"
+    ],
     "description": "{title} beat for: {idea}",
-    "key_visuals": ["clear focal subject", "layered environment detail"],
-    "cameras": ["slow push-in", "side tracking", "orbit reveal", "crane pullback"],
-    "transitions": ["match cut", "whip pan", "light bloom", "hard cut on beat"],
+    "key_visuals": [
+      "clear focal subject",
+      "layered environment detail"
+    ],
+    "cameras": [
+      "slow push-in",
+      "side tracking",
+      "orbit reveal",
+      "crane pullback"
+    ],
+    "transitions": [
+      "match cut",
+      "whip pan",
+      "light bloom",
+      "hard cut on beat"
+    ],
     "subject_motion": "primary subject moves with readable silhouette and clear intent",
     "pacing": {
       "hook": "fast but legible",
       "escalation": "controlled escalation"
     },
     "music": "hybrid cinematic pulse with evolving texture",
-    "sound_design": ["environment ambience", "transient impact on transition", "subtle futuristic accent"],
+    "sound_design": [
+      "environment ambience",
+      "transient impact on transition",
+      "subtle futuristic accent"
+    ],
     "prompt": {
       "visual_style": "Visual style",
       "key_visuals": "Key visuals",
@@ -146,7 +175,64 @@
   },
   "web": {
     "header": {
-      "subtitle": "Evaluation-driven Agent Harness for AI video creation"
+      "subtitle": "AI video planning, evaluation, and delivery workspace"
+    },
+    "nav": {
+      "workflow": "Workflow",
+      "config": "Configuration"
+    },
+    "config": {
+      "title": "Provider Configuration",
+      "subtitle": "Save a reusable provider profile, validate it, then return to the workflow to run delivery."
+    },
+    "profile": {
+      "label": "Provider Profile",
+      "name": "Profile name",
+      "save": "Save Profile",
+      "preflight": "Test Services",
+      "test_chain": "Run Test Chain",
+      "test_chain_running": "Running an internal pipeline smoke test...",
+      "test_chain_label": "Test chain",
+      "test_chain_passed": "Test chain passed",
+      "back_to_workflow": "Back to Workflow",
+      "default_name": "Local real generation",
+      "saved": "Saved",
+      "checking": "Checking local provider configuration...",
+      "check_label": "Service check"
+    },
+    "provider_state": {
+      "config_required": "configuration required",
+      "unavailable": "unavailable"
+    },
+    "recent_runs": {
+      "title": "Recent Runs"
+    },
+    "kpi": {
+      "profile": "Profile",
+      "mode": "Mode",
+      "video": "Video",
+      "progress": "Progress"
+    },
+    "assets": {
+      "count": "assets"
+    },
+    "prompt_changes": {
+      "title": "Prompt Changes"
+    },
+    "empty": {
+      "video_title": "No generated video yet",
+      "video_body": "Run the pipeline to preview video, prompt, and workflow artifacts here.",
+      "prompt_title": "No prompt diff yet",
+      "prompt_body": "Use planning mode to compare v1 and optimized v2 prompts."
+    },
+    "storyboard": {
+      "title": "Storyboard"
+    },
+    "js": {
+      "running": "Running...",
+      "disabled": "disabled",
+      "local": "local",
+      "callable": "callable"
     },
     "form": {
       "title": "Create Package",
@@ -158,10 +244,39 @@
       "language_en": "English",
       "mode": "Run mode",
       "mode_design": "Design only",
-      "mode_full_loop": "Design + Mock Evaluation",
+      "mode_full_loop": "Design + Evaluation",
       "mode_planning": "Design + Evaluation + Redesign V2",
       "rubric": "Evaluation rubric",
       "generator_provider": "Generator provider",
+      "llm_provider": "LLM / Judge provider",
+      "video_provider": "Video provider",
+      "provider_config": "Provider configuration",
+      "evaluator_mode": "Evaluator mode",
+      "llm_model": "LLM model",
+      "llm_base_url": "LLM base URL",
+      "llm_api_key": "LLM API key",
+      "video_config": "Video provider configuration",
+      "comfyui_base_url": "ComfyUI base URL",
+      "comfyui_workflows_dir": "Local workflow folder",
+      "comfyui_workflow": "ComfyUI workflow",
+      "comfyui_search": "Search workflows",
+      "comfyui_searching": "Searching workflows...",
+      "comfyui_search_failed": "Workflow search failed",
+      "comfyui_search_found": "Workflows found",
+      "comfyui_search_empty": "No workflows found in this folder",
+      "comfyui_width": "Width",
+      "comfyui_height": "Height",
+      "comfyui_length": "Frames",
+      "comfyui_fps": "FPS",
+      "comfyui_max_shots": "Max shots",
+      "observer_provider": "Visual observer",
+      "observer_config": "Visual observer configuration",
+      "vlm_model": "VLM model",
+      "vlm_base_url": "VLM base URL",
+      "vlm_api_key": "VLM API key",
+      "vlm_frame_sample_count": "Frames to inspect",
+      "vlm_confidence_threshold": "Confidence threshold",
+      "vlm_require_json": "Require JSON response",
       "duration": "Duration seconds",
       "max_iterations": "Max redesign iterations",
       "submit": "Run Pipeline"
@@ -184,7 +299,7 @@
     },
     "solution": {
       "title": "Solution Architecture",
-      "subtitle": "Customer-facing path from scenario insight to Agent Harness delivery.",
+      "subtitle": "Customer-facing path from scenario insight to a delivery-ready video package.",
       "industry": "Industry",
       "scenario": "Scenario",
       "objective": "Business objective",
@@ -298,14 +413,14 @@
       "threshold": "Threshold"
     },
     "harness": {
-      "title": "Harness Inspector",
-      "subtitle": "Runtime view of context, tools, state, policies, MCP, sandbox, and memory.",
-      "context": "Context",
-      "tools": "Tool Calls",
+      "title": "Run Details",
+      "subtitle": "Execution records, connected tools, references, and state changes for this run.",
+      "context": "Execution context",
+      "tools": "Tool activity",
       "policy": "Execution Policy",
-      "mcp": "MCP Tools",
-      "sandbox": "Sandbox",
-      "memory": "Memory",
+      "mcp": "Connected tools",
+      "sandbox": "Execution limits",
+      "memory": "Reference memory",
       "state": "State",
       "agent": "Agent",
       "sources": "Sources",
@@ -313,12 +428,27 @@
       "no_records": "No records",
       "tool_status": "Status",
       "latency": "Latency",
-      "transitions": "State Transitions",
+      "transitions": "State changes",
       "changed_fields": "Changed fields",
-      "invariant_status": "Invariant status",
-      "topology": "Agent Topology",
+      "invariant_status": "Validation status",
+      "topology": "Workflow map",
       "nodes": "Nodes",
       "edges": "Edges"
+    },
+    "generation": {
+      "title": "Generated Artifacts",
+      "provider": "Provider",
+      "video": "Video",
+      "prompt": "Prompt",
+      "prompt_json": "Prompt JSON",
+      "workflow": "Workflow JSON",
+      "iteration": "Iteration",
+      "artifacts": "Artifacts"
+    },
+    "comfyui": {
+      "workflows_title": "ComfyUI workflows",
+      "workflow_available": "callable",
+      "workflow_unavailable": "needs API export"
     }
   }
 }

@@ -1,6 +1,6 @@
 # Architecture Overview
 
-ShotForge is an AI Video Creative Agent Harness POC. The video domain is the demonstration scenario; the reusable capability is the Agent Harness and delivery pattern around it.
+ShotForge is a local-first AI video creation workflow with an agent runtime underneath it. The video domain is the product scenario; the reusable capability is the runtime pattern for provider configuration, stateful generation, evaluation, iteration, traceability, and export.
 
 ## End-to-End Flow
 
@@ -19,7 +19,9 @@ flowchart LR
   Export --> Package[Run package]
   Package --> Audit[Harness Audit API / CLI audit]
 
-  Package --> Eval[Mock Generation + Evaluation]
+  Package --> Gen[Video Provider / ComfyUI]
+  Gen --> Observe[Frame Extraction / Visual Observer]
+  Observe --> Eval[Layered Evaluation]
   Eval --> Redesign[Correction / Redesign]
   Redesign --> Package
 ```
@@ -40,14 +42,36 @@ flowchart LR
 | Memory | `LocalMemoryStore` | Namespaced, ranked, access-tracked JSONL memory with runtime run promotion |
 | Knowledge Assets | `SolutionPlaybookStore`, JSON rubrics/rules | Reusable industry and quality patterns |
 | Delivery Gates | `DeliveryReadinessReport` | Shows what is ready, mocked, and required before pilot |
+| Provider Services | `ProviderService`, `ProviderRuntimeService`, `ComfyUIWorkflowService`, `ProviderPreflightService`, `RunService`, `ArtifactService` | Shared application services used by Web/API and ready for CLI reuse |
+| Observation | `VideoObservationService`, `FrameObserver`, `SequenceObservationBuilder`, observer provider registry | Frame extraction, VLM/prompt-proxy observation, and sequence-ready continuity contracts |
+| UI Foundation | `app/web/static` | Design tokens, reusable layout primitives, shared browser behavior, and future asset organization |
+
+## Provider Surfaces
+
+ShotForge separates model integration into explicit provider surfaces:
+
+| Surface | Current Implementations | Primary Responsibility |
+|---|---|---|
+| LLM/Judge | `mock`, `ollama`, `vllm`, `openai-compatible` | Text reasoning, prompt evaluation, and redesign support |
+| Video Generation | `mock`, `comfyui` | Produce video artifacts from prompt packages |
+| Visual Observation | `prompt-proxy`, `openai-vision`, `ollama-vision`, `vllm-vlm` | Inspect extracted frames and report visible elements, action, identity, style, color, and confidence |
+| Internal Test Chain | `/api/test-chain` | Deployment smoke test, not the default user generation path |
+
+This separation matters because visual quality cannot be improved by changing text alone. The evaluation loop needs a generated MP4, sampled frames, an observer signal, and then a correction plan that writes back into the next prompt/template package.
 
 ## Public Interfaces
 
 | Interface | Purpose |
 |---|---|
-| FastAPI Web Demo | Run the workflow and inspect results visually |
+| FastAPI Web Product UI | Configure providers, test local services, run generation, inspect prompt changes, and open artifacts |
 | `POST /api/runs` | Create design/evaluation/planning runs |
+| `GET /api/provider-profiles` / `POST /api/provider-profiles` | List and save LLM/Judge and Video provider profiles |
+| `GET /api/observer-providers` | List available prompt-proxy and VLM observer providers |
+| `POST /api/preflight` | Validate local provider configuration before generation |
+| `POST /api/test-chain` | Run the internal deployment smoke test chain |
+| `GET /api/comfyui/workflows` | Discover bundled and user-local ComfyUI workflows |
 | `GET /api/runs/{run_id}/harness` | Inspect context, tools, policies, solution, and readiness |
+| `GET /api/runs/{run_id}/generation-artifacts` | List generated videos, prompts, prompt JSON, and workflow files |
 | `GET /api/capabilities` | Inspect provider catalog, playbooks, exports, and infra capabilities |
 | `shotforge design` | Generate a local run package |
 | `shotforge audit` | Inspect an exported package from the terminal |
@@ -63,6 +87,10 @@ Each run can export:
 - `trace.json`
 - `run_summary.md`
 - `evaluation.csv` when evaluation runs
+- `iterations/v*/prompts/*`
+- `iterations/v*/workflows/*`
+- `iterations/v*/videos/*` when real video generation runs
+- `iterations/v*/frames/*` when frame extraction is available
 
 ## How To Review The Project
 
@@ -75,4 +103,4 @@ Each run can export:
 
 ## Production Boundary
 
-The current project is intentionally local-first. It proves architecture and workflow shape without depending on paid video generation. Production hardening would add auth, tenant isolation, official MCP transport, stronger sandbox isolation, production storage, observability, and customer-specific knowledge overlays.
+The current project is intentionally local-first. It supports real local LLM and ComfyUI generation while keeping an internal test chain for deployment diagnostics. Production hardening would add auth, tenant isolation, official MCP transport, stronger sandbox isolation, production storage, observability, background job orchestration, and customer-specific knowledge overlays.

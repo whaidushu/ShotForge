@@ -34,6 +34,10 @@ class ComfyUIWorkflowTemplate:
         if isinstance(value, list):
             return [self._bind_value(item, values) for item in value]
         if isinstance(value, str):
+            if value.startswith("{{") and value.endswith("}}") and value.count("{{") == 1 and value.count("}}") == 1:
+                key = value[2:-2]
+                if key in values:
+                    return values[key]
             output = value
             for key, replacement in values.items():
                 output = output.replace(f"{{{{{key}}}}}", str(replacement))
