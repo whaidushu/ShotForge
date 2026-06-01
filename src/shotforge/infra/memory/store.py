@@ -117,6 +117,9 @@ class LocalMemoryStore:
                 records.append(MemoryRecord.model_validate(json.loads(line)))
         return records
 
+    def list_records(self) -> list[MemoryRecord]:
+        return self._load()
+
     def _save_all(self, records: list[MemoryRecord]) -> None:
         payload = "\n".join(record.model_dump_json() for record in records)
         self.path.write_text(payload + ("\n" if payload else ""), encoding="utf-8")

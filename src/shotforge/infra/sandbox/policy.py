@@ -18,9 +18,16 @@ class SandboxPolicy(BaseModel):
     dry_run: bool = True
     allowed_commands: list[str] = Field(default_factory=lambda: ["python"])
     working_dir: Path = Field(default_factory=Path.cwd)
+    workspace_root: Path | None = None
+    allowed_read_roots: list[Path] = Field(default_factory=list)
+    allowed_write_roots: list[Path] = Field(default_factory=list)
+    denied_path_fragments: list[str] = Field(
+        default_factory=lambda: [".env", "_private", "id_rsa", "credentials"]
+    )
     max_timeout_seconds: int = 30
     allowed_env_keys: list[str] = Field(default_factory=list)
     allow_network: bool = False
     allow_file_write: bool = False
+    require_workspace_boundary: bool = True
     execution_profile: SandboxExecutionProfile = Field(default_factory=SandboxExecutionProfile)
     metadata: dict = Field(default_factory=dict)

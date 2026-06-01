@@ -11,8 +11,8 @@ This is a v0 implementation. It is intentionally local-first and testable.
 | Context Engineering | Each agent receives a built context from project state and knowledge sources | Replaceable retrieval and memory sources | `HarnessContextSnapshot` |
 | Tool Orchestration | `SkillRegistry` records skill calls, latency, permission scope, tool plan, schema status, and fallback outcome | Replaceable tool registry and stricter permission policy | `ToolCallRecord`, `ToolOrchestrationRecord` |
 | MCP Adapter | Local MCP-like tool/resource adapter exposes knowledge search and run package access | Official MCP transport can replace adapter | `LocalMCPAdapter` |
-| Sandbox | Local command sandbox enforces allowlist, timeout, cwd, and dry-run policy | Docker/container isolation planned | `LocalSandboxRunner` |
-| Memory | JSONL local memory store supports cross-run searchable records | Redis/SQLite/vector memory can replace store | `LocalMemoryStore` |
+| Sandbox | Local command sandbox enforces command, timeout, cwd, workspace, network, env, file-write, and artifact policy | Docker/container isolation planned | `LocalSandboxRunner`, `SandboxPolicyRecord` |
+| Memory | JSONL local memory store plus governance manager for selection, promotion, namespace, kind, and importance policy | Redis/SQLite/vector memory can replace store | `LocalMemoryStore`, `MemorySelectionRecord` |
 | Runtime Policy | Execution and sandbox policy are captured per agent context | Policy can be customer/project specific | `ExecutionPolicy`, `SandboxPolicy` |
 | Agent Catalog | Agents have explicit roles, IO contracts, dependencies, skills, tags, and extension points | Dynamic registry and marketplace-style agent loading can replace static catalog | `AgentSpec`, `AgentCatalog` |
 | Agent Contracts | Runtime validates agent preconditions and postconditions around every known agent | Contract severity, repair strategy, and human approval can become customer policy | `AgentContractReport` |
@@ -54,6 +54,9 @@ ShotForge stores this evidence in `ProjectState`:
 - `tool_orchestration_records`
 - `knowledge_refs`
 - `memory_refs`
+- `memory_selection_records`
+- `sandbox_policy_records`
+- `mcp_access_records`
 - `trace_logs`
 - `state_transitions`
 - `agent_contract_reports`
@@ -80,7 +83,7 @@ This gives a reviewer a compact audit view without opening internal code.
 
 This changes the main pipeline from a blind function chain into a governed execution path. If a downstream agent is invoked before upstream state exists, the runtime records a failed `AgentContractReport`, emits a `block` workflow decision, and raises before the agent mutates state.
 
-## Workflow Decision Strategy v1
+## Workflow Decision Strategy v2
 
 `WorkflowController` records an advisory decision after each agent:
 
@@ -90,9 +93,18 @@ This changes the main pipeline from a blind function chain into a governed execu
 - `block` when preconditions fail
 - `complete` after export
 
+The controller also attaches gate metadata:
+
+- tool orchestration failures
+- memory selection count
+- sandbox policy record count
+- MCP access record count
+- observation report count
+- export count
+
 The current LangGraph path still runs as a deterministic POC flow, but these records are the strategy surface for the next step: conditional graph edges that consume routing decisions instead of hard-coded linear edges.
 
-## MCP v0
+## MCP Strategy v1
 
 `LocalMCPAdapter` supports server/tool/resource discovery:
 
@@ -103,25 +115,38 @@ The current LangGraph path still runs as a deterministic POC flow, but these rec
 - `list_resources`
 - `read_resource("shotforge://runs/{run_id}/package")`
 - `read_resource("shotforge://runs/{run_id}/harness")`
+- `list_prompts`
 
-This is not a full official MCP server yet. It is a local adapter that maps ShotForge capabilities into tool/resource primitives. The next step is to add stdio or HTTP transport.
+The adapter now has `MCPAccessPolicy`:
 
-## Sandbox v0
+- allowed tools
+- allowed resource URI prefixes
+- prompt exposure switch
+- max run-list limit
+- known-tool requirement
+
+Every list/call/read operation records an `MCPAccessRecord`. This is still not a full official MCP server yet. It is a local adapter that maps ShotForge capabilities into tool/resource/prompt primitives. The next step is to add stdio or HTTP transport.
+
+## Sandbox Strategy v1
 
 `LocalSandboxRunner` supports:
 
 - dry-run mode
 - command allowlist
 - working directory policy
+- workspace boundary
+- denied private/secret path fragments
+- network access policy
+- file-write policy
 - timeout policy
 - stdout/stderr capture
 - execution profiles
 - structured denied results
 - artifact manifest capture
 
-This is a policy boundary, not container isolation. Docker-based isolation is the planned production boundary.
+Every sandbox check records `SandboxPolicyRecord`, including profile, command, decision, network/write policy, env allowlist, and captured artifacts. This is a policy boundary, not container isolation. Docker-based isolation is the planned production boundary.
 
-## Memory v0
+## Memory Strategy v1
 
 `LocalMemoryStore` stores JSONL records with:
 
@@ -138,7 +163,17 @@ This is a policy boundary, not container isolation. Docker-based isolation is th
 
 The runtime can search memory before an agent executes and record memory refs in the project state. Successful runs can also be promoted into reusable memory.
 
-Runtime promotion currently captures completed run summaries after delivery readiness and before export, so exported packages include memory references. This gives the local POC a concrete cross-run learning path without requiring an external vector database.
+`MemoryManager` adds governance around that store:
+
+- allowed namespaces, including legacy `default` and runtime `shotforge`
+- allowed memory kinds
+- minimum importance
+- max hits per agent
+- explicit promotion agents
+- readiness-aware promotion
+- selection and promotion reasons
+
+Runtime selection and promotion both produce `MemorySelectionRecord`. This gives the local POC a concrete cross-run learning path without requiring an external vector database.
 
 ## Context Engineering v2
 

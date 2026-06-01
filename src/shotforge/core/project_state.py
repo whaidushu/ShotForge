@@ -15,6 +15,9 @@ from shotforge.core.schemas.observation import (
 from shotforge.core.runtime_models import (
     AgentContractReport,
     HarnessContextSnapshot,
+    MCPAccessRecord,
+    MemorySelectionRecord,
+    SandboxPolicyRecord,
     StateTransitionRecord,
     ToolCallRecord,
     ToolOrchestrationRecord,
@@ -509,6 +512,9 @@ class ProjectState(BaseModel):
     state_transitions: list[StateTransitionRecord] = Field(default_factory=list)
     agent_contract_reports: list[AgentContractReport] = Field(default_factory=list)
     workflow_decisions: list[WorkflowDecisionRecord] = Field(default_factory=list)
+    memory_selection_records: list[MemorySelectionRecord] = Field(default_factory=list)
+    sandbox_policy_records: list[SandboxPolicyRecord] = Field(default_factory=list)
+    mcp_access_records: list[MCPAccessRecord] = Field(default_factory=list)
     knowledge_refs: list[str] = Field(default_factory=list)
     memory_refs: list[str] = Field(default_factory=list)
     review_notes: list[str] = Field(default_factory=list)

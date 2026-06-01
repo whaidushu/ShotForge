@@ -11,6 +11,9 @@ def build_harness_audit(state: ProjectState | None) -> dict[str, Any]:
             "contexts": [],
             "tool_calls": [],
             "tool_orchestration": [],
+            "memory_selections": [],
+            "sandbox_policy_records": [],
+            "mcp_access_records": [],
             "state_transitions": [],
             "agent_contracts": [],
             "workflow_decisions": [],
@@ -26,6 +29,11 @@ def build_harness_audit(state: ProjectState | None) -> dict[str, Any]:
     tool_orchestration = [
         item.model_dump(mode="json") for item in state.tool_orchestration_records
     ]
+    memory_selections = [item.model_dump(mode="json") for item in state.memory_selection_records]
+    sandbox_policy_records = [
+        item.model_dump(mode="json") for item in state.sandbox_policy_records
+    ]
+    mcp_access_records = [item.model_dump(mode="json") for item in state.mcp_access_records]
     state_transitions = [item.model_dump(mode="json") for item in state.state_transitions]
     agent_contracts = [item.model_dump(mode="json") for item in state.agent_contract_reports]
     workflow_decisions = [item.model_dump(mode="json") for item in state.workflow_decisions]
@@ -37,6 +45,9 @@ def build_harness_audit(state: ProjectState | None) -> dict[str, Any]:
         "contexts": contexts,
         "tool_calls": tool_calls,
         "tool_orchestration": tool_orchestration,
+        "memory_selections": memory_selections,
+        "sandbox_policy_records": sandbox_policy_records,
+        "mcp_access_records": mcp_access_records,
         "state_transitions": state_transitions,
         "agent_contracts": agent_contracts,
         "workflow_decisions": workflow_decisions,
@@ -52,6 +63,9 @@ def build_harness_audit(state: ProjectState | None) -> dict[str, Any]:
             "trace_events": len(state.trace_logs),
             "tool_calls": len(state.tool_call_records),
             "tool_orchestration": len(state.tool_orchestration_records),
+            "memory_selections": len(state.memory_selection_records),
+            "sandbox_policy_records": len(state.sandbox_policy_records),
+            "mcp_access_records": len(state.mcp_access_records),
             "state_transitions": len(state.state_transitions),
             "agent_contracts": len(state.agent_contract_reports),
             "workflow_decisions": len(state.workflow_decisions),

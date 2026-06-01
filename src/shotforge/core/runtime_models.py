@@ -78,6 +78,45 @@ class WorkflowDecisionRecord(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class MemorySelectionRecord(BaseModel):
+    selection_id: str = Field(default_factory=lambda: f"mem_select_{uuid4().hex[:12]}")
+    agent_name: str
+    query: str = ""
+    tags: list[str] = Field(default_factory=list)
+    namespace: str = "shotforge"
+    candidate_count: int = 0
+    selected_memory_ids: list[str] = Field(default_factory=list)
+    rejected_memory_ids: list[str] = Field(default_factory=list)
+    promotion_decision: Literal["promote", "skip", "not_applicable"] = "not_applicable"
+    reasons: list[str] = Field(default_factory=list)
+    policy: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class SandboxPolicyRecord(BaseModel):
+    record_id: str = Field(default_factory=lambda: f"sandbox_policy_{uuid4().hex[:12]}")
+    command: list[str] = Field(default_factory=list)
+    decision: Literal["allowed", "denied"] = "allowed"
+    reason: str = ""
+    profile_id: str = ""
+    working_dir: str = ""
+    allow_network: bool = False
+    allow_file_write: bool = False
+    allowed_env_keys: list[str] = Field(default_factory=list)
+    artifacts: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class MCPAccessRecord(BaseModel):
+    access_id: str = Field(default_factory=lambda: f"mcp_access_{uuid4().hex[:12]}")
+    operation: Literal["tools/list", "tools/call", "resources/list", "resources/read", "prompts/list"]
+    target: str = ""
+    status: Literal["completed", "failed", "denied"] = "completed"
+    decision: Literal["allowed", "denied"] = "allowed"
+    reason: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
 class ToolOrchestrationRecord(BaseModel):
     plan_id: str = Field(default_factory=lambda: f"tool_plan_{uuid4().hex[:12]}")
     requested_tool: str
@@ -106,6 +145,9 @@ class ToolOrchestrationRecord(BaseModel):
 __all__ = [
     "AgentContractReport",
     "HarnessContextSnapshot",
+    "MCPAccessRecord",
+    "MemorySelectionRecord",
+    "SandboxPolicyRecord",
     "StateTransitionRecord",
     "ToolCallRecord",
     "ToolOrchestrationRecord",

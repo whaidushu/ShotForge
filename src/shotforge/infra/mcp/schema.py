@@ -35,3 +35,20 @@ class MCPResourceSpec(BaseModel):
     description: str = ""
     mime_type: str = "application/json"
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class MCPPromptSpec(BaseModel):
+    name: str
+    description: str = ""
+    arguments: dict[str, Any] = Field(default_factory=dict)
+    template: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class MCPAccessPolicy(BaseModel):
+    policy_id: str = "default_mcp_access_policy"
+    allowed_tools: list[str] = Field(default_factory=list)
+    allowed_resource_prefixes: list[str] = Field(default_factory=lambda: ["shotforge://runs/"])
+    expose_prompts: bool = True
+    max_runs_list_limit: int = 50
+    require_known_tool: bool = True

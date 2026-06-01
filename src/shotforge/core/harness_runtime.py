@@ -13,13 +13,14 @@ from shotforge.core.project_state import ProjectState
 from shotforge.core.runtime_models import (
     AgentContractReport,
     HarnessContextSnapshot,
+    SandboxPolicyRecord,
     StateTransitionRecord,
     ToolCallRecord,
 )
 from shotforge.core.trace_log import TraceLog
 from shotforge.core.workflow_controller import WorkflowController
 from shotforge.infra.mcp import LocalMCPAdapter, build_default_mcp_adapter
-from shotforge.infra.memory import LocalMemoryStore
+from shotforge.infra.memory import LocalMemoryStore, MemoryManager
 from shotforge.infra.policies import ExecutionPolicy
 from shotforge.infra.sandbox import SandboxPolicy
 from shotforge.skills import SkillRegistry
@@ -34,6 +35,7 @@ class AgentHarnessRuntime:
         sandbox_policy: SandboxPolicy | None = None,
         mcp_adapter: LocalMCPAdapter | None = None,
         memory_store: LocalMemoryStore | None = None,
+        memory_manager: MemoryManager | None = None,
         agent_catalog: AgentCatalog | None = None,
         contract_registry: AgentContractRegistry | None = None,
         workflow_controller: WorkflowController | None = None,
@@ -45,6 +47,7 @@ class AgentHarnessRuntime:
         self.sandbox_policy = sandbox_policy or SandboxPolicy()
         self.mcp_adapter = mcp_adapter or build_default_mcp_adapter()
         self.memory_store = memory_store or LocalMemoryStore()
+        self.memory_manager = memory_manager or MemoryManager(self.memory_store)
         self.agent_catalog = agent_catalog
         self.contract_registry = contract_registry or build_default_agent_contract_registry()
         self.workflow_controller = workflow_controller or WorkflowController()
@@ -59,7 +62,10 @@ class AgentHarnessRuntime:
     ) -> ProjectState:
         with TraceLog(state).span("agent_harness_runtime", agent_name=agent_name):
             precondition_report = self._evaluate_preconditions(state, agent_name)
+            before_mcp_access_count = len(self.mcp_adapter.access_records())
             self._record_context(state, agent_name, tags=tags)
+            self._record_mcp_access(state, before_mcp_access_count)
+            self._record_sandbox_policy_snapshot(state, agent_name)
             before_record_count = len(self.registry.records())
             before_orchestration_count = len(self.registry.orchestration_records())
             before_summary = self._state_summary(state)
@@ -143,7 +149,13 @@ class AgentHarnessRuntime:
             tags=tags,
             max_chars=self.execution_policy.max_context_chars,
         )
-        memory_hits = self.memory_store.search(query=state.user_idea, tags=tags, limit=3)
+        memory_hits, memory_selection = self.memory_manager.select(
+            state,
+            agent_name,
+            tags=tags,
+            query=state.user_idea,
+        )
+        state.memory_selection_records.append(memory_selection)
         for record in memory_hits:
             if record.memory_id not in state.memory_refs:
                 state.memory_refs.append(record.memory_id)
@@ -187,6 +199,8 @@ class AgentHarnessRuntime:
                     "redacted_sources": [
                         source.source_id for source in context.sources if source.redacted
                     ],
+                    "memory_selection_id": memory_selection.selection_id,
+                    "memory_selection_reasons": memory_selection.reasons,
                 },
             )
         )
@@ -195,6 +209,32 @@ class AgentHarnessRuntime:
     def _record_tool_calls(self, state: ProjectState, before_record_count: int) -> None:
         records = self.registry.records()[before_record_count:]
         state.tool_call_records.extend(records)
+        state.touch()
+
+    def _record_mcp_access(self, state: ProjectState, before_access_count: int) -> None:
+        records = self.mcp_adapter.access_records()[before_access_count:]
+        state.mcp_access_records.extend(records)
+        state.touch()
+
+    def _record_sandbox_policy_snapshot(self, state: ProjectState, agent_name: str) -> None:
+        state.sandbox_policy_records.append(
+            SandboxPolicyRecord(
+                command=[],
+                decision="allowed",
+                reason="policy_snapshot",
+                profile_id=self.sandbox_policy.execution_profile.profile_id,
+                working_dir=str(self.sandbox_policy.working_dir),
+                allow_network=self.sandbox_policy.allow_network,
+                allow_file_write=self.sandbox_policy.allow_file_write,
+                allowed_env_keys=self.sandbox_policy.allowed_env_keys,
+                metadata={
+                    "agent_name": agent_name,
+                    "sandbox_id": self.sandbox_policy.sandbox_id,
+                    "dry_run": self.sandbox_policy.dry_run,
+                    "require_workspace_boundary": self.sandbox_policy.require_workspace_boundary,
+                },
+            )
+        )
         state.touch()
 
     def _record_tool_orchestration(
@@ -283,6 +323,9 @@ class AgentHarnessRuntime:
             "tool_orchestration_records": len(state.tool_orchestration_records),
             "agent_contract_reports": len(state.agent_contract_reports),
             "workflow_decisions": len(state.workflow_decisions),
+            "memory_selection_records": len(state.memory_selection_records),
+            "sandbox_policy_records": len(state.sandbox_policy_records),
+            "mcp_access_records": len(state.mcp_access_records),
         }
 
     def _invariant_issues(self, state: ProjectState, agent_name: str) -> list[str]:
@@ -318,36 +361,14 @@ class AgentHarnessRuntime:
         }
 
     def _maybe_promote_memory(self, state: ProjectState, agent_name: str) -> None:
-        if agent_name not in {"delivery_readiness_agent", "export_agent"}:
+        record, decision = self.memory_manager.promote_run(state, agent_name)
+        state.memory_selection_records.append(decision)
+        if record is None:
+            state.touch()
             return
-        promoted_key = "memory_promoted_run_id"
-        if state.metadata.get(promoted_key) == state.run_id:
-            return
-        summary = (
-            f"Run {state.run_id}: idea={state.user_idea}; style={state.style}; "
-            f"shots={len(state.shots)}; prompts={len(state.prompt_package.prompts)}; "
-            f"readiness={state.delivery_readiness.overall_status if state.delivery_readiness else 'n/a'}"
-        )
-        record = self.memory_store.promote_run(
-            run_id=state.run_id,
-            summary=summary,
-            tags=[
-                state.style,
-                state.target_platform,
-                state.language,
-                "shotforge-run",
-            ],
-            namespace="shotforge",
-            importance=0.75,
-            metadata={
-                "project_id": state.project_id,
-                "version": state.version,
-                "export_count": len(state.exports),
-            },
-        )
         if record.memory_id not in state.memory_refs:
             state.memory_refs.append(record.memory_id)
-        state.metadata[promoted_key] = state.run_id
+        state.metadata["memory_promoted_run_id"] = state.run_id
         state.touch()
 
 

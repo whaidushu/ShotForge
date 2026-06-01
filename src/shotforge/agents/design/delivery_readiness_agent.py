@@ -33,6 +33,7 @@ def delivery_readiness_agent(
             _context_safety_check(state),
             _mcp_capability_check(state),
             _memory_strategy_check(state),
+            _sandbox_strategy_check(state),
             _solution_architecture_check(state),
             _export_contract_check(registry),
             _provider_strategy_check(state),
@@ -140,11 +141,19 @@ def _agent_contract_check(state: ProjectState) -> ReadinessCheck:
 
 def _workflow_decision_check(state: ProjectState) -> ReadinessCheck:
     critical = [decision for decision in state.workflow_decisions if decision.severity == "critical"]
+    gate_counts = [
+        decision.metadata.get("gate_counts", {})
+        for decision in state.workflow_decisions
+        if decision.metadata.get("gate_counts")
+    ]
     return ReadinessCheck(
         check_id="workflow_decisions",
         category="Workflow Routing",
         status="passed" if state.workflow_decisions and not critical else "warning",
-        evidence=f"{len(state.workflow_decisions)} routing decisions, critical={len(critical)}",
+        evidence=(
+            f"{len(state.workflow_decisions)} routing decisions, "
+            f"critical={len(critical)}, gate_snapshots={len(gate_counts)}"
+        ),
         remediation="Resolve critical workflow routing decisions before export.",
     )
 
@@ -173,22 +182,54 @@ def _mcp_capability_check(state: ProjectState) -> ReadinessCheck:
     }
     required = {"knowledge.search", "runs.get_package", "runs.get_harness_audit"}
     missing = sorted(required - tool_names)
+    denied = [record for record in state.mcp_access_records if record.status == "denied"]
     return ReadinessCheck(
         check_id="mcp_capability",
         category="MCP",
-        status="passed" if not missing else "warning",
-        evidence=f"mcp_tools={sorted(tool_names)}, missing={missing}",
+        status="passed" if not missing and not denied else "warning",
+        evidence=(
+            f"mcp_tools={sorted(tool_names)}, missing={missing}, "
+            f"access_records={len(state.mcp_access_records)}, denied={len(denied)}"
+        ),
         remediation="Expose required MCP tools before external tool-host integration.",
     )
 
 
 def _memory_strategy_check(state: ProjectState) -> ReadinessCheck:
+    promotions = [
+        record
+        for record in state.memory_selection_records
+        if record.promotion_decision in {"promote", "skip"}
+    ]
     return ReadinessCheck(
         check_id="memory_strategy",
         category="Memory",
-        status="passed" if state.memory_refs else "warning",
-        evidence=f"memory_refs={len(state.memory_refs)}",
+        status="passed" if state.memory_selection_records else "warning",
+        evidence=(
+            f"memory_refs={len(state.memory_refs)}, "
+            f"selection_records={len(state.memory_selection_records)}, "
+            f"promotion_decisions={len(promotions)}"
+        ),
         remediation="Promote successful runs or seed customer memory before pilot.",
+    )
+
+
+def _sandbox_strategy_check(state: ProjectState) -> ReadinessCheck:
+    denied = [record for record in state.sandbox_policy_records if record.decision == "denied"]
+    boundary_snapshots = [
+        record
+        for record in state.sandbox_policy_records
+        if record.metadata.get("require_workspace_boundary")
+    ]
+    return ReadinessCheck(
+        check_id="sandbox_strategy",
+        category="Sandbox",
+        status="passed" if state.sandbox_policy_records and not denied else "warning",
+        evidence=(
+            f"{len(state.sandbox_policy_records)} sandbox records, "
+            f"denied={len(denied)}, boundary_snapshots={len(boundary_snapshots)}"
+        ),
+        remediation="Review denied sandbox activity and enforce workspace boundary before pilot.",
     )
 
 

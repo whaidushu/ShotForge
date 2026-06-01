@@ -6,8 +6,8 @@ from shotforge.agents import AgentHarness, build_default_agent_catalog, build_de
 from shotforge.core.context_builder import ContextBuildPolicy, ContextBuilder
 from shotforge.core.harness_runtime import AgentHarnessRuntime
 from shotforge.core.project_state import ProjectState
-from shotforge.infra.mcp import LocalMCPAdapter
-from shotforge.infra.memory import LocalMemoryStore
+from shotforge.infra.mcp import LocalMCPAdapter, MCPAccessPolicy
+from shotforge.infra.memory import LocalMemoryStore, MemoryGovernancePolicy, MemoryManager
 from shotforge.infra.policies import ExecutionPolicy
 from shotforge.infra.sandbox import LocalSandboxRunner, SandboxExecutionProfile, SandboxPolicy
 from shotforge.skills import SkillRegistry, ToolExecutionPolicy
@@ -40,6 +40,9 @@ def test_agent_harness_runtime_records_context_and_tool_calls(tmp_path, monkeypa
     assert state.state_transitions
     assert state.agent_contract_reports
     assert state.workflow_decisions
+    assert state.memory_selection_records
+    assert state.sandbox_policy_records
+    assert state.mcp_access_records
     assert any(
         item.agent_name == "prompt_adapter_agent" and "prompts" in item.changed_fields
         for item in state.state_transitions
@@ -64,6 +67,8 @@ def test_agent_harness_runtime_records_context_and_tool_calls(tmp_path, monkeypa
     assert all(snapshot.metadata.get("context_digest") for snapshot in state.harness_contexts)
     assert all(snapshot.metadata.get("agent_spec") for snapshot in state.harness_contexts)
     assert any("project_state" in snapshot.source_types for snapshot in state.harness_contexts)
+    assert any(record.reason == "policy_snapshot" for record in state.sandbox_policy_records)
+    assert any(record.operation == "tools/list" for record in state.mcp_access_records)
 
 
 def test_context_builder_ranks_sources_and_enforces_budget(tmp_path, monkeypatch):
@@ -243,6 +248,39 @@ def test_runtime_promotes_exported_run_into_memory(tmp_path, monkeypatch):
     assert hits
     assert hits[0].source_run_id == result.run_id
     assert hits[0].kind == "promoted_run"
+    assert any(
+        record.promotion_decision == "promote" and hits[0].memory_id in record.selected_memory_ids
+        for record in result.memory_selection_records
+    )
+
+
+def test_memory_manager_records_selection_and_promotion_skip(tmp_path):
+    memory = LocalMemoryStore(tmp_path / "memory.jsonl")
+    selected = memory.add(
+        "quiet revenge noir framing",
+        tags=["cinematic"],
+        namespace="default",
+        importance=0.9,
+    )
+    memory.add(
+        "low importance note",
+        tags=["cinematic"],
+        namespace="default",
+        importance=0.05,
+    )
+    manager = MemoryManager(
+        memory,
+        MemoryGovernancePolicy(max_hits_per_agent=2, min_importance=0.2),
+    )
+    state = ProjectState(user_idea="quiet revenge", language="en")
+
+    hits, report = manager.select(state, "intent_agent", tags=["cinematic"])
+    _, promotion = manager.promote_run(state, "intent_agent")
+
+    assert [record.memory_id for record in hits] == [selected.memory_id]
+    assert report.candidate_count == 1
+    assert report.selected_memory_ids == [selected.memory_id]
+    assert promotion.promotion_decision == "not_applicable"
 
 
 def test_local_mcp_adapter_exposes_tools_and_resources(tmp_path, monkeypatch):
@@ -276,6 +314,27 @@ def test_local_mcp_adapter_exposes_tools_and_resources(tmp_path, monkeypatch):
     assert harness_result.result["harness_audit"]["run_id"] == state.run_id
     assert mcp.read_resource(resource_uri)["run_id"] == state.run_id
     assert mcp.read_resource(harness_uri)["run_id"] == state.run_id
+    assert any(record.operation == "tools/call" for record in mcp.access_records())
+    assert capabilities["prompts"]
+
+
+def test_local_mcp_adapter_enforces_access_policy():
+    mcp = LocalMCPAdapter(
+        access_policy=MCPAccessPolicy(
+            allowed_tools=["knowledge.search"],
+            allowed_resource_prefixes=["shotforge://safe/"],
+            expose_prompts=False,
+        )
+    )
+
+    denied_tool = mcp.call_tool("runs.list", {"limit": 100})
+
+    assert denied_tool.is_error is True
+    assert denied_tool.status == "failed"
+    assert mcp.list_prompts() == []
+    with pytest.raises(PermissionError):
+        mcp.read_resource("shotforge://runs/123/package")
+    assert any(record.status == "denied" for record in mcp.access_records())
 
 
 def test_local_sandbox_runner_enforces_policy(tmp_path):
@@ -315,6 +374,33 @@ def test_local_sandbox_runner_can_return_structured_denial(tmp_path):
     assert result.profile_id == "demo_profile"
     assert result.policy_decision == "denied"
     assert "not allowed" in result.policy_reason
+    assert sandbox.policy_records()[-1].decision == "denied"
+
+
+def test_local_sandbox_runner_blocks_network_and_private_paths(tmp_path):
+    sandbox = LocalSandboxRunner(
+        SandboxPolicy(
+            dry_run=True,
+            allowed_commands=["python"],
+            working_dir=Path(tmp_path),
+            workspace_root=Path(tmp_path),
+            allow_network=False,
+        )
+    )
+
+    network = sandbox.run(
+        ["python", "-c", "import urllib.request; urllib.request.urlopen('https://example.com')"],
+        raise_on_policy_violation=False,
+    )
+    private = sandbox.run(
+        ["python", "-c", "print('_private/notes.md')"],
+        raise_on_policy_violation=False,
+    )
+
+    assert network.status == "denied"
+    assert "Network access is disabled" in network.policy_reason
+    assert private.status == "denied"
+    assert "denied path fragment" in private.policy_reason
 
 
 def test_skill_registry_denies_unauthorized_tool_scope():

@@ -8,18 +8,18 @@ The project is not presented as a generic video generator. It is presented as a 
 
 | JD Requirement | ShotForge Evidence |
 |---|---|
-| Understand industry AI scenarios and business value | Uses advertising / video creative production as the reference scenario, where iteration cost, quality gates, and traceability are concrete business problems |
-| Design AI Agent solutions for industry customers | Provides an end-to-end workflow from user goal to structured package, generation provider, evaluation, correction, versioning, and export |
-| Connect business goals with technical constraints | Separates cheap design/evaluation loops from expensive final generation; provider strategy supports model selection and cost control |
-| Agent Harness engineering practice | LangGraph workflows, typed ProjectState, ContextBuilder, SkillRegistry, AgentHarnessRuntime, TraceLog, VersionManager |
-| Context Engineering | ContextBuilder injects user goal, project state, knowledge refs, and runtime memory refs into agent execution |
-| Tool Orchestration | SkillRegistry records tool calls, permission scopes, status, latency, and previews |
-| State Management | ProjectState is the single workflow contract across design, generation, evaluation, correction, versioning, and exports |
-| MCP / Skill / Sandbox / Memory / Knowledge Base | Agent Infra Runtime v0 exposes MCP-like tools/resources, sandbox policy, JSONL memory, and local knowledge retrieval |
+| Understand industry AI scenarios and business value | Uses AI video creation as the reference scenario and includes advertising, e-commerce, and game trailer solution packages |
+| Design AI Agent solutions for industry customers | Provides industry solution docs, POC strategy, model selection matrix, and an end-to-end workflow from user goal to evaluated export |
+| Connect business goals with technical constraints | Separates cheap design/evaluation loops from expensive final generation; provider strategy supports model selection, privacy, and cost control |
+| Agent Harness engineering practice | LangGraph workflows, typed ProjectState, ContextBuilder, SkillRegistry, AgentHarnessRuntime, AgentContract, WorkflowController, TraceLog, VersionManager |
+| Context Engineering | ContextBuilder injects user goal, project state, knowledge refs, and runtime memory refs with source ranking, budget, redaction, and digest |
+| Tool Orchestration | SkillRegistry records tool plans, authorization decisions, schema status, fallback outcomes, status, latency, and permission scope |
+| State Management | ProjectState is the single workflow contract across design, generation, observation, evaluation, correction, versioning, policies, and exports |
+| MCP / Skill / Sandbox / Memory / Knowledge Base | Agent Infra Runtime exposes MCP-like tools/resources/prompts, access policy, sandbox policy records, memory governance, and local knowledge retrieval |
 | Evaluation and quality system | EvaluationReport, ScoreCard, Issue, CorrectionPlan, VersionDiff, ScoreDelta, RegressionCheck |
-| POC and demo capability | CLI, FastAPI Web Demo, audit API, export artifacts, run history, and demo script |
+| POC and demo capability | CLI, FastAPI Web Demo, audit API, export artifacts, run history, POC test strategy, and sales demo playbook |
 | Productized value communication | SolutionArchitecture and DeliveryReadinessReport translate cost, speed, stability, traceability, provider optionality, and pilot readiness into reviewable artifacts |
-| Reusable knowledge assets | Packaged industry playbooks, rubrics, correction strategies, prompt rules, and solution blueprint are separated from code |
+| Reusable knowledge assets | Packaged industry playbooks, rubrics, correction strategies, prompt rules, solution docs, model matrix, and POC strategy are separated from code |
 
 ## Current Strength
 
@@ -29,21 +29,21 @@ ShotForge already demonstrates a credible engineering foundation:
 - Typed state and artifacts with Pydantic.
 - Design, evaluation, correction, redesign, and export workflows.
 - Provider abstraction for LLM and video generation.
-- Runtime evidence for context, tools, policies, MCP, sandbox, and memory.
+- Runtime evidence for context, tools, contracts, workflow decisions, policies, MCP, sandbox, and memory.
 - Solution architecture and delivery readiness artifacts generated per run.
 - Harness audit API and CLI audit command for reviewer-facing evidence.
-- Packaged industry playbooks for scenario reuse.
+- Packaged industry playbooks and solution docs for scenario reuse.
 - Local-first POC execution without requiring expensive model calls.
 
 ## Current Gaps
 
 These are the gaps to close before presenting it as a stronger solution architect project:
 
-- Add `.env.example` and OpenAI-compatible real LLM provider configuration.
-- Export `manifest.json`, `trace.json`, and `run_summary.md` for each run.
-- Add Docker / deployment notes for POC delivery.
-- Add official MCP transport and a stronger sandbox isolation boundary.
+- Add official MCP transport instead of the current local adapter.
+- Replace local sandbox policy gates with container or remote execution isolation for production use.
 - Add customer-specific playbook overlays and RAG-backed knowledge retrieval.
+- Add cost/latency accounting for real provider benchmark runs.
+- Add customer discovery questionnaire, RFP template, and security review checklist.
 
 ## Narrative For Interview
 

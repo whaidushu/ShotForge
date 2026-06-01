@@ -238,6 +238,50 @@ def audit(
         )
     console.print(decisions)
 
+    memory = Table(title="Memory Governance")
+    memory.add_column("Agent")
+    memory.add_column("Selected")
+    memory.add_column("Promotion")
+    memory.add_column("Reasons", overflow="fold")
+    for item in report.get("memory_selections", []):
+        memory.add_row(
+            item["agent_name"],
+            str(len(item.get("selected_memory_ids", []))),
+            item.get("promotion_decision", "n/a"),
+            ", ".join(item.get("reasons", [])) or "none",
+        )
+    console.print(memory)
+
+    sandbox = Table(title="Sandbox Strategy")
+    sandbox.add_column("Profile")
+    sandbox.add_column("Decision")
+    sandbox.add_column("Network")
+    sandbox.add_column("Writes")
+    sandbox.add_column("Reason", overflow="fold")
+    for item in report.get("sandbox_policy_records", []):
+        sandbox.add_row(
+            item.get("profile_id", ""),
+            item.get("decision", ""),
+            str(item.get("allow_network", "")),
+            str(item.get("allow_file_write", "")),
+            item.get("reason", ""),
+        )
+    console.print(sandbox)
+
+    mcp = Table(title="MCP Access")
+    mcp.add_column("Operation")
+    mcp.add_column("Target", overflow="fold")
+    mcp.add_column("Status")
+    mcp.add_column("Reason", overflow="fold")
+    for item in report.get("mcp_access_records", []):
+        mcp.add_row(
+            item.get("operation", ""),
+            item.get("target", "") or "n/a",
+            item.get("status", ""),
+            item.get("reason", ""),
+        )
+    console.print(mcp)
+
 
 @app.command()
 def capabilities() -> None:

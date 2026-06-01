@@ -85,6 +85,13 @@ docs/                  Track definitions and review guide
 - [Volcengine JD Alignment](docs/volcengine-jd-alignment.md): how the project maps to the target AI Agent solution architect role.
 - [Solution Blueprint](docs/solution-blueprint.md): customer-facing solution architecture and POC acceptance criteria.
 - [Demo Script](docs/demo-script.md): 5-8 minute walkthrough for interviews or solution demos.
+- [Sales Demo Playbook](docs/sales-demo-playbook.md): customer-facing demo narrative, objection handling, and evidence checklist.
+- [POC Test Strategy](docs/poc-test-strategy.md): acceptance gates, test phases, and production exit criteria.
+- [Model Selection Matrix](docs/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
+- [Knowledge Assets](docs/knowledge-assets.md): reusable playbooks, rubrics, prompt rules, and solution templates.
+- [Advertising Solution](docs/solutions/advertising-agent-solution.md): industry package for brand marketing and campaign video production.
+- [E-commerce Solution](docs/solutions/ecommerce-video-agent-solution.md): industry package for product short-video workflows.
+- [Game Trailer Solution](docs/solutions/game-trailer-agent-solution.md): industry package for game character and trailer ideation.
 - [Product Track](docs/product-track.md): product goal, user workflow, UX milestones, and video creation loop.
 - [Resume Review Guide](docs/resume-review-guide.md): how a reviewer should read this project in 5-10 minutes.
 - [Roadmap](ROADMAP.md): longer-term technical roadmap and planned milestones.

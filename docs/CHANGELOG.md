@@ -1,5 +1,38 @@
 # Change Log
 
+## 2026-06-01 Agent Harness Strategy And Solution Assets
+
+This milestone deepens the Agent Harness strategy layer and adds customer-facing solution assets for solution-architect review.
+
+### Harness Strategy
+
+- Added memory governance around local JSONL memory:
+  - namespace policy
+  - allowed memory kinds
+  - minimum importance
+  - max hits per agent
+  - promotion decisions and reasons
+- Added workflow gate metadata for tool failures, memory, sandbox, MCP, observations, and exports.
+- Added sandbox strategy records for workspace boundary, private path fragments, network policy, file-write policy, env allowlist, and artifact boundary.
+- Added MCP access policy and records for tools, resources, prompts, access limits, and denied operations.
+- Exposed memory, sandbox, and MCP evidence through harness audit and CLI audit.
+
+### Solution Assets
+
+- Added industry solution packages:
+  - advertising video agent solution
+  - e-commerce product video agent solution
+  - game trailer and character video agent solution
+- Added POC test strategy with phases, gates, cases, metrics, and production exit criteria.
+- Added model selection matrix for LLM/Judge, video generation, and visual observation providers.
+- Added sales demo playbook for customer-facing walkthroughs and objection handling.
+- Added knowledge asset index for playbooks, rubrics, prompt rules, correction strategies, and solution templates.
+
+### Verification
+
+- Current verification: `ruff check src tests` and `pytest`.
+- Latest local result: `95 passed`.
+
 ## 2026-05-31 Delivery Chain Consolidation
 
 This milestone turns ShotForge from a concept scaffold into a runnable local delivery chain.

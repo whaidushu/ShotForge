@@ -84,6 +84,23 @@ This separates creative convergence from expensive final generation, making cost
 | Extensibility | A rubric, provider, or tool can be added without rewriting the workflow |
 | Delivery | Exports are available for human review and system integration |
 
+## Industry Solution Packages
+
+ShotForge now includes reusable solution packages for customer-facing discussions:
+
+- [Advertising AI Video Agent Solution](solutions/advertising-agent-solution.md)
+- [E-commerce Product Video Agent Solution](solutions/ecommerce-video-agent-solution.md)
+- [Game Trailer And Character Video Agent Solution](solutions/game-trailer-agent-solution.md)
+
+These packages translate the same Agent Harness into different customer scenarios, pain points, POC boundaries, success criteria, and production paths.
+
+## Supporting Solution Assets
+
+- [POC Test Strategy](poc-test-strategy.md)
+- [Model Selection Matrix](model-selection-matrix.md)
+- [Sales Demo Playbook](sales-demo-playbook.md)
+- [Knowledge Assets](knowledge-assets.md)
+
 ## From POC To Production
 
 1. Replace mock LLM with the selected enterprise LLM provider.

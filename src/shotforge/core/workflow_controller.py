@@ -22,6 +22,9 @@ class WorkflowRoutingPolicy(BaseModel):
     )
     review_on_readiness_warning: bool = True
     refine_on_contract_failure: bool = True
+    review_on_tool_failures: bool = True
+    review_on_observation_gaps: bool = True
+    require_exports_for_completion: bool = True
 
 
 class WorkflowController:
@@ -35,6 +38,7 @@ class WorkflowController:
         contract_report: AgentContractReport | None = None,
     ) -> WorkflowDecisionRecord:
         next_agent = self.policy.route_map.get(agent_name)
+        gate_metadata = self._gate_metadata(state, contract_report)
         if contract_report and contract_report.precondition_status == "failed":
             return WorkflowDecisionRecord(
                 agent_name=agent_name,
@@ -43,7 +47,7 @@ class WorkflowController:
                 reason="Agent preconditions failed.",
                 severity="critical",
                 required_actions=contract_report.precondition_issues,
-                metadata=self._metadata(contract_report),
+                metadata=gate_metadata,
             )
         if (
             contract_report
@@ -57,8 +61,28 @@ class WorkflowController:
                 reason="Agent output contract failed.",
                 severity="critical",
                 required_actions=contract_report.postcondition_issues,
-                metadata=self._metadata(contract_report),
+                metadata=gate_metadata,
             )
+        if self.policy.review_on_tool_failures:
+            failed_tools = [
+                record
+                for record in state.tool_orchestration_records
+                if record.agent_name == agent_name
+                and record.status in {"failed", "denied", "fallback_failed"}
+            ]
+            if failed_tools:
+                return WorkflowDecisionRecord(
+                    agent_name=agent_name,
+                    decision="review",
+                    next_agent="review_refine",
+                    reason="Tool orchestration produced failed or denied calls.",
+                    severity="warning",
+                    required_actions=[
+                        f"review_tool:{record.requested_tool}:{record.status}"
+                        for record in failed_tools
+                    ],
+                    metadata=gate_metadata,
+                )
         if agent_name == "delivery_readiness_agent" and state.delivery_readiness:
             if (
                 self.policy.review_on_readiness_warning
@@ -75,22 +99,32 @@ class WorkflowController:
                         else "warning"
                     ),
                     required_actions=state.delivery_readiness.next_actions,
-                    metadata=self._metadata(contract_report),
+                    metadata=gate_metadata,
                 )
         if agent_name == "export_agent":
+            if self.policy.require_exports_for_completion and not state.exports:
+                return WorkflowDecisionRecord(
+                    agent_name=agent_name,
+                    decision="repair",
+                    next_agent="export_agent",
+                    reason="Export agent completed without export artifacts.",
+                    severity="critical",
+                    required_actions=["repair_export_artifacts"],
+                    metadata=gate_metadata,
+                )
             return WorkflowDecisionRecord(
                 agent_name=agent_name,
                 decision="complete",
                 next_agent=None,
                 reason="Export package completed.",
-                metadata=self._metadata(contract_report),
+                metadata=gate_metadata,
             )
         return WorkflowDecisionRecord(
             agent_name=agent_name,
             decision="continue",
             next_agent=next_agent,
             reason="Static route policy selected the next agent.",
-            metadata=self._metadata(contract_report),
+            metadata=gate_metadata,
         )
 
     def _repair_target(self, agent_name: str) -> str:
@@ -115,6 +149,33 @@ class WorkflowController:
                 contract_report.postcondition_status if contract_report else "skipped"
             ),
         }
+
+    def _gate_metadata(
+        self,
+        state: ProjectState,
+        contract_report: AgentContractReport | None,
+    ) -> dict[str, object]:
+        metadata = self._metadata(contract_report)
+        metadata.update(
+            {
+                "gate_counts": {
+                    "tool_failures": len(
+                        [
+                            record
+                            for record in state.tool_orchestration_records
+                            if record.status in {"failed", "denied", "fallback_failed"}
+                        ]
+                    ),
+                    "memory_selections": len(state.memory_selection_records),
+                    "sandbox_policy_records": len(state.sandbox_policy_records),
+                    "mcp_access_records": len(state.mcp_access_records),
+                    "observation_reports": len(state.observation_reports),
+                    "exports": len(state.exports),
+                },
+                "routing_policy": self.policy.model_dump(mode="json"),
+            }
+        )
+        return metadata
 
 
 __all__ = ["WorkflowController", "WorkflowRoutingPolicy"]
