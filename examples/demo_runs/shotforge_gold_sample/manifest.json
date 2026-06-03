@@ -1,0 +1,99 @@
+{
+  "project_id": "proj_f24742c75474",
+  "run_id": "shotforge_gold_sample",
+  "version": 3,
+  "created_at": "2026-06-03T09:27:39.606299+00:00",
+  "updated_at": "2026-06-03T09:27:40.156111+00:00",
+  "deliverables": [
+    {
+      "format": "csv",
+      "path": "examples\\demo_runs\\shotforge_gold_sample\\package.csv"
+    },
+    {
+      "format": "markdown",
+      "path": "examples\\demo_runs\\shotforge_gold_sample\\package.md"
+    },
+    {
+      "format": "evaluation_csv",
+      "path": "examples\\demo_runs\\shotforge_gold_sample\\evaluation.csv"
+    }
+  ],
+  "solution": {
+    "industry": "Media and Entertainment",
+    "scenario": "AI video production planning",
+    "business_objective": "Reduce creative planning latency and make video prompt production auditable.",
+    "knowledge_assets": [
+      "media_advertising_video_ops",
+      "evaluation_rubrics.json",
+      "prompt_rules.json",
+      "correction_strategies.json"
+    ],
+    "scenario_patterns": [
+      "campaign concept to storyboard package",
+      "brand-safe short-video production planning",
+      "multi-provider video model comparison"
+    ],
+    "evaluation_metrics": [
+      "story clarity",
+      "brand fit",
+      "motion readability",
+      "prompt executability"
+    ],
+    "poc_success_criteria": [
+      {
+        "criterion_id": "poc_latency",
+        "metric": "creative package turnaround",
+        "target": "< 2 minutes for mock pipeline",
+        "evaluation_method": "trace log timestamps and export completion",
+        "metadata": {}
+      },
+      {
+        "criterion_id": "poc_observability",
+        "metric": "agent harness observability",
+        "target": "context, tool calls, policies, MCP, sandbox, and memory visible per run",
+        "evaluation_method": "Harness Inspector and exported ProjectState",
+        "metadata": {}
+      },
+      {
+        "criterion_id": "poc_quality_loop",
+        "metric": "closed-loop improvement readiness",
+        "target": "evaluation, correction plan, diff, and verification generated",
+        "evaluation_method": "planning mode output",
+        "metadata": {}
+      },
+      {
+        "criterion_id": "playbook_metric_1",
+        "metric": "story clarity",
+        "target": "measurable in evaluation report",
+        "evaluation_method": "scenario playbook rubric mapping",
+        "metadata": {}
+      },
+      {
+        "criterion_id": "playbook_metric_2",
+        "metric": "brand fit",
+        "target": "measurable in evaluation report",
+        "evaluation_method": "scenario playbook rubric mapping",
+        "metadata": {}
+      },
+      {
+        "criterion_id": "playbook_metric_3",
+        "metric": "motion readability",
+        "target": "measurable in evaluation report",
+        "evaluation_method": "scenario playbook rubric mapping",
+        "metadata": {}
+      }
+    ]
+  },
+  "readiness": {
+    "overall_status": "warning",
+    "check_count": 15,
+    "next_actions": [
+      "Record permission scope and execution status for all production tools.",
+      "Configure one real video provider and credentials for pilot.",
+      "Run full_loop or planning mode to produce evaluation and correction evidence.",
+      "Select one pilot customer scenario and bind success criteria to measurable data."
+    ]
+  },
+  "audit_api": "/api/runs/shotforge_gold_sample/harness",
+  "package_api": "/api/runs/shotforge_gold_sample"
+}

@@ -1,0 +1,35 @@
+﻿evaluation_id,overall_score,dimension_id,dimension_label,dimension_score,issue_id,severity,shot_id,correction_type,description,suspected_cause
+eval_b14f1ebc1e84,0.837,action_clarity,动作清晰度,0.73,issue_ede046a90f4b,medium,shot_02,action,shot_02 的主体动作目标不够明确。,动作动词、目标对象或反应结果不够具体。
+eval_b14f1ebc1e84,0.837,pacing_progression,节奏推进,0.713,issue_cd5a4e226aad,medium,shot_02,action,shot_02 的节奏推进不明显。,缺少节奏节点、转场触发或动作递进。
+eval_b14f1ebc1e84,0.837,color_alignment,颜色对齐,0.875,issue_f965f90aab56,low,shot_01,scene,shot_01 的颜色目标没有被稳定保留。,颜色、材质或发光属性没有被写成强约束。
+eval_b14f1ebc1e84,0.837,color_alignment,颜色对齐,0.875,issue_329c99c4521d,low,shot_02,scene,shot_02 的颜色目标没有被稳定保留。,颜色、材质或发光属性没有被写成强约束。
+eval_b14f1ebc1e84,0.837,camera_expression,镜头表达,0.748,issue_d7c4d0ff40b6,medium,shot_04,camera,shot_04 的镜头语言没有充分服务叙事重点。,镜头类型、运动方式或主体关系描述不足。
+eval_b14f1ebc1e84,0.837,emotional_intensity,情绪强度,0.708,issue_a3c86965f20f,medium,shot_03,emotion,shot_03 的情绪表达不够强，缺少可感知的表情或节奏变化。,情绪动作、表情细节或声音转折设计不足。
+eval_b14f1ebc1e84,0.837,reversal_expression,反转表达,0.615,issue_7ade7ff076ec,high,shot_03,scene,shot_03 的反转或关键信息锚点不够明确。,缺少视觉锚点、前后对比或信息揭示动作。
+eval_b14f1ebc1e84,0.837,audio_timing,声音点位,0.713,issue_c2fd2c1e1380,medium,shot_04,audio,shot_04 的声音点位与画面节拍不够贴合。,音效触发、BGM 转折或环境声层次描述不足。
+eval_b14f1ebc1e84,0.837,prompt_executability,Prompt 可执行性,0.68,issue_78e2873e2dcd,medium,shot_01,prompt,shot_01 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_b14f1ebc1e84,0.837,prompt_executability,Prompt 可执行性,0.68,issue_741e7a59bba8,medium,shot_02,prompt,shot_02 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_b14f1ebc1e84,0.837,prompt_executability,Prompt 可执行性,0.68,issue_ae345b1861e9,medium,shot_03,prompt,shot_03 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_b14f1ebc1e84,0.837,prompt_executability,Prompt 可执行性,0.68,issue_8af5375cd265,medium,shot_04,prompt,shot_04 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_a78ed5dd492b,0.841,action_clarity,动作清晰度,0.77,issue_a746f9af6c08,low,shot_02,action,shot_02 的主体动作目标不够明确。,动作动词、目标对象或反应结果不够具体。
+eval_a78ed5dd492b,0.841,color_alignment,颜色对齐,0.875,issue_00f1701e9c99,low,shot_01,scene,shot_01 的颜色目标没有被稳定保留。,颜色、材质或发光属性没有被写成强约束。
+eval_a78ed5dd492b,0.841,color_alignment,颜色对齐,0.875,issue_2e1758cdd0f8,low,shot_02,scene,shot_02 的颜色目标没有被稳定保留。,颜色、材质或发光属性没有被写成强约束。
+eval_a78ed5dd492b,0.841,camera_expression,镜头表达,0.748,issue_837b8403d2db,medium,shot_04,camera,shot_04 的镜头语言没有充分服务叙事重点。,镜头类型、运动方式或主体关系描述不足。
+eval_a78ed5dd492b,0.841,emotional_intensity,情绪强度,0.708,issue_153038b6d68d,medium,shot_03,emotion,shot_03 的情绪表达不够强，缺少可感知的表情或节奏变化。,情绪动作、表情细节或声音转折设计不足。
+eval_a78ed5dd492b,0.841,reversal_expression,反转表达,0.615,issue_73440eaeba8e,high,shot_03,scene,shot_03 的反转或关键信息锚点不够明确。,缺少视觉锚点、前后对比或信息揭示动作。
+eval_a78ed5dd492b,0.841,audio_timing,声音点位,0.713,issue_30c7925cb344,medium,shot_04,audio,shot_04 的声音点位与画面节拍不够贴合。,音效触发、BGM 转折或环境声层次描述不足。
+eval_a78ed5dd492b,0.841,prompt_executability,Prompt 可执行性,0.68,issue_6785a5be302f,medium,shot_01,prompt,shot_01 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_a78ed5dd492b,0.841,prompt_executability,Prompt 可执行性,0.68,issue_d804e9043290,medium,shot_02,prompt,shot_02 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_a78ed5dd492b,0.841,prompt_executability,Prompt 可执行性,0.68,issue_d2a7c3923e5b,medium,shot_03,prompt,shot_03 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_a78ed5dd492b,0.841,prompt_executability,Prompt 可执行性,0.68,issue_0a1916c9c353,medium,shot_04,prompt,shot_04 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_6863710b2f1f,0.841,action_clarity,动作清晰度,0.77,issue_b6eb0e327283,low,shot_02,action,shot_02 的主体动作目标不够明确。,动作动词、目标对象或反应结果不够具体。
+eval_6863710b2f1f,0.841,color_alignment,颜色对齐,0.875,issue_6b1c0bc6ef10,low,shot_01,scene,shot_01 的颜色目标没有被稳定保留。,颜色、材质或发光属性没有被写成强约束。
+eval_6863710b2f1f,0.841,color_alignment,颜色对齐,0.875,issue_9a84e962dbe5,low,shot_02,scene,shot_02 的颜色目标没有被稳定保留。,颜色、材质或发光属性没有被写成强约束。
+eval_6863710b2f1f,0.841,camera_expression,镜头表达,0.748,issue_6c659cc77bf3,medium,shot_04,camera,shot_04 的镜头语言没有充分服务叙事重点。,镜头类型、运动方式或主体关系描述不足。
+eval_6863710b2f1f,0.841,emotional_intensity,情绪强度,0.708,issue_da95285a08cc,medium,shot_03,emotion,shot_03 的情绪表达不够强，缺少可感知的表情或节奏变化。,情绪动作、表情细节或声音转折设计不足。
+eval_6863710b2f1f,0.841,reversal_expression,反转表达,0.615,issue_3dd8fd9c2af6,high,shot_03,scene,shot_03 的反转或关键信息锚点不够明确。,缺少视觉锚点、前后对比或信息揭示动作。
+eval_6863710b2f1f,0.841,audio_timing,声音点位,0.713,issue_3a59e6fd59fb,medium,shot_04,audio,shot_04 的声音点位与画面节拍不够贴合。,音效触发、BGM 转折或环境声层次描述不足。
+eval_6863710b2f1f,0.841,prompt_executability,Prompt 可执行性,0.68,issue_959bc791e180,medium,shot_01,prompt,shot_01 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_6863710b2f1f,0.841,prompt_executability,Prompt 可执行性,0.68,issue_2c1e91f07dec,medium,shot_02,prompt,shot_02 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_6863710b2f1f,0.841,prompt_executability,Prompt 可执行性,0.68,issue_77224b691d47,medium,shot_03,prompt,shot_03 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。
+eval_6863710b2f1f,0.841,prompt_executability,Prompt 可执行性,0.68,issue_4bc6bc2197b3,medium,shot_04,prompt,shot_04 的 prompt 可执行性不足。,主体、动作、环境、镜头或约束字段不够完整。

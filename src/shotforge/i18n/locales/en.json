@@ -179,7 +179,129 @@
     },
     "nav": {
       "workflow": "Workflow",
-      "config": "Configuration"
+      "config": "Configuration",
+      "workbench": "Workbench",
+      "providers": "Providers",
+      "docs": "Docs",
+      "demo": "Demo",
+      "new_run": "New Run"
+    },
+    "common": {
+      "ready": "Ready",
+      "attention": "Attention",
+      "attention_required": "Attention required",
+      "not_started": "Not started",
+      "configured": "Configured",
+      "unknown": "Unknown",
+      "not_available": "n/a",
+      "runs": "runs",
+      "issues": "issues",
+      "versions": "versions",
+      "records": "records",
+      "shots": "shots",
+      "score": "Score",
+      "provider": "Provider",
+      "status": "Status",
+      "version": "Version",
+      "change": "Change"
+    },
+    "workspace": {
+      "agent_video_workbench": "Agent Video Workbench",
+      "manage_from_idea_to_handoff": "Manage AI video production from idea to handoff.",
+      "run_management_workspace": "Run Management Workspace",
+      "create_run_body": "Create a run to manage the video production lifecycle from idea intake to prompt package, evaluation, iteration, export, and audit evidence.",
+      "current_focus": "Current Focus",
+      "next_action": "Next action",
+      "production_object": "Production Object",
+      "core_object": "Core object",
+      "run": "Run",
+      "flow": "Flow",
+      "design_to_handoff": "Design to Handoff",
+      "evidence": "Evidence",
+      "harness_records": "Harness records",
+      "run_contract": "Run Contract",
+      "run_contract_body": "Creative goal + production state + generated outputs + evaluation issues + version iteration + handoff artifacts + audit evidence.",
+      "latest_artifacts": "Latest Artifacts",
+      "lifecycle": "Lifecycle",
+      "readiness": "Readiness",
+      "evaluation": "Evaluation",
+      "open_issues": "Open issues",
+      "artifacts": "Artifacts",
+      "exports": "Exports",
+      "pipeline": "Pipeline",
+      "provider": "Provider",
+      "provider_status": "Provider status",
+      "provider_ready": "Provider Ready"
+    },
+    "dashboard": {
+      "title": "Run Dashboard",
+      "total_runs": "Runs",
+      "ready": "Ready",
+      "ready_for_handoff": "Ready for Handoff",
+      "needs_review": "Needs Review",
+      "revise": "Revise",
+      "blocked": "Blocked",
+      "average": "Avg",
+      "no_runs": "No runs yet. Create one to start building the production workspace.",
+      "open_sample_run": "Open Sample Run"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "storyboard": "Storyboard",
+      "prompts": "Prompts",
+      "generation": "Generation",
+      "evaluation": "Evaluation",
+      "iterations": "Iterations",
+      "exports": "Exports",
+      "harness_evidence": "Harness Evidence"
+    },
+    "provider_health": {
+      "title": "Provider Health",
+      "llm_judge": "LLM/Judge",
+      "video_provider": "Video Provider",
+      "observer": "Observer",
+      "preflight": "Preflight"
+    },
+    "run_status": {
+      "stages": {
+        "draft": "Draft",
+        "designed": "Designed",
+        "generated": "Generated",
+        "observed": "Observed",
+        "evaluated": "Evaluated",
+        "needs_revision": "Needs Revision",
+        "revised": "Revised",
+        "ready_for_handoff": "Ready for Handoff",
+        "blocked": "Blocked"
+      },
+      "next_actions": {
+        "draft": "Create an initial production run.",
+        "designed": "Run generation and evaluation before handoff.",
+        "generated": "Observe generated assets and score them.",
+        "observed": "Run evaluation against the selected rubric.",
+        "evaluated": "Review issues and decide whether to revise.",
+        "needs_revision": "Apply correction planning and produce the next version.",
+        "revised": "Review iteration results and prepare handoff.",
+        "ready_for_handoff": "Export the package and hand it to production.",
+        "blocked": "Resolve failed readiness checks before handoff.",
+        "review": "Review the run."
+      }
+    },
+    "iterations": {
+      "title": "Iteration Timeline",
+      "subtitle": "Version movement, correction patches, convergence checks, and resolved issues.",
+      "initial_title": "Initial production package",
+      "initial_summary": "Storyboard, motion, audio cues, prompts, and export package created.",
+      "revision_title": "Revision",
+      "diff_recorded": "Version diff recorded."
+    },
+    "handoff_center": {
+      "title": "Handoff Center",
+      "subtitle": "Delivery readiness, export artifacts, next actions, and risks for production handoff."
+    },
+    "service_warnings": {
+      "title": "Local service check",
+      "body": "Some local paths or services need attention before real generation."
     },
     "config": {
       "title": "Provider Configuration",
@@ -226,13 +348,16 @@
       "prompt_body": "Use planning mode to compare v1 and optimized v2 prompts."
     },
     "storyboard": {
-      "title": "Storyboard"
+      "title": "Storyboard",
+      "subtitle": "Production beats, shot intent, motion, and audio cues."
     },
     "js": {
       "running": "Running...",
       "disabled": "disabled",
       "local": "local",
-      "callable": "callable"
+      "callable": "callable",
+      "failed": "failed",
+      "warnings": "warnings"
     },
     "form": {
       "title": "Create Package",
@@ -294,6 +419,7 @@
       "markdown": "Markdown",
       "evaluation_csv": "Evaluation CSV",
       "manifest": "Manifest",
+      "package_view": "Package View",
       "trace": "Trace",
       "run_summary": "Run Summary"
     },
@@ -396,6 +522,17 @@
         "added": "Added",
         "removed": "Removed",
         "modified": "Modified"
+      },
+      "status": {
+        "passed": "Passed",
+        "warning": "Warning",
+        "failed": "Failed",
+        "not_started": "Not started",
+        "designed": "Designed",
+        "revised": "Revised",
+        "needs_revision": "Needs revision",
+        "ready_for_handoff": "Ready for handoff",
+        "blocked": "Blocked"
       }
     },
     "verification": {

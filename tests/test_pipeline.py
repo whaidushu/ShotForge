@@ -27,7 +27,7 @@ def test_pipeline_exports_all_formats(tmp_path, monkeypatch):
     get_settings.cache_clear()
     state = run_design_pipeline("A robot chef films a moonlit dessert commercial", duration_seconds=24)
 
-    assert state.language == "zh"
+    assert "language" not in state.model_dump(mode="json")
     assert state.creative_intent is not None
     assert len(state.scenes) == 4
     assert len(state.shots) == 4
@@ -101,7 +101,7 @@ def test_pipeline_supports_english_output(tmp_path, monkeypatch):
     trace_path = next(item.path for item in state.exports if item.format == "trace")
     summary_path = next(item.path for item in state.exports if item.format == "run_summary")
 
-    assert state.language == "en"
+    assert "language" not in state.model_dump(mode="json")
     assert state.solution_architecture is not None
     assert state.solution_architecture.industry == "Media and Entertainment"
     assert state.delivery_readiness is not None
@@ -116,6 +116,7 @@ def test_pipeline_supports_english_output(tmp_path, monkeypatch):
     assert "Solution Architecture" in open(markdown_path, encoding="utf-8").read()
     assert "Delivery Readiness" in open(markdown_path, encoding="utf-8").read()
     assert "audit_api" in open(manifest_path, encoding="utf-8").read()
+    assert '"language"' not in open(manifest_path, encoding="utf-8").read()
     assert "harness_audit" in open(trace_path, encoding="utf-8").read()
     summary = open(summary_path, encoding="utf-8").read()
     assert "ShotForge Run Summary" in summary
@@ -138,6 +139,32 @@ def test_chinese_idea_is_preserved_in_storyboard_text(tmp_path, monkeypatch):
     assert idea in state.shots[1].description
     assert "????" not in state.shots[1].description
     assert "\\u" not in state.shots[1].description
+
+
+def test_elevator_revenge_storyboard_uses_concrete_beats(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_design_pipeline(
+        "A quiet revenge reveal in a luxury elevator",
+        duration_seconds=24,
+        language="en",
+    )
+
+    descriptions = " ".join(shot.description for shot in state.shots)
+    assert "Hook beat for" not in descriptions
+    assert "black access card" in descriptions
+    assert "hidden scanner" in descriptions
+    assert "security footage" in descriptions
+    assert "empty boardroom on floor 88" in descriptions
+    assert state.shots[1].metadata["story_beat"]["action_upgrade"].startswith("Make the card tap")
+    assert state.shots[1].motion is not None
+    assert "floor number jump" in state.shots[1].motion.subject_motion
+    assert "scanner beep" in state.audio_cues[1].sound_design
 
 
 def test_full_loop_generates_mock_evaluation(tmp_path, monkeypatch):
@@ -173,6 +200,32 @@ def test_full_loop_generates_mock_evaluation(tmp_path, monkeypatch):
     assert "action_clarity" in {score.dimension_id for score in report.score_card.dimension_scores}
     assert "evaluation_id" in open(evaluation_csv_path, encoding="utf-8-sig").read()
     assert "Evaluation Report" in open(markdown_path, encoding="utf-8").read()
+
+
+def test_redesign_uses_story_beat_specific_revision_notes(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_full_loop_pipeline(
+        "A quiet revenge reveal in a luxury elevator",
+        duration_seconds=24,
+        language="en",
+        generator_provider_id="mock",
+    )
+    next_state = run_redesign(state, report=state.evaluation_reports[-1], generator_provider_id="mock")
+    patch_values = [
+        str(operation.value)
+        for patch in next_state.correction_patches
+        for operation in patch.operations
+    ]
+
+    assert any("Revision target for shot_02" in value for value in patch_values)
+    assert any("card tap, floor jump, and briefcase reveal" in value for value in patch_values)
+    assert any("Keep these visible anchors measurable" in value for value in patch_values)
 
 
 def test_project_package_view_keeps_state_as_aggregate(tmp_path, monkeypatch):
@@ -255,3 +308,25 @@ def test_redesign_injects_effect_contracts_into_executable_prompt(tmp_path, monk
     )
     assert next_state.score_deltas[-1].overall_delta >= 0
     get_settings.cache_clear()
+
+
+def test_gold_sample_package_is_public_and_loadable():
+    samples = [
+        ("shotforge_gold_sample", "hidden scanner"),
+        ("shotforge_gold_sample_zh", "隐藏扫描器"),
+    ]
+    for run_id, expected_text in samples:
+        package_path = f"examples/demo_runs/{run_id}/package.json"
+        raw = open(package_path, encoding="utf-8").read()
+
+        assert "D:\\\\" not in raw
+        assert "_private" not in raw
+
+        state = ProjectState.model_validate_json(raw)
+        assert "language" not in state.model_dump(mode="json")
+        assert state.run_id == run_id
+        assert state.version >= 3
+        assert state.metadata["demo_sample"] is True
+        assert state.evaluation_reports[-1].score_card.overall_score >= 0.8
+        assert expected_text in state.shots[1].description
+        assert len(state.version_diffs) >= 2

@@ -38,6 +38,39 @@ def localized_note(
     )
 
 
+def story_beat_upgrade(
+    state: ProjectState,
+    shot_id: str,
+    correction_type: str,
+    fallback: str,
+) -> str:
+    shot = next((item for item in state.shots if item.shot_id == shot_id), None)
+    beat = shot.metadata.get("story_beat", {}) if shot else {}
+    value = beat.get(f"{correction_type}_upgrade")
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return fallback
+
+
+def prompt_revision_note(
+    state: ProjectState,
+    shot_id: str,
+    correction_type: str,
+    fallback: str,
+) -> str:
+    shot = next((item for item in state.shots if item.shot_id == shot_id), None)
+    upgrade = story_beat_upgrade(state, shot_id, correction_type, fallback)
+    if not shot:
+        return upgrade
+    anchors = ", ".join(shot.key_visuals[:6])
+    if anchors:
+        return (
+            f"Revision target for {shot_id}: {upgrade} "
+            f"Keep these visible anchors measurable on screen: {anchors}."
+        )
+    return f"Revision target for {shot_id}: {upgrade}"
+
+
 def operation(
     operation_type: str,
     target_id: str,

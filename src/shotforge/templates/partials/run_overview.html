@@ -1,0 +1,112 @@
+{% if state and run_workbench.summary %}
+  <article id="overview" class="surface main-panel">
+    <div class="section-heading">
+      <div>
+        <h3>{{ web.tabs.overview }}</h3>
+        <p class="muted">{{ web.run_status.next_actions.get(run_workbench.summary.next_action, run_workbench.summary.next_action) }}</p>
+      </div>
+      <span class="status-chip stage-{{ run_workbench.summary.lifecycle_stage }}">{{ web.run_status.stages.get(run_workbench.summary.lifecycle_stage, run_workbench.summary.lifecycle_stage) }}</span>
+    </div>
+
+    <div class="metric-strip">
+      {% for metric in run_workbench.overview_metrics %}
+        <div class="metric">
+          <strong>{{ web.workspace.get(metric.label_key, web.common.get(metric.label_key, metric.label_key)) }}</strong>
+          <span>
+            {% if metric.value_type == "stage" %}
+              {{ web.run_status.stages.get(metric.value, metric.value) }}
+            {% elif metric.value_type == "provider_status" %}
+              {{ web.common.get(metric.value, metric.value) }}
+            {% elif metric.value_type == "score" %}
+              {{ "%.3f"|format(metric.value) if metric.value is not none else web.common.not_available }}
+            {% elif metric.value_type == "percent" %}
+              {{ metric.value }}%
+            {% else %}
+              {{ metric.value }}
+            {% endif %}
+          </span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="lifecycle-track">
+      {% for stage in run_workbench.lifecycle %}
+        <div class="lifecycle-step {% if stage.done %}done{% endif %} {% if stage.current %}current{% endif %}">
+          <span>{{ loop.index }}</span>
+          <strong>{{ web.run_status.stages.get(stage.id, stage.label) }}</strong>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="workbench-callouts">
+      <div>
+        <h4>{{ web.readiness.next_actions }}</h4>
+        {% for action in run_workbench.next_actions %}
+          <p class="compact-row">{{ web.run_status.next_actions.get(action, action) }}</p>
+        {% endfor %}
+      </div>
+      <div>
+        <h4>{{ web.workspace.run_contract }}</h4>
+        <p class="compact-row">{{ web.workspace.run_contract_body }}</p>
+      </div>
+    </div>
+
+    {% if generation_artifacts %}
+      <div class="section-divider"></div>
+      <h3>{{ web.workspace.latest_artifacts }}</h3>
+      <div class="compact-list">
+        {% for artifact in generation_artifacts[:3] %}
+          <p class="compact-row"><strong>{{ artifact.iteration }} / {{ artifact.shot_id }}</strong><br><span class="muted">{{ artifact.provider }} / {{ artifact.video_filename }}</span></p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if state.solution_architecture %}
+      <div class="section-divider"></div>
+      <h3>{{ ui.solution_title }}</h3>
+      <p class="muted">{{ ui.solution_subtitle }}</p>
+      <div class="metric-strip">
+        <div class="metric"><strong>{{ ui.solution_industry }}</strong><span>{{ state.solution_architecture.industry }}</span></div>
+        <div class="metric"><strong>{{ ui.solution_scenario }}</strong><span>{{ state.solution_architecture.scenario }}</span></div>
+        <div class="metric"><strong>{{ ui.solution_success }}</strong><span>{{ state.solution_architecture.poc_success_criteria | length }}</span></div>
+      </div>
+      <p>{{ state.solution_architecture.business_objective }}</p>
+    {% endif %}
+  </article>
+{% else %}
+  <article id="overview" class="surface main-panel">
+    <div class="section-heading">
+      <div>
+        <h3>{{ web.workspace.agent_video_workbench }}</h3>
+        <p class="muted">{{ web.workspace.manage_from_idea_to_handoff }}</p>
+      </div>
+      <div class="export-links">
+        <a href="#new-run">{{ web.nav.new_run }}</a>
+        <a href="/demo?language={{ form_state.language }}">{{ web.dashboard.open_sample_run }}</a>
+      </div>
+    </div>
+    <div class="metric-strip">
+      <div class="metric"><strong>{{ web.dashboard.total_runs }}</strong><span>{{ run_dashboard.total_runs }}</span></div>
+      <div class="metric"><strong>{{ web.dashboard.needs_review }}</strong><span>{{ run_dashboard.needs_revision }}</span></div>
+      <div class="metric"><strong>{{ web.dashboard.ready_for_handoff }}</strong><span>{{ run_dashboard.ready_for_handoff }}</span></div>
+      <div class="metric"><strong>{{ web.workspace.provider_ready }}</strong><span>{% if service_warnings %}{{ web.common.attention }}{% else %}{{ web.common.ready }}{% endif %}</span></div>
+    </div>
+    {% if run_dashboard.runs %}
+      <div class="section-divider"></div>
+      <h3>{{ web.workspace.current_focus }}</h3>
+      {% set latest_run = run_dashboard.runs[0] %}
+      <div class="compact-row">
+        <strong>{{ latest_run.run_id }} / {{ web.run_status.stages.get(latest_run.lifecycle_stage, latest_run.lifecycle_stage) }}</strong>
+        <p>{{ latest_run.idea }}</p>
+        <p class="muted">{{ web.workspace.next_action }}: {{ web.run_status.next_actions.get(latest_run.next_action, latest_run.next_action) }}</p>
+      </div>
+    {% endif %}
+    <div class="section-divider"></div>
+    <h3>{{ web.workspace.production_object }}</h3>
+    <div class="metric-strip">
+      <div class="metric"><strong>{{ web.workspace.core_object }}</strong><span>{{ web.workspace.run }}</span></div>
+      <div class="metric"><strong>{{ web.workspace.flow }}</strong><span>{{ web.workspace.design_to_handoff }}</span></div>
+      <div class="metric"><strong>{{ web.workspace.evidence }}</strong><span>{{ web.workspace.harness_records }}</span></div>
+    </div>
+  </article>
+{% endif %}

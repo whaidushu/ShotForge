@@ -1,0 +1,42 @@
+<section class="surface">
+  <div class="rail-title">
+    <h3>{{ web.dashboard.title }}</h3>
+    <span class="badge">{{ run_dashboard.total_runs }} {{ web.common.runs }}</span>
+  </div>
+  <div class="dashboard-kpis">
+    <div><strong>{{ web.dashboard.ready }}</strong><span>{{ run_dashboard.ready_for_handoff }}</span></div>
+    <div><strong>{{ web.dashboard.revise }}</strong><span>{{ run_dashboard.needs_revision }}</span></div>
+    <div><strong>{{ web.dashboard.blocked }}</strong><span>{{ run_dashboard.blocked }}</span></div>
+    <div><strong>{{ web.dashboard.average }}</strong><span>{{ run_dashboard.average_readiness_score }}%</span></div>
+  </div>
+  <div class="run-history run-table">
+    <a href="/demo?language={{ form_state.language }}" class="{% if state and state.run_id == demo_run_id %}active-run{% endif %}">
+      <strong>{{ demo_run_id }} / {{ web.nav.demo }}</strong>
+      <span>{{ web.dashboard.open_sample_run }}</span>
+      <div class="run-card-meta">
+        <span class="badge">{{ web.nav.demo }}</span>
+        <span class="badge">v3</span>
+        <span class="badge">0.852</span>
+        <span class="badge">mock</span>
+      </div>
+      <small>{{ web.workspace.manage_from_idea_to_handoff }}</small>
+    </a>
+    {% for run in run_dashboard.runs[:8] %}
+      <a href="/?run_id={{ run.run_id }}&language={{ form_state.language }}" class="{% if state and state.run_id == run.run_id %}active-run{% endif %}">
+        <strong>{{ run.run_id }} / v{{ run.version }}</strong>
+        <span>{{ run.idea }}</span>
+        <div class="run-card-meta">
+          <span class="badge">{{ web.run_status.stages.get(run.lifecycle_stage, run.lifecycle_stage) }}</span>
+          <span class="badge">{{ run.readiness_score }}%</span>
+          <span class="badge">{% if run.latest_score is not none %}{{ "%.3f"|format(run.latest_score) }}{% else %}{{ web.common.not_available }}{% endif %}</span>
+          <span class="badge">{{ run.issue_count }} {{ web.common.issues }}</span>
+          <span class="badge">{{ run.version_count }} {{ web.common.versions }}</span>
+          <span class="badge">{{ run.generator_provider_id }}</span>
+        </div>
+        <small>{{ web.run_status.next_actions.get(run.next_action, run.next_action) }}</small>
+      </a>
+    {% else %}
+      <p class="muted">{{ web.dashboard.no_runs }}</p>
+    {% endfor %}
+  </div>
+</section>

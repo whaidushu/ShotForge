@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 
 from shotforge.core.project_state import (
+    runtime_language,
     CorrectionPlan,
     EvaluationReport,
     Issue,
@@ -24,7 +25,7 @@ class SuggestionAgent:
             ]
             grouped = self._group_issues(active_issues)
             plans = [
-                self._plan_for_group(state.language, target_report.evaluation_id, correction_type, issues)
+                self._plan_for_group(runtime_language(state), target_report.evaluation_id, correction_type, issues)
                 for correction_type, issues in grouped.items()
             ]
             plans.sort(key=lambda item: item.priority)

@@ -79,7 +79,6 @@ class ContextBuilder:
             f"Agent: {agent_name}\n"
             f"Idea: {self._clip(self._redact_text(state.user_idea, policy)[0], max(120, policy.max_chars // 4))}\n"
             f"Style: {state.style}\n"
-            f"Language: {state.language}\n"
             f"Duration: {state.duration_seconds}s\n"
             f"Target platform: {state.target_platform}\n"
             f"Current version: {state.version}"
@@ -121,8 +120,8 @@ class ContextBuilder:
                 source_type="project_state",
                 title="Project state summary",
                 content=(
-                    f"style={state.style}; language={state.language}; "
-                    f"duration={state.duration_seconds}; shots={len(state.shots)}; "
+                    f"style={state.style}; duration={state.duration_seconds}; "
+                    f"shots={len(state.shots)}; "
                     f"prompts={len(state.prompt_package.prompts)}; version={state.version}"
                 ),
                 priority=95,

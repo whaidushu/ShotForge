@@ -103,7 +103,7 @@ class MemoryManager:
         return MemorySelectionRecord(
             agent_name=agent_name,
             query=state.user_idea,
-            tags=[state.style, state.target_platform, state.language, "shotforge-run"],
+            tags=[state.style, state.target_platform, "shotforge-run"],
             namespace=self.policy.namespace,
             promotion_decision=decision,  # type: ignore[arg-type]
             reasons=reasons or ["promotion_policy_passed"],

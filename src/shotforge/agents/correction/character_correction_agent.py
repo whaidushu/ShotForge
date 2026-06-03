@@ -9,7 +9,7 @@ from shotforge.agents.correction._helpers import (
     target_shot_ids,
 )
 from shotforge.agents.correction.base import CorrectionAgent
-from shotforge.core.project_state import CorrectionPatch, CorrectionPlan, ProjectState
+from shotforge.core.project_state import CorrectionPatch, CorrectionPlan, ProjectState, runtime_language
 
 
 class CharacterCorrectionAgent(CorrectionAgent):
@@ -25,13 +25,13 @@ class CharacterCorrectionAgent(CorrectionAgent):
                 "append_character_behavior",
                 target_character,
                 f"characters[{target_character}].behavior_notes",
-                localized_note(state.language, "agents.correction.character.behavior", plan, issues),
+                localized_note(runtime_language(state), "agents.correction.character.behavior", plan, issues),
                 plan.correction_strategy,
             )
         )
         for shot_id in target_shot_ids(state, plan):
             shot_issues = [issue for issue in issues if issue.shot_id == shot_id]
-            contracts = effect_contracts_for_shot(shot_issues, shot_id, state.language)
+            contracts = effect_contracts_for_shot(shot_issues, shot_id, runtime_language(state))
             operations.append(
                 operation(
                     "append_prompt_text",
@@ -40,7 +40,7 @@ class CharacterCorrectionAgent(CorrectionAgent):
                     " ".join(
                         [
                             localized_note(
-                                state.language,
+                                runtime_language(state),
                                 "agents.correction.character.prompt",
                                 plan,
                                 issues,
@@ -81,7 +81,7 @@ class CharacterCorrectionAgent(CorrectionAgent):
             operations=operations,
             rationale=plan.correction_strategy,
             expected_effect=localized_note(
-                state.language, "agents.correction.character.effect", plan, issues
+                runtime_language(state), "agents.correction.character.effect", plan, issues
             ),
             risk=plan.risk,
             metadata={"correction_type": self.correction_type},

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from shotforge.core.project_state import GeneratedResult, GeneratedShotResult, ProjectState
+from shotforge.core.project_state import GeneratedResult, GeneratedShotResult, ProjectState, runtime_language
 from shotforge.generators.base import GenerationCostEstimate, GeneratorCapabilities
 
 
@@ -42,7 +42,7 @@ class MockGenerator:
                     prompt_id=prompt.shot_id,
                     mock_video_uri=f"mock://{state.run_id}/{shot.shot_id}",
                     duration_seconds=shot.duration_seconds,
-                    observed_summary=self._summary(state.language, shot.title, shot.shot_id),
+                    observed_summary=self._summary(runtime_language(state), shot.title, shot.shot_id),
                     detected_elements=[shot.title, shot.shot_type, state.style],
                     motion_summary=shot.motion.subject_motion if shot.motion else "",
                     audio_summary=next(

@@ -3,6 +3,7 @@ from __future__ import annotations
 from shotforge.core.context_builder import ContextBuilder
 from shotforge.core.physical_targets import physical_contract_text, required_element_labels
 from shotforge.core.project_state import (
+    runtime_language,
     ProjectState,
     PromptItem,
     PromptPackage,
@@ -103,10 +104,10 @@ def _render_legacy_prompt(
         f"{target_contract} "
         f"MANDATORY VISIBLE ELEMENTS: {', '.join(required_elements)}. "
         f"{shot.description}. {shot.shot_type}, {motion_text}. "
-        f"{t(state.language, 'prompt_visual_style')}: {state.style}. "
-        f"{t(state.language, 'prompt_key_visuals')}: "
+        f"{t(runtime_language(state), 'prompt_visual_style')}: {state.style}. "
+        f"{t(runtime_language(state), 'prompt_key_visuals')}: "
         f"{', '.join(shot.key_visuals)}. "
-        f"{t(state.language, 'prompt_audio_intent')}: {audio_music}."
+        f"{t(runtime_language(state), 'prompt_audio_intent')}: {audio_music}."
     )
 
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from shotforge.core.context_builder import ContextBuilder
 from shotforge.core.project_state import (
+    runtime_language,
     ArchitectureComponent,
     IntegrationPoint,
     POCSuccessCriterion,
@@ -35,7 +36,7 @@ def solution_architect_agent(
             expected_output="solution architecture assumptions",
             fallback_tools=["mock_llm.complete"] if tool_name != "mock_llm.complete" else [],
         )
-        industry, scenario = _infer_industry_and_scenario(state.user_idea, state.language)
+        industry, scenario = _infer_industry_and_scenario(state.user_idea, runtime_language(state))
         playbook = SolutionPlaybookStore().find_for_industry(_canonical_industry(industry))
         state.solution_architecture = SolutionArchitecture(
             industry=industry,
@@ -319,7 +320,7 @@ def _value_metrics(state: ProjectState, playbook: SolutionPlaybook) -> list[Valu
 
 
 def _text(state: ProjectState, en: str, zh: str) -> str:
-    return zh if state.language == "zh" else en
+    return zh if runtime_language(state) == "zh" else en
 
 
 def _pick(language: str, en: str, zh: str) -> str:

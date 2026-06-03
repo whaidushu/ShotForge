@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from shotforge.core.context_builder import ContextBuilder
 from shotforge.core.physical_targets import extract_physical_targets
-from shotforge.core.project_state import CharacterSpec, CreativeIntent, ProjectState
+from shotforge.core.project_state import CharacterSpec, CreativeIntent, ProjectState, runtime_language
 from shotforge.core.trace_log import TraceLog
 from shotforge.l10n import t
 from shotforge.skills import SkillRegistry
@@ -31,7 +31,7 @@ def intent_agent(
             if any(term in lower_idea for term in ["rain", "雨", "night", "夜"])
             else "mood_energetic"
         )
-        physical_targets = extract_physical_targets(state.user_idea, state.language)
+        physical_targets = extract_physical_targets(state.user_idea, runtime_language(state))
         state.metadata["physical_targets"] = physical_targets
         primary_subject = next(
             (
@@ -44,11 +44,11 @@ def intent_agent(
         state.creative_intent = CreativeIntent(
             premise=state.user_idea,
             genre=genre,
-            audience=t(state.language, "audience"),
-            mood=t(state.language, mood_key),
+            audience=t(runtime_language(state), "audience"),
+            mood=t(runtime_language(state), mood_key),
             visual_style=state.style,
             constraints=[
-                *t(state.language, "constraints"),
+                *t(runtime_language(state), "constraints"),
                 physical_targets["prompt_contract"],
                 "Every required physical target must be visible or the generation should be treated as failed.",
                 completion,
@@ -57,8 +57,8 @@ def intent_agent(
         state.characters = [
             CharacterSpec(
                 character_id="char_primary",
-                name="主角" if state.language == "zh" else "Primary Subject",
-                role="视觉叙事核心" if state.language == "zh" else "visual narrative focus",
+                name="主角" if runtime_language(state) == "zh" else "Primary Subject",
+                role="视觉叙事核心" if runtime_language(state) == "zh" else "visual narrative focus",
                 visual_traits=[
                     state.style,
                     "clear silhouette",

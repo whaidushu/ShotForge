@@ -10,6 +10,7 @@ from shotforge.app.api.schemas import RunRequest, RunResponse
 from shotforge.app.errors import runtime_error_payload
 from shotforge.app.services.artifact_service import ArtifactNotFoundError, ArtifactService
 from shotforge.app.services.run_service import RunService
+from shotforge.app.services.run_status_service import RunStatusService
 from shotforge.config import get_settings
 from shotforge.core.harness_audit import build_harness_audit
 from shotforge.core.packages import ProjectPackageView
@@ -19,6 +20,7 @@ from shotforge.core.version_manager import VersionManager
 
 def build_run_router(run_service: RunService, artifact_service: ArtifactService) -> APIRouter:
     router = APIRouter(prefix="/api/runs", tags=["runs"])
+    run_status_service = RunStatusService()
 
     def load_run(run_id: str) -> ProjectState:
         try:
@@ -46,6 +48,10 @@ def build_run_router(run_service: RunService, artifact_service: ArtifactService)
     def list_runs(limit: int = 20) -> dict[str, Any]:
         return {"runs": run_service.list_run_history(limit=limit)}
 
+    @router.get("/dashboard")
+    def get_run_dashboard(limit: int = 40) -> dict[str, Any]:
+        return run_status_service.dashboard(limit=limit).model_dump(mode="json")
+
     @router.get("/{run_id}", response_model=ProjectState)
     def get_run(run_id: str) -> ProjectState:
         return load_run(run_id)
@@ -68,6 +74,10 @@ def build_run_router(run_service: RunService, artifact_service: ArtifactService)
     @router.get("/{run_id}/harness")
     def get_harness_audit(run_id: str) -> dict[str, Any]:
         return build_harness_audit(load_run(run_id))
+
+    @router.get("/{run_id}/workbench")
+    def get_run_workbench(run_id: str) -> dict[str, Any]:
+        return run_status_service.workbench(load_run(run_id)).model_dump(mode="json")
 
     @router.get("/{run_id}/generation-artifacts")
     def get_generation_artifacts(run_id: str) -> list[dict[str, Any]]:

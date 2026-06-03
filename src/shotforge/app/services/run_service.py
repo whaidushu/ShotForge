@@ -128,7 +128,6 @@ class RunService:
                     "run_id": state.run_id,
                     "project_id": state.project_id,
                     "idea": state.user_idea,
-                    "language": state.language,
                     "mode": state.metadata.get("run_mode", "design"),
                     "generator_provider_id": state.metadata.get(
                         "generator_provider_id", state.prompt_package.provider

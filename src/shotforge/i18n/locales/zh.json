@@ -179,7 +179,129 @@
     },
     "nav": {
       "workflow": "流程",
-      "config": "配置"
+      "config": "配置",
+      "workbench": "工作台",
+      "providers": "服务配置",
+      "docs": "文档",
+      "demo": "示例",
+      "new_run": "新建任务"
+    },
+    "common": {
+      "ready": "就绪",
+      "attention": "需关注",
+      "attention_required": "需要处理",
+      "not_started": "未开始",
+      "configured": "已配置",
+      "unknown": "未知",
+      "not_available": "暂无",
+      "runs": "个任务",
+      "issues": "个问题",
+      "versions": "个版本",
+      "records": "条记录",
+      "shots": "个镜头",
+      "score": "评分",
+      "provider": "服务",
+      "status": "状态",
+      "version": "版本",
+      "change": "变更"
+    },
+    "workspace": {
+      "agent_video_workbench": "AI 视频生产 Agent 工作台",
+      "manage_from_idea_to_handoff": "管理 AI 视频生产任务，从创意到交付。",
+      "run_management_workspace": "生产任务管理工作台",
+      "create_run_body": "新建一个生产任务，用来管理从创意输入、提示词包、评估、迭代、导出到审计证据的完整生命周期。",
+      "current_focus": "当前关注任务",
+      "next_action": "下一步动作",
+      "production_object": "生产对象",
+      "core_object": "核心对象",
+      "run": "Run 任务",
+      "flow": "流程",
+      "design_to_handoff": "从设计到交付",
+      "evidence": "证据",
+      "harness_records": "Harness 记录",
+      "run_contract": "Run 契约",
+      "run_contract_body": "创意目标 + 生产状态 + 生成结果 + 评估问题 + 版本迭代 + 交付物 + 审计证据。",
+      "latest_artifacts": "最新产物",
+      "lifecycle": "生命周期",
+      "readiness": "交付就绪度",
+      "evaluation": "评估",
+      "open_issues": "待处理问题",
+      "artifacts": "产物",
+      "exports": "导出",
+      "pipeline": "流程进度",
+      "provider": "服务",
+      "provider_status": "服务状态",
+      "provider_ready": "服务就绪"
+    },
+    "dashboard": {
+      "title": "Run 任务看板",
+      "total_runs": "任务数",
+      "ready": "就绪",
+      "ready_for_handoff": "可交付",
+      "needs_review": "待复核",
+      "revise": "待修正",
+      "blocked": "阻塞",
+      "average": "平均",
+      "no_runs": "还没有任务。新建一个生产任务来开始搭建工作台。",
+      "open_sample_run": "打开示例任务"
+    },
+    "tabs": {
+      "overview": "总览",
+      "storyboard": "分镜",
+      "prompts": "提示词",
+      "generation": "生成",
+      "evaluation": "评估",
+      "iterations": "迭代",
+      "exports": "导出",
+      "harness_evidence": "Harness 证据"
+    },
+    "provider_health": {
+      "title": "服务健康",
+      "llm_judge": "LLM/评估服务",
+      "video_provider": "视频服务",
+      "observer": "观察服务",
+      "preflight": "预检"
+    },
+    "run_status": {
+      "stages": {
+        "draft": "草稿",
+        "designed": "已设计",
+        "generated": "已生成",
+        "observed": "已观察",
+        "evaluated": "已评估",
+        "needs_revision": "需要修正",
+        "revised": "已修正",
+        "ready_for_handoff": "可交付",
+        "blocked": "阻塞"
+      },
+      "next_actions": {
+        "draft": "创建初始生产任务。",
+        "designed": "先执行生成与评估，再进入交付。",
+        "generated": "观察生成产物并进行评分。",
+        "observed": "按选定评估规则执行评估。",
+        "evaluated": "复核问题并判断是否需要修正。",
+        "needs_revision": "执行修正规划并生成下一版本。",
+        "revised": "复核迭代结果并准备交付。",
+        "ready_for_handoff": "导出任务包并交付给生产环节。",
+        "blocked": "先处理失败的就绪检查。",
+        "review": "复核当前任务。"
+      }
+    },
+    "iterations": {
+      "title": "迭代时间线",
+      "subtitle": "展示版本变化、修正补丁、收敛检查和已解决问题。",
+      "initial_title": "初始生产任务包",
+      "initial_summary": "已创建分镜、运动、音频、提示词和导出任务包。",
+      "revision_title": "版本修正",
+      "diff_recorded": "已记录版本差异。"
+    },
+    "handoff_center": {
+      "title": "交付中心",
+      "subtitle": "汇总交付就绪度、导出产物、下一步动作和生产交付风险。"
+    },
+    "service_warnings": {
+      "title": "本地服务检查",
+      "body": "真实生成前，有些本地路径或服务还需要处理。"
     },
     "config": {
       "title": "生成服务配置",
@@ -226,13 +348,16 @@
       "prompt_body": "使用评估迭代模式后，可以对比 v1 与优化后 v2 的提示词。"
     },
     "storyboard": {
-      "title": "分镜"
+      "title": "分镜",
+      "subtitle": "生产节拍、镜头意图、运动设计和音频提示。"
     },
     "js": {
       "running": "运行中...",
       "disabled": "不可用",
       "local": "本地",
-      "callable": "可调用"
+      "callable": "可调用",
+      "failed": "失败",
+      "warnings": "警告"
     },
     "form": {
       "title": "创建任务包",
@@ -294,6 +419,7 @@
       "markdown": "Markdown",
       "evaluation_csv": "评测 CSV",
       "manifest": "清单",
+      "package_view": "任务包视图",
       "trace": "执行链路",
       "run_summary": "运行摘要"
     },
@@ -368,6 +494,17 @@
         "added": "新增",
         "removed": "删除",
         "modified": "修改"
+      },
+      "status": {
+        "passed": "通过",
+        "warning": "警告",
+        "failed": "失败",
+        "not_started": "未开始",
+        "designed": "已设计",
+        "revised": "已修正",
+        "needs_revision": "需要修正",
+        "ready_for_handoff": "可交付",
+        "blocked": "阻塞"
       }
     },
     "verification": {

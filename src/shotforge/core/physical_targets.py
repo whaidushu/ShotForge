@@ -46,7 +46,6 @@ def extract_physical_targets(text: str, language: str = "zh") -> dict[str, Any]:
             required_elements.append(target["label"])
     return {
         "source_text": text,
-        "language": language,
         "targets": targets,
         "required_elements": _dedupe(required_elements),
         "prompt_contract": physical_contract_text(targets),

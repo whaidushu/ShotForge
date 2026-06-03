@@ -4,7 +4,7 @@ from pathlib import Path
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from shotforge.core.project_state import ExportArtifact, ProjectState
+from shotforge.core.project_state import ExportArtifact, ProjectState, runtime_language
 from shotforge.l10n import t
 
 
@@ -18,7 +18,7 @@ def export_markdown(state: ProjectState, run_dir: Path) -> Path:
     )
     template = env.get_template("package.md.j2")
     path.write_text(
-        template.render(state=state, labels=t(state.language, "md")),
+        template.render(state=state, labels=t(runtime_language(state), "md")),
         encoding="utf-8",
     )
     _record(state, "markdown", path)

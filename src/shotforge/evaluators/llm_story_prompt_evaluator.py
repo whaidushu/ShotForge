@@ -5,6 +5,7 @@ import re
 from typing import Any
 from uuid import uuid4
 
+from shotforge.core.project_state import runtime_language
 from shotforge.evaluators.base import EvaluationSignal, EvaluatorContext
 from shotforge.llm import LLMProvider, build_default_llm_registry
 
@@ -23,7 +24,7 @@ class LLMStoryPromptEvaluator:
         prompt = self._prompt(context)
         response = self.provider.complete(
             prompt,
-            system=self._system_prompt(context.state.language),
+            system=self._system_prompt(runtime_language(context.state)),
             purpose="story_prompt_evaluation",
         )
         try:
@@ -51,7 +52,7 @@ class LLMStoryPromptEvaluator:
         dimensions = [
             {
                 "dimension_id": dimension.id,
-                "label": dimension.label(state.language),
+                "label": dimension.label(runtime_language(state)),
                 "target": dimension.target,
                 "threshold": dimension.issue_rule.threshold,
                 "correction_type": dimension.issue_rule.correction_type,
@@ -86,7 +87,7 @@ class LLMStoryPromptEvaluator:
         payload = {
             "user_idea": state.user_idea,
             "style": state.style,
-            "language": state.language,
+            "language": runtime_language(state),
             "rubric_id": context.rubric.id,
             "dimensions": dimensions,
             "shots": shots,
@@ -143,7 +144,7 @@ class LLMStoryPromptEvaluator:
         try:
             repaired = self.provider.complete(
                 repair_prompt,
-                system=self._system_prompt(context.state.language),
+                system=self._system_prompt(runtime_language(context.state)),
                 purpose="story_prompt_evaluation_repair",
             )
             return self._parse_json(repaired)

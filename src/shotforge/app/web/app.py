@@ -15,8 +15,10 @@ from shotforge.app.api.runs import build_run_router
 from shotforge.app.api.system import build_system_router
 from shotforge.app.errors import runtime_error_payload
 from shotforge.app.services.artifact_service import ArtifactService
+from shotforge.app.services.demo_sample_service import DemoSampleService
 from shotforge.app.services.provider_service import ProviderService
 from shotforge.app.services.run_service import RunService
+from shotforge.app.services.run_status_service import RunStatusService
 from shotforge.comfyui import default_user_workflows_dir
 from shotforge.core.harness_audit import build_harness_audit
 from shotforge.core.project_state import OutputLanguage, ProjectState
@@ -31,7 +33,9 @@ app.mount(
 )
 provider_service = ProviderService()
 run_service = RunService(provider_service=provider_service)
+run_status_service = RunStatusService()
 artifact_service = ArtifactService()
+demo_sample_service = DemoSampleService()
 app.include_router(build_run_router(run_service, artifact_service))
 app.include_router(build_provider_router(provider_service))
 app.include_router(build_system_router())
@@ -314,6 +318,18 @@ def config_page(
     return _render_web_page(request, run_id=run_id, language=language, active_page="config")
 
 
+@app.get("/demo")
+def open_demo(
+    language: OutputLanguage = "en",
+    force: bool = False,
+) -> RedirectResponse:
+    try:
+        run_id = demo_sample_service.seed(language=language, force=force)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return RedirectResponse(url=f"/?run_id={run_id}&language={language}", status_code=303)
+
+
 def _render_web_page(
     request: Request,
     *,
@@ -327,7 +343,7 @@ def _render_web_page(
         state = run_service.load_run(run_id) if run_id else None
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    active_language = state.language if state else language
+    active_language = language
     translator = get_translator()
     default_profile = provider_service.default_provider_profile()
     metadata = state.metadata if state else {}
@@ -377,6 +393,8 @@ def _render_web_page(
         vlm_require_json=bool(metadata.get("vlm_require_json", default_profile.vlm_require_json)),
     )
     workflow_status = provider_service.comfyui_workflow_status()
+    run_dashboard = run_status_service.dashboard()
+    run_workbench = run_status_service.workbench(state)
     response = templates.TemplateResponse(
         request,
         "index.html",
@@ -384,11 +402,29 @@ def _render_web_page(
             "state": state,
             "form_state": form_state,
             "ui": _web_ui_labels(active_language),
-            "status_labels": _enum_labels(
-                active_language,
-                "convergence_status",
-                ["improved", "mixed", "regressed", "unchanged"],
-            ),
+            "web": translator.namespace(active_language, "web"),
+            "status_labels": {
+                **_enum_labels(
+                    active_language,
+                    "convergence_status",
+                    ["improved", "mixed", "regressed", "unchanged"],
+                ),
+                **_enum_labels(
+                    active_language,
+                    "status",
+                    [
+                        "passed",
+                        "warning",
+                        "failed",
+                        "not_started",
+                        "designed",
+                        "revised",
+                        "needs_revision",
+                        "ready_for_handoff",
+                        "blocked",
+                    ],
+                ),
+            },
             "stop_reason_labels": _enum_labels(
                 active_language,
                 "stop_reason",
@@ -416,6 +452,9 @@ def _render_web_page(
             "provider_profiles": provider_service.provider_profiles(include_test=False)
             or [default_profile.public_dict()],
             "run_history": run_service.list_run_history(),
+            "run_dashboard": run_dashboard,
+            "run_workbench": run_workbench,
+            "demo_run_id": demo_sample_service.sample_run_id(active_language),
             "generation_artifacts": artifact_service.generation_artifacts(state),
             "prompt_changes": run_service.prompt_change_cards(state),
             "run_progress": run_service.run_progress(state),

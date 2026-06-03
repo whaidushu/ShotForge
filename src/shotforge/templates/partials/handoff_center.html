@@ -1,0 +1,47 @@
+{% if state %}
+  <article id="exports" class="surface main-panel">
+    <div class="section-heading">
+      <div>
+        <h3>{{ web.handoff_center.title }}</h3>
+        <p class="muted">{{ web.handoff_center.subtitle }}</p>
+      </div>
+      <span class="status-chip">{{ status_labels.get(run_workbench.handoff_center.overall_status, web.common.get(run_workbench.handoff_center.overall_status, run_workbench.handoff_center.overall_status)) }}</span>
+    </div>
+
+    <div class="export-links handoff-exports">
+      {% for item in run_workbench.handoff_center.exports %}
+        <a href="{{ item.url }}">{{ web.exports.get(item.label_key, item.format) }}</a>
+      {% endfor %}
+    </div>
+
+    {% if state.delivery_readiness %}
+      <div class="section-divider"></div>
+      <h3>{{ ui.readiness_title }}</h3>
+      <p class="muted">{{ ui.readiness_subtitle }}</p>
+      <div class="metric-strip">
+        <div class="metric"><strong>{{ ui.readiness_overall }}</strong><span>{{ status_labels.get(state.delivery_readiness.overall_status, state.delivery_readiness.overall_status) }}</span></div>
+        <div class="metric"><strong>{{ ui.readiness_handoff }}</strong><span>{{ state.delivery_readiness.handoff_deliverables | length }}</span></div>
+        <div class="metric"><strong>{{ ui.readiness_checks }}</strong><span>{{ state.delivery_readiness.checks | length }}</span></div>
+      </div>
+      <div class="workbench-callouts">
+        <div>
+          <h4>{{ ui.readiness_handoff }}</h4>
+          {% for deliverable in run_workbench.handoff_center.deliverables %}
+            <p class="compact-row">{{ deliverable }}</p>
+          {% endfor %}
+        </div>
+        <div>
+          <h4>{{ ui.readiness_next_actions }}</h4>
+          {% for action in state.delivery_readiness.next_actions %}
+            <p class="compact-row">{{ web.run_status.next_actions.get(action, action) }}</p>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="status-list">
+        {% for check in state.delivery_readiness.checks %}
+          <div class="status-row {{ check.status }}">{{ check.check_id }} / {{ status_labels.get(check.status, check.status) }}: {{ check.evidence }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </article>
+{% endif %}

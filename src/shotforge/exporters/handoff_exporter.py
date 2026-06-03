@@ -14,7 +14,6 @@ def export_manifest(state: ProjectState, run_dir: Path) -> Path:
         "project_id": state.project_id,
         "run_id": state.run_id,
         "version": state.version,
-        "language": state.language,
         "created_at": state.created_at.isoformat(),
         "updated_at": state.updated_at.isoformat(),
         "deliverables": [item.model_dump(mode="json") for item in state.exports],

@@ -17,4 +17,28 @@
       target.hidden = expanded;
     });
   }
+
+  const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
+  const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
+  const activateTab = (tabId) => {
+    for (const button of tabButtons) {
+      button.classList.toggle("active", button.dataset.tabTarget === tabId);
+    }
+    for (const panel of tabPanels) {
+      panel.classList.toggle("active", panel.dataset.tabPanel === tabId);
+    }
+  };
+  for (const button of tabButtons) {
+    button.addEventListener("click", () => {
+      const tabId = button.dataset.tabTarget;
+      if (tabId) {
+        activateTab(tabId);
+        history.replaceState(null, "", `#${tabId}`);
+      }
+    });
+  }
+  const initialTab = window.location.hash.replace("#", "");
+  if (initialTab && tabButtons.some((button) => button.dataset.tabTarget === initialTab)) {
+    activateTab(initialTab);
+  }
 })();

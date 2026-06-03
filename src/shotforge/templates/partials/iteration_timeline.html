@@ -1,0 +1,101 @@
+{% if state %}
+  <article id="iterations" class="surface main-panel">
+    <div class="section-heading">
+      <div>
+        <h3>{{ web.iterations.title }}</h3>
+        <p class="muted">{{ web.iterations.subtitle }}</p>
+      </div>
+      <span class="badge">v{{ state.version }}</span>
+    </div>
+
+    <div class="timeline">
+      {% for item in run_workbench.iteration_timeline %}
+        <div class="timeline-row iteration-row">
+          <div class="iteration-head">
+            <strong>
+              {{ item.version }} /
+              {% if item.title_key == "revision_title" %}
+                {{ web.iterations.revision_title }} v{{ item.from_version }} -> v{{ item.to_version }}
+              {% else %}
+                {{ web.iterations.get(item.title_key, item.title_key) }}
+              {% endif %}
+            </strong>
+            <div>
+              {% if item.score is not none %}<span class="badge">{{ "%.3f"|format(item.score) }}</span>{% endif %}
+              {% if item.delta is defined and item.delta is not none %}<span class="badge">{{ "%+.3f"|format(item.delta) }}</span>{% endif %}
+              <span class="badge">{{ status_labels.get(item.status, item.status) }}</span>
+            </div>
+          </div>
+          <p class="muted">{{ item.summary if item.summary else web.iterations.get(item.summary_key, web.common.not_available) }}</p>
+          <div class="metric-strip">
+            <div class="metric"><strong>{{ ui.version_diff_changed_shots }}</strong><span>{{ item.changed_shots | join(", ") if item.changed_shots is defined and item.changed_shots else web.common.not_available }}</span></div>
+            <div class="metric"><strong>{{ ui.version_diff_changed_prompts }}</strong><span>{{ item.changed_prompts | join(", ") if item.changed_prompts is defined and item.changed_prompts else web.common.not_available }}</span></div>
+            <div class="metric"><strong>{{ ui.version_diff_resolved_issues }}</strong><span>{{ item.resolved_issues | length if item.resolved_issues is defined else 0 }}</span></div>
+            <div class="metric"><strong>{{ ui.run_issues }}</strong><span>{{ item.issue_count }}</span></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if state.correction_patches %}
+      <div class="section-divider"></div>
+      <h3>{{ ui.correction_patches_title }}</h3>
+      <div class="grid">
+        {% for patch in state.correction_patches %}
+          <div class="compact-row">
+            <strong>{{ ui.correction_patches_agent }}: {{ patch.agent_name }}</strong>
+            <p class="muted">{{ ui.correction_patches_expected_effect }}: {{ patch.expected_effect }}</p>
+            {% for operation in patch.operations[:3] %}
+              <p><span class="badge">{{ operation.operation_type }}</span> {{ operation.field_path }}</p>
+            {% endfor %}
+            <p class="muted">{{ ui.correction_patches_rationale }}: {{ patch.rationale }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if state.score_deltas and state.regression_checks %}
+      {% set score_delta = state.score_deltas[-1] %}
+      {% set regression = state.regression_checks[-1] %}
+      <div class="section-divider"></div>
+      <h3>{{ ui.convergence_title }} v{{ score_delta.from_version }} -> v{{ score_delta.to_version }}</h3>
+      <div class="metric-strip">
+        <div class="metric"><strong>{{ ui.convergence_overall_delta }}</strong><span>{{ "%+.3f"|format(score_delta.overall_delta) }}</span></div>
+        <div class="metric"><strong>{{ ui.convergence_status }}</strong><span>{{ status_labels.get(regression.status, regression.status) }}</span></div>
+        <div class="metric"><strong>{{ ui.convergence_resolved }}</strong><span>{{ regression.resolved_issue_ids | length }}</span></div>
+        <div class="metric"><strong>{{ ui.convergence_remaining }}</strong><span>{{ regression.remaining_issue_ids | length }}</span></div>
+      </div>
+      <p class="muted">{{ regression.summary }}</p>
+      {% if state.convergence_steps %}
+        <div class="timeline">
+          {% for step in state.convergence_steps %}
+            <div class="timeline-row">
+              <strong>v{{ step.from_version }} -> v{{ step.to_version }}</strong>
+              <span class="badge">{{ "%+.3f"|format(step.overall_delta) }}</span>
+              <span class="badge">{{ status_labels.get(step.status, step.status) }}</span>
+              {% if step.stop_reason %}<p class="muted">{{ ui.convergence_stop_reason }}: {{ stop_reason_labels.get(step.stop_reason, step.stop_reason) }}</p>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endif %}
+
+    {% if state.version_diffs %}
+      <div class="section-divider"></div>
+      <h3>{{ ui.version_diff_chain_title }}</h3>
+      <div class="timeline">
+        {% for diff in state.version_diffs %}
+          <details class="timeline-row" {% if loop.last %}open{% endif %}>
+            <summary><strong>v{{ diff.from_version }} -> v{{ diff.to_version }}</strong> <span class="badge">{{ ui.version_diff_open }}</span></summary>
+            <p class="muted">{{ diff.explanation }}</p>
+            <div class="metric-strip">
+              <div class="metric"><strong>{{ ui.version_diff_changed_shots }}</strong><span>{{ diff.changed_shots | join(", ") if diff.changed_shots else web.common.not_available }}</span></div>
+              <div class="metric"><strong>{{ ui.version_diff_changed_prompts }}</strong><span>{{ diff.changed_prompts | join(", ") if diff.changed_prompts else web.common.not_available }}</span></div>
+              <div class="metric"><strong>{{ ui.version_diff_resolved_issues }}</strong><span>{{ diff.resolved_issues | length }}</span></div>
+            </div>
+          </details>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </article>
+{% endif %}

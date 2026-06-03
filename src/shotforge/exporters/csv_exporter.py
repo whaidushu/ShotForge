@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-from shotforge.core.project_state import ExportArtifact, ProjectState
+from shotforge.core.project_state import ExportArtifact, ProjectState, runtime_language
 from shotforge.l10n import t
 
 
@@ -22,9 +22,9 @@ def export_csv(state: ProjectState, run_dir: Path) -> Path:
         "prompt",
     ]
     headers = {
-        "shot_id": "shot_id" if state.language == "en" else "镜头ID",
-        "scene_id": "scene_id" if state.language == "en" else "场景ID",
-        **t(state.language, "csv_headers"),
+        "shot_id": "shot_id" if runtime_language(state) == "en" else "镜头ID",
+        "scene_id": "scene_id" if runtime_language(state) == "en" else "场景ID",
+        **t(runtime_language(state), "csv_headers"),
     }
     with path.open("w", encoding="utf-8-sig", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction="ignore")

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, Literal
 from uuid import uuid4
 
-from pydantic import AliasChoices, BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field, PrivateAttr
 
 from shotforge.core.schemas.observation import (
     FrameObservation,
@@ -470,6 +470,8 @@ class TraceEvent(BaseModel):
 
 
 class ProjectState(BaseModel):
+    _runtime_language: OutputLanguage = PrivateAttr(default="zh")
+
     project_id: str = Field(default_factory=lambda: f"proj_{uuid4().hex[:12]}")
     run_id: str = Field(default_factory=local_run_id)
     version: int = 1
@@ -478,7 +480,6 @@ class ProjectState(BaseModel):
 
     user_idea: str = Field(validation_alias=AliasChoices("user_idea", "idea"))
     style: str = "cinematic"
-    language: OutputLanguage = "zh"
     duration_seconds: int = 24
     target_platform: str = "short-form"
 
@@ -526,3 +527,12 @@ class ProjectState(BaseModel):
 
     def touch(self) -> None:
         self.updated_at = utc_now()
+
+
+def set_runtime_language(state: ProjectState, language: OutputLanguage) -> ProjectState:
+    state._runtime_language = language
+    return state
+
+
+def runtime_language(state: ProjectState) -> OutputLanguage:
+    return state._runtime_language

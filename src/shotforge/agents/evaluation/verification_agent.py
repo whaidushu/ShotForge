@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from shotforge.core.project_state import (
+    runtime_language,
     GeneratedResult,
     ProjectState,
     VerificationCheck,
@@ -22,7 +23,7 @@ class VerificationAgent:
                 version_id=state.version,
                 generated_result_id=generated_result.generated_result_id,
                 checks=checks,
-                summary=self._summary(state.language, failed, warnings, len(checks)),
+                summary=self._summary(runtime_language(state), failed, warnings, len(checks)),
                 metadata={
                     "failed_count": failed,
                     "warning_count": warnings,

@@ -1,0 +1,49 @@
+<section class="surface inspector-card">
+  <div class="rail-title">
+    <h3>{{ web.provider_health.title }}</h3>
+    <span class="badge">{{ form_state.provider_profile_name }}</span>
+  </div>
+
+  <label for="provider_profile_id">{{ ui.profile_label }}</label>
+  <select id="provider_profile_id" name="provider_profile_id">
+    {% for profile in provider_profiles %}
+      <option value="{{ profile.profile_id }}" {% if form_state.provider_profile_id == profile.profile_id %}selected{% endif %}>{{ profile.name }}</option>
+    {% endfor %}
+  </select>
+
+  <input id="provider_profile_name" name="provider_profile_name" type="hidden" value="{{ form_state.provider_profile_name }}">
+  <input id="llm_provider_id" name="llm_provider_id" type="hidden" value="{{ form_state.llm_provider_id }}">
+  <input id="llm_model" name="llm_model" type="hidden" value="{{ form_state.llm_model }}">
+  <input id="llm_base_url" name="llm_base_url" type="hidden" value="{{ form_state.llm_base_url }}">
+  <input id="llm_api_key" name="llm_api_key" type="hidden" value="{{ form_state.llm_api_key }}">
+  <input id="evaluator_mode" name="evaluator_mode" type="hidden" value="{{ form_state.evaluator_mode }}">
+  <input id="generator_provider_id" name="generator_provider_id" type="hidden" value="{{ form_state.generator_provider_id }}">
+  <input id="comfyui_base_url" name="comfyui_base_url" type="hidden" value="{{ form_state.comfyui_base_url }}">
+  <input id="comfyui_workflows_dir" name="comfyui_workflows_dir" type="hidden" value="{{ form_state.comfyui_workflows_dir }}">
+  <input id="comfyui_workflow_id" name="comfyui_workflow_id" type="hidden" value="{{ form_state.comfyui_workflow_id }}">
+  <input id="comfyui_width" name="comfyui_width" type="hidden" value="{{ form_state.comfyui_width }}">
+  <input id="comfyui_height" name="comfyui_height" type="hidden" value="{{ form_state.comfyui_height }}">
+  <input id="comfyui_length" name="comfyui_length" type="hidden" value="{{ form_state.comfyui_length }}">
+  <input id="comfyui_fps" name="comfyui_fps" type="hidden" value="{{ form_state.comfyui_fps }}">
+  <input id="comfyui_max_shots" name="comfyui_max_shots" type="hidden" value="{{ form_state.comfyui_max_shots }}">
+  <input id="observer_provider_id" name="observer_provider_id" type="hidden" value="{{ form_state.observer_provider_id }}">
+  <input id="vlm_model" name="vlm_model" type="hidden" value="{{ form_state.vlm_model }}">
+  <input id="vlm_base_url" name="vlm_base_url" type="hidden" value="{{ form_state.vlm_base_url }}">
+  <input id="vlm_api_key" name="vlm_api_key" type="hidden" value="{{ form_state.vlm_api_key }}">
+  <input id="vlm_frame_sample_count" name="vlm_frame_sample_count" type="hidden" value="{{ form_state.vlm_frame_sample_count }}">
+  <input id="vlm_confidence_threshold" name="vlm_confidence_threshold" type="hidden" value="{{ form_state.vlm_confidence_threshold }}">
+  <input id="vlm_require_json" name="vlm_require_json" type="hidden" value="{{ form_state.vlm_require_json | lower }}">
+
+  <div class="status-list">
+    <div class="status-row passed">{{ web.provider_health.llm_judge }}: {{ form_state.llm_provider_id }} / {{ form_state.llm_model }}</div>
+    <div class="status-row {% if service_warnings %}warning{% else %}passed{% endif %}">{{ web.provider_health.video_provider }}: {{ form_state.generator_provider_id }}</div>
+    <div class="status-row passed">{{ web.provider_health.observer }}: {{ form_state.observer_provider_id }}</div>
+    <div class="status-row {% if service_warnings %}warning{% else %}passed{% endif %}">{{ web.provider_health.preflight }}: {% if service_warnings %}{{ web.common.attention_required }}{% else %}{{ web.common.ready }}{% endif %}</div>
+  </div>
+
+  <div class="actions">
+    <button id="preflight_check" class="secondary-action" type="button">{{ ui.profile_preflight }}</button>
+    <a class="pill" href="/config?language={{ form_state.language }}{% if state %}&run_id={{ state.run_id }}{% endif %}">{{ web.nav.providers }}</a>
+  </div>
+  <div id="preflight_status" class="status-list"></div>
+</section>

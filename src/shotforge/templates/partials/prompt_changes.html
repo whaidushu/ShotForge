@@ -1,4 +1,4 @@
-<article class="surface">
+<article id="prompts" class="surface main-panel">
   <div class="rail-title">
     <h3>{{ ui.prompt_changes_title }}</h3>
     {% if prompt_changes %}<span class="badge">{{ prompt_changes | length }}</span>{% endif %}
@@ -8,14 +8,14 @@
       {% for change in prompt_changes[:3] %}
         <div class="timeline-row">
           <div class="metric-strip">
-            <div class="metric"><strong>Version</strong><span>{{ change.version }}</span></div>
-            <div class="metric"><strong>Change</strong><span>{{ change.change_type }}</span></div>
+            <div class="metric"><strong>{{ web.common.version }}</strong><span>{{ change.version }}</span></div>
+            <div class="metric"><strong>{{ web.common.change }}</strong><span>{{ change.change_type }}</span></div>
           </div>
           <p class="muted">{{ change.path }}</p>
           <div class="prompt-change">
             <div class="prompt-side">
               <strong>{{ ui.version_diff_before }}</strong>
-              <pre>{{ change.before if change.before else "n/a" }}</pre>
+              <pre>{{ change.before if change.before else web.common.not_available }}</pre>
             </div>
             <div class="prompt-side">
               <strong>{{ ui.version_diff_after }}</strong>

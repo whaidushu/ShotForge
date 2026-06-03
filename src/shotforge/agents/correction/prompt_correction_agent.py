@@ -9,7 +9,7 @@ from shotforge.agents.correction._helpers import (
     target_shot_ids,
 )
 from shotforge.agents.correction.base import CorrectionAgent
-from shotforge.core.project_state import CorrectionPatch, CorrectionPlan, ProjectState
+from shotforge.core.project_state import CorrectionPatch, CorrectionPlan, ProjectState, runtime_language
 
 
 class PromptCorrectionAgent(CorrectionAgent):
@@ -21,7 +21,7 @@ class PromptCorrectionAgent(CorrectionAgent):
         operations = []
         for shot_id in target_shot_ids(state, plan):
             shot_issues = [issue for issue in issues if issue.shot_id == shot_id]
-            contracts = effect_contracts_for_shot(shot_issues, shot_id, state.language)
+            contracts = effect_contracts_for_shot(shot_issues, shot_id, runtime_language(state))
             addendum = " ".join([self._prompt_addendum(state, shot_id), *contracts]).strip()
             operations.append(
                 operation(
@@ -61,7 +61,7 @@ class PromptCorrectionAgent(CorrectionAgent):
             target_version=target_version,
             operations=operations,
             rationale=plan.correction_strategy,
-            expected_effect=localized_note(state.language, "agents.correction.prompt.effect", plan, issues),
+            expected_effect=localized_note(runtime_language(state), "agents.correction.prompt.effect", plan, issues),
             risk=plan.risk,
             metadata={"correction_type": self.correction_type},
         )
@@ -70,7 +70,7 @@ class PromptCorrectionAgent(CorrectionAgent):
         shot = next(item for item in state.shots if item.shot_id == shot_id)
         motion = shot.motion
         audio = next((item for item in state.audio_cues if item.shot_id == shot_id), None)
-        if state.language == "en":
+        if runtime_language(state) == "en":
             parts = [
                 f"Keep the subject centered on {shot.title.lower()}",
                 f"use {shot.shot_type}",

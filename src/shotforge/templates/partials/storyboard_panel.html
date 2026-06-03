@@ -1,0 +1,23 @@
+{% if state %}
+  <article id="storyboard" class="surface main-panel">
+    <div class="section-heading">
+      <div>
+        <h3>{{ ui.storyboard_title }}</h3>
+        <p class="muted">{{ web.storyboard.subtitle }}</p>
+      </div>
+      <span class="badge">{{ state.shots | length }} {{ web.common.shots }}</span>
+    </div>
+    <div class="grid">
+      {% for beat in state.shots %}
+        <div class="compact-row">
+          <strong>{{ ui.run_scene }} {{ beat.index }}: {{ beat.title }}</strong>
+          <p>{{ beat.description }}</p>
+          <p class="muted">{{ beat.duration_seconds }}s / {{ beat.shot_type }}</p>
+          {% if beat.motion %}
+            <p class="muted">{{ beat.motion.camera }} / {{ beat.motion.subject_motion }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </article>
+{% endif %}

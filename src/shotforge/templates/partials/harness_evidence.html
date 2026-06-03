@@ -1,0 +1,66 @@
+{% if state and (harness_inspector.contexts or harness_inspector.tool_calls) %}
+  {% set latest_context = harness_inspector.latest_context %}
+  <article id="harness" class="surface main-panel">
+    <div class="section-heading">
+      <div>
+        <h3>{{ ui.harness_title }}</h3>
+        <p class="muted">{{ ui.harness_subtitle }}</p>
+      </div>
+      <span class="badge">{{ run_workbench.summary.harness_evidence_count }} {{ web.common.records }}</span>
+    </div>
+
+    <div class="metric-strip">
+      <div class="metric"><strong>{{ ui.harness_tools }}</strong><span>{{ harness_inspector.state_summary.tool_calls }}</span></div>
+      <div class="metric"><strong>{{ ui.harness_transitions }}</strong><span>{{ harness_inspector.state_summary.state_transitions }}</span></div>
+      <div class="metric"><strong>{{ ui.harness_memory }}</strong><span>{{ harness_inspector.state_summary.memory_selections }}</span></div>
+      <div class="metric"><strong>{{ ui.harness_mcp }}</strong><span>{{ harness_inspector.state_summary.mcp_access_records }}</span></div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <h4>{{ ui.harness_context }}</h4>
+        {% for context in harness_inspector.contexts %}
+          <p><strong>{{ context.agent_name }}</strong><br><span class="muted">{{ context.metadata.agent_spec.role if context.metadata.agent_spec else "" }}</span></p>
+        {% else %}
+          <p class="muted">{{ ui.harness_no_records }}</p>
+        {% endfor %}
+      </div>
+      <div>
+        <h4>{{ ui.harness_tools }}</h4>
+        {% for record in harness_inspector.tool_calls[-6:] %}
+          <p><strong>{{ record.tool_name }}</strong><br><span class="muted">{{ ui.harness_tool_status }}: {{ record.status }}</span></p>
+        {% else %}
+          <p class="muted">{{ ui.harness_no_records }}</p>
+        {% endfor %}
+      </div>
+      <div>
+        <h4>{{ ui.harness_mcp }}</h4>
+        {% for tool_name in latest_context.mcp_tool_names %}
+          <span class="pill">{{ tool_name }}</span>
+        {% else %}
+          <span class="muted">{{ ui.harness_no_records }}</span>
+        {% endfor %}
+      </div>
+      <div>
+        <h4>{{ ui.harness_sandbox }}</h4>
+        <pre>{{ latest_context.sandbox_policy | diff_value if latest_context.sandbox_policy else "{}" }}</pre>
+      </div>
+      <div>
+        <h4>{{ ui.harness_memory }}</h4>
+        <pre>{{ latest_context.memory | diff_value if latest_context.memory else "{}" }}</pre>
+      </div>
+      <div>
+        <h4>{{ ui.harness_transitions }}</h4>
+        {% for transition in harness_inspector.state_transitions[-5:] %}
+          <p><strong>{{ transition.agent_name }}</strong><br><span class="muted">{{ ui.harness_invariant_status }}: {{ transition.invariant_status }}</span></p>
+        {% else %}
+          <p class="muted">{{ ui.harness_no_records }}</p>
+        {% endfor %}
+      </div>
+      <div>
+        <h4>{{ ui.harness_topology }}</h4>
+        <p>{{ ui.harness_nodes }}: {{ harness_inspector.agent_topology.nodes | length }} / {{ ui.harness_edges }}: {{ harness_inspector.agent_topology.edges | length }}</p>
+      </div>
+    </div>
+  </article>
+{% endif %}

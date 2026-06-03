@@ -53,7 +53,7 @@ def test_create_run_api(tmp_path, monkeypatch):
     assert response.status_code == 200
     payload = response.json()
     assert re.match(r"^\d{8}_\d{4}(?:_\d{2})?$", payload["run_id"])
-    assert payload["state"]["language"] == "en"
+    assert "language" not in payload["state"]
     assert payload["state"]["solution_architecture"]
     assert payload["state"]["delivery_readiness"]
     assert payload["state"]["evaluation_reports"]
@@ -64,6 +64,7 @@ def test_create_run_api(tmp_path, monkeypatch):
     runs = client.get("/api/runs")
     assert runs.status_code == 200
     assert any(item["run_id"] == payload["run_id"] for item in runs.json()["runs"])
+    assert all("language" not in item for item in runs.json()["runs"])
     status = client.get(f"/api/runs/{payload['run_id']}/status")
     assert status.status_code == 200
     assert status.json()["status"] == "completed"
@@ -71,10 +72,27 @@ def test_create_run_api(tmp_path, monkeypatch):
     assert "observe" in status.json()["completed_steps"]
     package_view = client.get(f"/api/runs/{payload['run_id']}/package-view")
     assert package_view.status_code == 200
+    assert "language" not in package_view.json()
     assert package_view.json()["observation"]["observation_reports"]
     package_view_export = client.get(f"/api/runs/{payload['run_id']}/export/package_view")
     assert package_view_export.status_code == 200
     assert package_view_export.json()["project_id"] == payload["project_id"]
+    dashboard = client.get("/api/runs/dashboard")
+    assert dashboard.status_code == 200
+    dashboard_payload = dashboard.json()
+    assert dashboard_payload["total_runs"] >= 1
+    assert dashboard_payload["runs"][0]["run_id"] == payload["run_id"]
+    assert "language" not in dashboard_payload["runs"][0]
+    assert dashboard_payload["runs"][0]["lifecycle_stage"]
+    assert dashboard_payload["runs"][0]["readiness_score"] >= 0
+
+    workbench = client.get(f"/api/runs/{payload['run_id']}/workbench")
+    assert workbench.status_code == 200
+    workbench_payload = workbench.json()
+    assert workbench_payload["summary"]["run_id"] == payload["run_id"]
+    assert workbench_payload["lifecycle"]
+    assert workbench_payload["handoff_center"]["exports"]
+    assert "Harness Inspector" not in json.dumps(workbench_payload, ensure_ascii=False)
 
 
 def test_index_page():
@@ -85,6 +103,8 @@ def test_index_page():
     assert_template_rendered(response.text)
     assert "ShotForge" in response.text
     assert 'name="language"' in response.text
+    assert 'id="workspace_language"' in response.text
+    assert 'id="language" name="language" type="hidden"' in response.text
     assert 'value="cinematic"' in response.text
     assert 'name="llm_provider_id"' in response.text
     assert 'name="provider_profile_id"' in response.text
@@ -97,10 +117,79 @@ def test_index_page():
     assert 'value="mock"' not in response.text
     assert 'type="range"' in response.text
     assert 'id="max_iterations_value"' in response.text
-    assert "流程" in response.text
-    assert "配置" in response.text
-    assert "创建任务包" in response.text
+    assert "工作台" in response.text
+    assert "服务配置" in response.text
+    assert "新建任务" in response.text
+    assert "/demo?language=zh" in response.text
+    assert "AI 视频生产 Agent 工作台" in response.text
+    assert "服务健康" in response.text
     assert "仅设计" in response.text
+    assert "New Production Run" not in response.text
+    assert "Agent Video Workbench" not in response.text
+    assert "Provider Health" not in response.text
+
+
+def test_index_page_uses_english_when_language_is_en():
+    client = TestClient(app)
+    response = client.get("/?language=en")
+
+    assert response.status_code == 200
+    assert_template_rendered(response.text)
+    assert "Workbench" in response.text
+    assert "Providers" in response.text
+    assert "New Run" in response.text
+    assert "Demo" in response.text
+    assert "/demo?language=en" in response.text
+    assert "Agent Video Workbench" in response.text
+    assert "Provider Health" in response.text
+
+
+def test_demo_route_seeds_gold_sample_and_redirects(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+    monkeypatch.setenv("SHOTFORGE_PROVIDER_PROFILES_PATH", str(tmp_path / "profiles.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    client = TestClient(app)
+    response = client.get("/demo?language=en", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/?run_id=shotforge_gold_sample&language=en"
+    assert (tmp_path / "runs" / "shotforge_gold_sample" / "package.json").exists()
+
+    page = client.get(response.headers["location"])
+    assert page.status_code == 200
+    assert_template_rendered(page.text)
+    assert "hidden scanner" in page.text
+    assert "shotforge_gold_sample" in page.text
+    get_settings.cache_clear()
+
+
+def test_chinese_demo_route_seeds_chinese_gold_sample(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+    monkeypatch.setenv("SHOTFORGE_PROVIDER_PROFILES_PATH", str(tmp_path / "profiles.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    client = TestClient(app)
+    response = client.get("/demo?language=zh", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/?run_id=shotforge_gold_sample_zh&language=zh"
+    assert (tmp_path / "runs" / "shotforge_gold_sample_zh" / "package.json").exists()
+
+    page = client.get(response.headers["location"])
+    assert page.status_code == 200
+    assert_template_rendered(page.text)
+    assert "黑色门禁卡" in page.text
+    assert "shotforge_gold_sample_zh" in page.text
+    get_settings.cache_clear()
 
 
 def test_config_page_contains_provider_controls():
@@ -116,7 +205,7 @@ def test_config_page_contains_provider_controls():
     assert 'id="comfyui_search_status"' in response.text
     assert 'id="observer_provider_id"' in response.text
     assert 'id="vlm_config"' in response.text
-    assert "Documents" in response.text
+    assert "文档" in response.text
     assert "ComfyUI" in response.text
     assert 'value="comfyui"' in response.text
     assert 'value="mock"' not in response.text
@@ -432,7 +521,7 @@ def test_create_run_form_records_provider_config(tmp_path, monkeypatch):
 
     page = client.get(f"/?run_id={run_id}&language=en")
     assert page.status_code == 200
-    assert "<span>100%</span>" in page.text
+    assert re.search(r">\s*100%\s*<", page.text)
     get_settings.cache_clear()
 
 
@@ -567,6 +656,14 @@ def test_chinese_planning_page_has_no_broken_placeholders(tmp_path, monkeypatch)
     assert "解决方案架构" in page.text
     assert "交付就绪度" in page.text
     assert "状态变化" in page.text
+    assert "任务包视图" in page.text
+    assert "交付中心" in page.text
+    assert "迭代时间线" in page.text
+    assert "Run Overview" not in page.text
+    assert "Provider Health" not in page.text
+    assert "Iteration Timeline" not in page.text
+    assert "Handoff Center" not in page.text
+    assert "Package View" not in page.text
 
 
 def test_generation_artifact_api_and_web_links(tmp_path, monkeypatch):

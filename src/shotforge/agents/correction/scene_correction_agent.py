@@ -5,11 +5,13 @@ from shotforge.agents.correction._helpers import (
     localized_note,
     negative_constraints_for_issues,
     operation,
+    prompt_revision_note,
+    story_beat_upgrade,
     target_issues,
     target_shot_ids,
 )
 from shotforge.agents.correction.base import CorrectionAgent
-from shotforge.core.project_state import CorrectionPatch, CorrectionPlan, ProjectState
+from shotforge.core.project_state import CorrectionPatch, CorrectionPlan, ProjectState, runtime_language
 
 
 class SceneCorrectionAgent(CorrectionAgent):
@@ -17,19 +19,38 @@ class SceneCorrectionAgent(CorrectionAgent):
     agent_name = "scene_correction_agent"
 
     def apply(self, state: ProjectState, plan: CorrectionPlan, target_version: int) -> CorrectionPatch:
+        language = runtime_language(state)
         issues = target_issues(state, plan)
         operations = []
         for shot_id in target_shot_ids(state, plan):
             shot = next(item for item in state.shots if item.shot_id == shot_id)
             shot_issues = [issue for issue in issues if issue.shot_id == shot_id]
-            contracts = effect_contracts_for_shot(shot_issues, shot_id, state.language)
+            contracts = effect_contracts_for_shot(shot_issues, shot_id, language)
             contract_text = " ".join(contracts)
+            scene_note = story_beat_upgrade(
+                state,
+                shot_id,
+                "scene",
+                localized_note(language, "agents.correction.scene.scene", plan, issues),
+            )
+            shot_note = story_beat_upgrade(
+                state,
+                shot_id,
+                "scene",
+                localized_note(language, "agents.correction.scene.shot", plan, issues),
+            )
+            prompt_note = prompt_revision_note(
+                state,
+                shot_id,
+                "scene",
+                localized_note(language, "agents.correction.scene.prompt", plan, issues),
+            )
             operations.append(
                 operation(
                     "append_scene_description",
                     shot.scene_id,
                     f"scenes[{shot.scene_id}].description",
-                    localized_note(state.language, "agents.correction.scene.scene", plan, issues),
+                    scene_note,
                     plan.correction_strategy,
                 )
             )
@@ -38,7 +59,7 @@ class SceneCorrectionAgent(CorrectionAgent):
                     "append_shot_description",
                     shot_id,
                     f"shots[{shot_id}].description",
-                    localized_note(state.language, "agents.correction.scene.shot", plan, issues),
+                    shot_note,
                     plan.correction_strategy,
                 )
             )
@@ -49,7 +70,7 @@ class SceneCorrectionAgent(CorrectionAgent):
                     f"prompt_package.prompts[{shot_id}].prompt",
                     " ".join(
                         [
-                            localized_note(state.language, "agents.correction.scene.prompt", plan, issues),
+                            prompt_note,
                             contract_text,
                         ]
                     ).strip(),
@@ -105,7 +126,7 @@ class SceneCorrectionAgent(CorrectionAgent):
             target_version=target_version,
             operations=operations,
             rationale=plan.correction_strategy,
-            expected_effect=localized_note(state.language, "agents.correction.scene.effect", plan, issues),
+            expected_effect=localized_note(language, "agents.correction.scene.effect", plan, issues),
             risk=plan.risk,
             metadata={"correction_type": self.correction_type},
         )

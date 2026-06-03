@@ -1,0 +1,35 @@
+<nav class="workspace-tabs" aria-label="{{ web.workspace.run_management_workspace }}" data-run-tabs>
+  <button type="button" class="tab-button active" data-tab-target="overview">{{ web.tabs.overview }}</button>
+  <button type="button" class="tab-button" data-tab-target="storyboard">{{ web.tabs.storyboard }}</button>
+  <button type="button" class="tab-button" data-tab-target="prompts">{{ web.tabs.prompts }}</button>
+  <button type="button" class="tab-button" data-tab-target="generation">{{ web.tabs.generation }}</button>
+  <button type="button" class="tab-button" data-tab-target="evaluation">{{ web.tabs.evaluation }}</button>
+  <button type="button" class="tab-button" data-tab-target="iterations">{{ web.tabs.iterations }}</button>
+  <button type="button" class="tab-button" data-tab-target="exports">{{ web.tabs.exports }}</button>
+  <button type="button" class="tab-button" data-tab-target="harness">{{ web.tabs.harness_evidence }}</button>
+</nav>
+
+<div class="tab-panel active" data-tab-panel="overview">
+  {% include "partials/run_overview.html" %}
+</div>
+<div class="tab-panel" data-tab-panel="storyboard">
+  {% include "partials/storyboard_panel.html" %}
+</div>
+<div class="tab-panel" data-tab-panel="prompts">
+  {% include "partials/prompt_changes.html" %}
+</div>
+<div class="tab-panel" data-tab-panel="generation">
+  {% include "partials/generation_artifacts.html" %}
+</div>
+<div class="tab-panel" data-tab-panel="evaluation">
+  {% include "partials/evaluation_panel.html" %}
+</div>
+<div class="tab-panel" data-tab-panel="iterations">
+  {% include "partials/iteration_timeline.html" %}
+</div>
+<div class="tab-panel" data-tab-panel="exports">
+  {% include "partials/handoff_center.html" %}
+</div>
+<div class="tab-panel" data-tab-panel="harness">
+  {% include "partials/harness_evidence.html" %}
+</div>

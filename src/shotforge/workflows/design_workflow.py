@@ -14,7 +14,11 @@ warnings.filterwarnings(
 from langgraph.graph import END, StateGraph  # noqa: E402
 
 from shotforge.agents import AgentHarness  # noqa: E402
-from shotforge.core.project_state import OutputLanguage, ProjectState  # noqa: E402
+from shotforge.core.project_state import (  # noqa: E402
+    OutputLanguage,
+    ProjectState,
+    set_runtime_language,
+)
 
 
 class WorkflowState(TypedDict):
@@ -63,8 +67,8 @@ def run_design_pipeline(
         user_idea=idea,
         style=style,
         duration_seconds=duration_seconds,
-        language=language,
     )
+    set_runtime_language(state, language)
     result = build_design_graph().invoke({"project": state})
     project = result["project"]
     if isinstance(project, ProjectState):

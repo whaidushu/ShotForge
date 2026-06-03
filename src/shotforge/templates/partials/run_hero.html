@@ -3,11 +3,19 @@
     <div>
       <h2 class="hero-title">{% if state %}{{ ui.run_title }} {{ state.run_id }}{% else %}{{ ui.run_ready_title }}{% endif %}</h2>
       <p class="muted">{% if state %}{{ state.user_idea }}{% else %}{{ ui.run_ready_body }}{% endif %}</p>
+      {% if state and run_workbench.summary %}
+        <div class="run-card-meta">
+          <span class="status-chip stage-{{ run_workbench.summary.lifecycle_stage }}">{{ web.run_status.stages.get(run_workbench.summary.lifecycle_stage, run_workbench.summary.lifecycle_stage) }}</span>
+          <span class="badge">{{ run_workbench.summary.readiness_score }}% {{ web.workspace.readiness }}</span>
+          <span class="badge">{{ run_workbench.summary.issue_count }} {{ ui.run_issues }}</span>
+        </div>
+      {% endif %}
     </div>
     {% if state %}
       <div class="export-links">
         <a href="/api/runs/{{ state.run_id }}/export/json">{{ ui.exports_json }}</a>
-        <a href="/api/runs/{{ state.run_id }}/export/package_view">Package View</a>
+        <a href="/api/runs/{{ state.run_id }}/export/csv">{{ ui.exports_csv }}</a>
+        <a href="/api/runs/{{ state.run_id }}/export/package_view">{{ web.exports.package_view }}</a>
         <a href="/api/runs/{{ state.run_id }}/export/markdown">{{ ui.exports_markdown }}</a>
         <a href="/api/runs/{{ state.run_id }}/export/manifest">{{ ui.exports_manifest }}</a>
         <a href="/api/runs/{{ state.run_id }}/export/run_summary">{{ ui.exports_run_summary }}</a>
@@ -19,7 +27,7 @@
     <div class="studio-kpi"><strong>{{ ui.kpi_profile }}</strong><span>{{ form_state.provider_profile_name }}</span></div>
     <div class="studio-kpi"><strong>{{ ui.kpi_mode }}</strong><span>{{ form_state.mode }}</span></div>
     <div class="studio-kpi"><strong>{{ ui.kpi_video }}</strong><span>{{ ui.profile_test_chain_label if "mock" in form_state.generator_provider_id else form_state.generator_provider_id }}</span></div>
-    <div class="studio-kpi"><strong>{{ ui.kpi_progress }}</strong><span>{{ run_progress.percent }}%</span></div>
+    <div class="studio-kpi"><strong>{% if state and run_workbench.summary %}{{ web.workspace.readiness }}{% else %}{{ ui.kpi_progress }}{% endif %}</strong><span>{% if state and run_workbench.summary %}{{ run_workbench.summary.readiness_score }}%{% else %}{{ run_progress.percent }}%{% endif %}</span></div>
   </div>
   <div class="pipeline">
     <div class="progress-track"><div class="progress-fill" style="width: {{ run_progress.percent }}%;"></div></div>

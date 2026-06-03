@@ -133,6 +133,17 @@
         color: #fff;
         background: #305047;
       }
+      .nav-select {
+        width: auto;
+        min-width: 112px;
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 999px;
+        padding: 8px 30px 8px 12px;
+        background: var(--nav-soft);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+      }
       .layout {
         display: grid;
         grid-template-columns: 340px minmax(0, 1fr);
@@ -357,6 +368,33 @@
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         font-size: 13px;
         overflow-wrap: anywhere;
+      }
+      .dashboard-kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .dashboard-kpis div {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-soft);
+        padding: 8px;
+        min-width: 0;
+      }
+      .dashboard-kpis strong,
+      .dashboard-kpis span {
+        display: block;
+        overflow-wrap: anywhere;
+      }
+      .dashboard-kpis strong {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .dashboard-kpis span {
+        margin-top: 4px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 15px;
       }
       .rail-title {
         display: flex;
@@ -610,6 +648,158 @@
       }
       .run-history strong { font-size: 12px; }
       .run-history span { margin-top: 3px; color: var(--muted); font-size: 12px; }
+      .run-history a.active-run {
+        border-color: #0f766e;
+        background: #effaf8;
+      }
+      .run-card-meta {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .run-history small {
+        display: block;
+        margin-top: 7px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.35;
+      }
+      .workspace-tabs {
+        position: sticky;
+        top: 78px;
+        z-index: 3;
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.94);
+        padding: 10px;
+        box-shadow: var(--shadow-soft);
+      }
+      .workspace-tabs a,
+      .workspace-tabs .tab-button {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 7px 10px;
+        background: var(--panel-soft);
+        color: var(--muted);
+        font-size: 12px;
+        box-shadow: none;
+      }
+      .workspace-tabs a:hover,
+      .workspace-tabs .tab-button:hover,
+      .workspace-tabs .tab-button.active {
+        border-color: #9fc3bd;
+        background: #edf8f6;
+        color: var(--accent-dark);
+      }
+      .tab-panel {
+        display: none;
+        grid-column: 1 / -1;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+      .tab-panel > .surface {
+        grid-column: 1 / -1;
+      }
+      .section-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: start;
+        margin-bottom: 12px;
+      }
+      .section-heading p {
+        margin: 0;
+      }
+      .status-chip {
+        border: 1px solid #b8c5cc;
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: #f8fafc;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .stage-ready_for_handoff { border-color: #86efac; background: #f0fdf4; color: var(--green); }
+      .stage-needs_revision { border-color: #facc15; background: #fffbeb; color: var(--amber); }
+      .stage-blocked { border-color: #fca5a5; background: #fff1f0; color: var(--red); }
+      .lifecycle-track {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(126px, 1fr));
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .lifecycle-step {
+        min-height: 58px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-soft);
+        padding: 9px 10px;
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        gap: 8px;
+        align-items: center;
+      }
+      .lifecycle-step span {
+        display: grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .lifecycle-step strong {
+        font-size: 12px;
+      }
+      .lifecycle-step.done {
+        border-color: #9bd4ad;
+        background: #effaf4;
+      }
+      .lifecycle-step.done span,
+      .lifecycle-step.current span {
+        background: var(--accent);
+        color: #fff;
+      }
+      .lifecycle-step.current {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+      }
+      .workbench-callouts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .section-divider {
+        height: 1px;
+        margin: 17px 0;
+        background: var(--line);
+      }
+      .iteration-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: start;
+      }
+      .iteration-head > div {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .handoff-exports {
+        margin-bottom: 2px;
+      }
       .signal-source {
         display: none;
         border-left: 3px solid var(--line);
@@ -689,6 +879,7 @@
         .layout, .config-layout { padding: 14px; }
         .config-grid, .prompt-change, .step-row { grid-template-columns: 1fr; }
         .studio-kpis { grid-template-columns: 1fr; }
+        .workbench-callouts { grid-template-columns: 1fr; }
       }
     </style>
   </head>
@@ -699,8 +890,15 @@
         <p>{{ ui.header_subtitle }}</p>
       </div>
       <nav class="nav">
-        <a href="/?language={{ form_state.language }}{% if state %}&run_id={{ state.run_id }}{% endif %}" class="{% if active_page == 'workflow' %}active{% endif %}">{{ ui.nav_workflow }}</a>
-        <a href="/config?language={{ form_state.language }}{% if state %}&run_id={{ state.run_id }}{% endif %}" class="{% if active_page == 'config' %}active{% endif %}">{{ ui.nav_config }}</a>
+        <a href="/?language={{ form_state.language }}{% if state %}&run_id={{ state.run_id }}{% endif %}" class="{% if active_page == 'workflow' %}active{% endif %}">{{ web.nav.workbench }}</a>
+        <a href="/config?language={{ form_state.language }}{% if state %}&run_id={{ state.run_id }}{% endif %}" class="{% if active_page == 'config' %}active{% endif %}">{{ web.nav.providers }}</a>
+        <a href="/demo?language={{ form_state.language }}">{{ web.nav.demo }}</a>
+        <a href="/docs" target="_blank" rel="noreferrer">{{ web.nav.docs }}</a>
+        <a href="#new-run">{{ web.nav.new_run }}</a>
+        <select id="workspace_language" class="nav-select" aria-label="{{ ui.form_language }}">
+          <option value="zh" {% if form_state.language == "zh" %}selected{% endif %}>{{ ui.form_language_zh }}</option>
+          <option value="en" {% if form_state.language == "en" %}selected{% endif %}>{{ ui.form_language_en }}</option>
+        </select>
       </nav>
     </header>
 
@@ -721,8 +919,8 @@
     {% if service_warnings %}
       <section class="runtime-banner warning">
         <div>
-          <strong>Local service check</strong>
-          <p>Some local paths or services need attention before real generation.</p>
+          <strong>{{ web.service_warnings.title }}</strong>
+          <p>{{ web.service_warnings.body }}</p>
         </div>
         <div class="status-list">
           {% for warning in service_warnings %}
@@ -881,20 +1079,14 @@
       <form id="run_form" method="post" action="/runs">
       <main class="workbench-layout">
         <aside class="history-rail">
-          <section class="surface task-card">
-            <h2>{{ ui.form_title }}</h2>
+          <section id="new-run" class="surface task-card">
+            <h2>{{ web.nav.new_run }}</h2>
+              <input id="language" name="language" type="hidden" value="{{ form_state.language }}">
               <label for="idea">{{ ui.form_idea }}</label>
               <textarea id="idea" name="idea" required>{{ form_state.idea }}</textarea>
               <label for="style">{{ ui.form_style }}</label>
               <input id="style" name="style" value="{{ form_state.style }}">
               <div class="field-row">
-                <div>
-                  <label for="language">{{ ui.form_language }}</label>
-                  <select id="language" name="language">
-                    <option value="zh" {% if form_state.language == "zh" %}selected{% endif %}>{{ ui.form_language_zh }}</option>
-                    <option value="en" {% if form_state.language == "en" %}selected{% endif %}>{{ ui.form_language_en }}</option>
-                  </select>
-                </div>
                 <div>
                   <label for="mode">{{ ui.form_mode }}</label>
                   <select id="mode" name="mode">
@@ -925,207 +1117,16 @@
               </div>
           </section>
 
-          {% if run_history %}
-            <section class="surface">
-              <h3>{{ ui.recent_runs }}</h3>
-              <div class="run-history">
-                {% for run in run_history[:8] %}
-                  <a href="/?run_id={{ run.run_id }}&language={{ run.language }}">
-                    <strong>{{ run.run_id }} / v{{ run.version }} / {{ ui.profile_test_chain_label if "mock" in run.generator_provider_id else run.generator_provider_id }}</strong>
-                    <span>{{ run.idea }}</span>
-                  </a>
-                {% endfor %}
-              </div>
-            </section>
-          {% endif %}
+          {% include "partials/run_dashboard.html" %}
         </aside>
 
         <aside class="inspector-rail">
-          {% include "partials/provider_config_panel.html" %}
+          {% include "partials/provider_health_panel.html" %}
         </aside>
 
         <section class="content">
           {% include "partials/run_hero.html" %}
-
-          <aside class="review-stack">
-            {% include "partials/generation_artifacts.html" %}
-            {% include "partials/prompt_changes.html" %}
-          </aside>
-
-          {% if state and state.correction_patches %}
-            <article class="surface main-panel">
-              <h3>{{ ui.correction_patches_title }}</h3>
-              <div class="grid">
-                {% for patch in state.correction_patches %}
-                  <div>
-                    <strong>{{ ui.correction_patches_agent }}: {{ patch.agent_name }}</strong>
-                    <p class="muted">{{ ui.correction_patches_expected_effect }}: {{ patch.expected_effect }}</p>
-                    {% for operation in patch.operations[:4] %}
-                      <p><span class="badge">{{ operation.operation_type }}</span> {{ operation.field_path }}</p>
-                      <pre>{{ operation.value | diff_value }}</pre>
-                    {% endfor %}
-                    <p class="muted">{{ ui.correction_patches_rationale }}: {{ patch.rationale }}</p>
-                  </div>
-                {% endfor %}
-              </div>
-            </article>
-          {% endif %}
-
-          {% if state and state.score_deltas and state.regression_checks %}
-            {% set score_delta = state.score_deltas[-1] %}
-            {% set regression = state.regression_checks[-1] %}
-            <article class="surface main-panel">
-              <h3>{{ ui.convergence_title }} v{{ score_delta.from_version }} -> v{{ score_delta.to_version }}</h3>
-              <div class="metric-strip">
-                <div class="metric"><strong>{{ ui.convergence_overall_delta }}</strong><span>{{ "%+.3f"|format(score_delta.overall_delta) }}</span></div>
-                <div class="metric"><strong>{{ ui.convergence_status }}</strong><span>{{ status_labels.get(regression.status, regression.status) }}</span></div>
-                <div class="metric"><strong>{{ ui.convergence_resolved }}</strong><span>{{ regression.resolved_issue_ids | length }}</span></div>
-                <div class="metric"><strong>{{ ui.convergence_remaining }}</strong><span>{{ regression.remaining_issue_ids | length }}</span></div>
-              </div>
-              <p class="muted">{{ regression.summary }}</p>
-              {% if state.convergence_steps %}
-                <div class="timeline">
-                  {% for step in state.convergence_steps %}
-                    <div class="timeline-row">
-                      <strong>v{{ step.from_version }} -> v{{ step.to_version }}</strong>
-                      <span class="badge">{{ "%+.3f"|format(step.overall_delta) }}</span>
-                      <span class="badge">{{ status_labels.get(step.status, step.status) }}</span>
-                      {% if step.stop_reason %}<p class="muted">{{ ui.convergence_stop_reason }}: {{ stop_reason_labels.get(step.stop_reason, step.stop_reason) }}</p>{% endif %}
-                    </div>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </article>
-          {% endif %}
-
-          {% if state and state.version_diffs %}
-            <article class="surface main-panel">
-              <h3>{{ ui.version_diff_chain_title }}</h3>
-              <div class="timeline">
-                {% for diff in state.version_diffs %}
-                  <details class="timeline-row" {% if loop.last %}open{% endif %}>
-                    <summary><strong>v{{ diff.from_version }} -> v{{ diff.to_version }}</strong> <span class="badge">{{ ui.version_diff_open }}</span></summary>
-                    <p class="muted">{{ diff.explanation }}</p>
-                    <div class="metric-strip">
-                      <div class="metric"><strong>{{ ui.version_diff_changed_shots }}</strong><span>{{ diff.changed_shots | join(", ") if diff.changed_shots else "n/a" }}</span></div>
-                      <div class="metric"><strong>{{ ui.version_diff_changed_prompts }}</strong><span>{{ diff.changed_prompts | join(", ") if diff.changed_prompts else "n/a" }}</span></div>
-                      <div class="metric"><strong>{{ ui.version_diff_resolved_issues }}</strong><span>{{ diff.resolved_issues | length }}</span></div>
-                    </div>
-                  </details>
-                {% endfor %}
-              </div>
-            </article>
-          {% endif %}
-
-          {% if state and state.solution_architecture %}
-            <article class="surface main-panel">
-              <h3>{{ ui.solution_title }}</h3>
-              <div class="metric-strip">
-                <div class="metric"><strong>{{ ui.solution_industry }}</strong><span>{{ state.solution_architecture.industry }}</span></div>
-                <div class="metric"><strong>{{ ui.solution_scenario }}</strong><span>{{ state.solution_architecture.scenario }}</span></div>
-                <div class="metric"><strong>{{ ui.solution_success }}</strong><span>{{ state.solution_architecture.poc_success_criteria | length }}</span></div>
-              </div>
-              <p>{{ state.solution_architecture.business_objective }}</p>
-              <div class="grid">
-                {% for component in state.solution_architecture.components %}
-                  <div>
-                    <strong>{{ component.name }}</strong>
-                    <p class="muted">{{ component.responsibility }}</p>
-                  </div>
-                {% endfor %}
-              </div>
-            </article>
-          {% endif %}
-
-          {% if state and state.delivery_readiness %}
-            <article class="surface main-panel">
-              <h3>{{ ui.readiness_title }}</h3>
-              <div class="metric-strip">
-                <div class="metric"><strong>{{ ui.readiness_overall }}</strong><span>{{ state.delivery_readiness.overall_status }}</span></div>
-                <div class="metric"><strong>{{ ui.readiness_handoff }}</strong><span>{{ state.delivery_readiness.handoff_deliverables | length }}</span></div>
-                <div class="metric"><strong>{{ ui.readiness_checks }}</strong><span>{{ state.delivery_readiness.checks | length }}</span></div>
-              </div>
-              <div class="grid">
-                {% for check in state.delivery_readiness.checks %}
-                  <div>
-                    <strong>{{ check.check_id }} / {{ check.status }}</strong>
-                    <p class="muted">{{ check.evidence }}</p>
-                  </div>
-                {% endfor %}
-              </div>
-            </article>
-          {% endif %}
-
-          {% include "partials/evaluation_panel.html" %}
-
-          {% if harness_inspector.contexts or harness_inspector.tool_calls %}
-            {% set latest_context = harness_inspector.latest_context %}
-            <article class="surface main-panel">
-              <h3>{{ ui.harness_title }}</h3>
-              <p class="muted">{{ ui.harness_subtitle }}</p>
-              <div class="grid">
-                <div>
-                  <h4>{{ ui.harness_context }}</h4>
-                  {% for context in harness_inspector.contexts %}
-                    <p><strong>{{ context.agent_name }}</strong><br><span class="muted">{{ context.metadata.agent_spec.role if context.metadata.agent_spec else "" }}</span></p>
-                  {% else %}
-                    <p class="muted">{{ ui.harness_no_records }}</p>
-                  {% endfor %}
-                </div>
-                <div>
-                  <h4>{{ ui.harness_tools }}</h4>
-                  {% for record in harness_inspector.tool_calls[-6:] %}
-                    <p><strong>{{ record.tool_name }}</strong><br><span class="muted">{{ ui.harness_tool_status }}: {{ record.status }}</span></p>
-                  {% else %}
-                    <p class="muted">{{ ui.harness_no_records }}</p>
-                  {% endfor %}
-                </div>
-                <div>
-                  <h4>{{ ui.harness_mcp }}</h4>
-                  {% for tool_name in latest_context.mcp_tool_names %}
-                    <span class="pill">{{ tool_name }}</span>
-                  {% else %}
-                    <span class="muted">{{ ui.harness_no_records }}</span>
-                  {% endfor %}
-                </div>
-                <div>
-                  <h4>{{ ui.harness_sandbox }}</h4>
-                  <pre>{{ latest_context.sandbox_policy | diff_value if latest_context.sandbox_policy else "{}" }}</pre>
-                </div>
-                <div>
-                  <h4>{{ ui.harness_memory }}</h4>
-                  <pre>{{ latest_context.memory | diff_value if latest_context.memory else "{}" }}</pre>
-                </div>
-                <div>
-                  <h4>{{ ui.harness_transitions }}</h4>
-                  {% for transition in harness_inspector.state_transitions[-5:] %}
-                    <p><strong>{{ transition.agent_name }}</strong><br><span class="muted">{{ ui.harness_invariant_status }}: {{ transition.invariant_status }}</span></p>
-                  {% else %}
-                    <p class="muted">{{ ui.harness_no_records }}</p>
-                  {% endfor %}
-                </div>
-                <div>
-                  <h4>{{ ui.harness_topology }}</h4>
-                  <p>{{ ui.harness_nodes }}: {{ harness_inspector.agent_topology.nodes | length }} / {{ ui.harness_edges }}: {{ harness_inspector.agent_topology.edges | length }}</p>
-                </div>
-              </div>
-            </article>
-          {% endif %}
-
-          {% if state %}
-            <article class="surface main-panel">
-              <h3>{{ ui.storyboard_title }}</h3>
-              <div class="grid">
-                {% for beat in state.shots %}
-                  <div>
-                    <strong>{{ ui.run_scene }} {{ beat.index }}: {{ beat.title }}</strong>
-                    <p>{{ beat.description }}</p>
-                    <p class="muted">{{ beat.duration_seconds }}s / {{ beat.shot_type }}</p>
-                  </div>
-                {% endfor %}
-              </div>
-            </article>
-          {% endif %}
+          {% include "partials/run_tabs.html" %}
         </section>
       </main>
       </form>
@@ -1141,6 +1142,16 @@
       const numberValue = (id, fallback) => {
         const parsed = Number(fieldValue(id));
         return Number.isFinite(parsed) ? parsed : fallback;
+      };
+      const boolValue = (id, fallback) => {
+        const element = document.getElementById(id);
+        if (!element) {
+          return fallback;
+        }
+        if (element.type === "checkbox") {
+          return element.checked;
+        }
+        return !["false", "0", "no", ""].includes(String(element.value).toLowerCase());
       };
       const setValue = (id, value) => {
         const element = document.getElementById(id);
@@ -1171,7 +1182,7 @@
         vlm_api_key: fieldValue("vlm_api_key"),
         vlm_frame_sample_count: numberValue("vlm_frame_sample_count", 4),
         vlm_confidence_threshold: numberValue("vlm_confidence_threshold", 0.65),
-        vlm_require_json: document.getElementById("vlm_require_json")?.checked ?? true
+        vlm_require_json: boolValue("vlm_require_json", true)
       });
       const currentPreflightPayload = () => {
         const payload = currentProviderPayload();
@@ -1218,7 +1229,11 @@
         setValue("vlm_confidence_threshold", profile.vlm_confidence_threshold);
         const vlmRequireJson = document.getElementById("vlm_require_json");
         if (vlmRequireJson) {
-          vlmRequireJson.checked = profile.vlm_require_json !== false;
+          if (vlmRequireJson.type === "checkbox") {
+            vlmRequireJson.checked = profile.vlm_require_json !== false;
+          } else {
+            vlmRequireJson.value = String(profile.vlm_require_json !== false);
+          }
         }
         toggleComfyConfig();
         toggleVlmConfig();
@@ -1245,12 +1260,11 @@
       }
       toggleVlmConfig();
 
-      const languageSelect = document.getElementById("language");
-      if (languageSelect) {
-        languageSelect.addEventListener("change", () => {
+      const workspaceLanguageSelect = document.getElementById("workspace_language");
+      if (workspaceLanguageSelect) {
+        workspaceLanguageSelect.addEventListener("change", () => {
           const url = new URL(window.location.href);
-          url.searchParams.set("language", languageSelect.value);
-          url.searchParams.delete("run_id");
+          url.searchParams.set("language", workspaceLanguageSelect.value);
           window.location.href = url.toString();
         });
       }
@@ -1281,6 +1295,7 @@
       }
 
       const preflightStatus = document.getElementById("preflight_status");
+      const statusLabels = {{ status_labels | tojson }};
       const renderPreflight = (payload) => {
         if (!preflightStatus) {
           return;
@@ -1288,12 +1303,13 @@
         preflightStatus.innerHTML = "";
         const summary = document.createElement("div");
         summary.className = `status-row ${payload.status || "warning"}`;
-        summary.textContent = `${ {{ ui.profile_preflight | tojson }} }: ${payload.status} / failed ${payload.failed || 0} / warnings ${payload.warnings || 0}`;
+        const payloadStatus = statusLabels[payload.status] || payload.status || "";
+        summary.textContent = `${ {{ ui.profile_preflight | tojson }} }: ${payloadStatus} / ${ {{ web.js.failed | tojson }} } ${payload.failed || 0} / ${ {{ web.js.warnings | tojson }} } ${payload.warnings || 0}`;
         preflightStatus.appendChild(summary);
         for (const check of payload.checks || []) {
           const row = document.createElement("div");
           row.className = `status-row ${check.status}`;
-          row.textContent = `${check.label}: ${check.status} / ${check.detail}`;
+          row.textContent = `${check.label}: ${statusLabels[check.status] || check.status} / ${check.detail}`;
           preflightStatus.appendChild(row);
         }
       };

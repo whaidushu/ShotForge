@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from shotforge.core.project_state import (
+    runtime_language,
     DimensionScore,
     EvaluationReport,
     GeneratedResult,
@@ -94,11 +95,11 @@ class EvaluationAgent:
             for signal in weak_signals
             if signal.shot_id is not None
         ]
-        label = dimension.label(state.language)
+        label = dimension.label(runtime_language(state))
         signal_count = len([signal for signal in signals if signal.dimension_id == dimension.id])
         rationale = (
             f"{label} 基于 {signal_count} 个评测信号计算。"
-            if state.language == "zh"
+            if runtime_language(state) == "zh"
             else f"{label} is computed from {signal_count} evaluator signals."
         )
         return DimensionScore(
@@ -139,7 +140,7 @@ class EvaluationAgent:
                 Issue(
                     severity=self._severity(shot_score, dimension.issue_rule.severity_bands),
                     dimension_id=dimension.id,
-                    dimension_label=dimension.label(state.language),
+                    dimension_label=dimension.label(runtime_language(state)),
                     shot_id=signal.shot_id,
                     description=self._issue_description(state, dimension, shot_id),
                     evidence=self._issue_evidence(signal, generated_shot),
@@ -211,7 +212,7 @@ class EvaluationAgent:
                 {
                     "layer_id": layer_id,
                     "layer_index": layer_index,
-                    "label": layer.label(state.language) if layer else layer_id,
+                    "label": layer.label(runtime_language(state)) if layer else layer_id,
                     "dimension_ids": [dimension.id for dimension in dimensions],
                     "average_score": average_score,
                     "issue_count": sum(
@@ -239,8 +240,8 @@ class EvaluationAgent:
         dimension: EvaluationDimensionConfig,
         shot_id: str,
     ) -> str:
-        template = dimension.issue_rule.description(state.language)
-        if state.language == "en" and template == dimension.issue_rule.description_template:
+        template = dimension.issue_rule.description(runtime_language(state))
+        if runtime_language(state) == "en" and template == dimension.issue_rule.description_template:
             template = "{shot_id} underperforms on " + dimension.label("en") + "."
         return template.format(shot_id=shot_id)
 
@@ -250,8 +251,8 @@ class EvaluationAgent:
         dimension: EvaluationDimensionConfig,
         shot_id: str,
     ) -> str:
-        template = dimension.issue_rule.cause(state.language)
-        if state.language == "en" and template == dimension.issue_rule.cause_template:
+        template = dimension.issue_rule.cause(runtime_language(state))
+        if runtime_language(state) == "en" and template == dimension.issue_rule.cause_template:
             template = "The current design lacks enough concrete constraints for this dimension."
         return template.format(shot_id=shot_id)
 
