@@ -226,7 +226,7 @@ The current schema validation is intentionally simple and local-first:
 - input schema can require keyword names
 - output schema can validate primitive return type
 
-This is enough to demonstrate the harness strategy boundary without locking the POC into a specific external tool framework. Later production adapters can replace this with JSON Schema, Pydantic models, OpenAPI tool contracts, or MCP tool schemas.
+This is enough to make the harness strategy boundary inspectable without locking the POC into a specific external tool framework. Later production adapters can replace this with JSON Schema, Pydantic models, OpenAPI tool contracts, or MCP tool schemas.
 
 Example behavior:
 

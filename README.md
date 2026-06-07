@@ -1,29 +1,31 @@
 # ShotForge
 
-ShotForge is an AI video creative agent project with two deliberately separated tracks:
+ShotForge is a local-first AI video Agent Workbench that explores how an agent runtime, an evaluation loop, and workflow version governance can support the full path from creative idea to prompt package, video artifact, quality review, iteration, and handoff export.
 
-1. **Engineering Runtime**: an agent orchestration system that demonstrates production-grade AI engineering practices.
-2. **Product Studio**: a user-facing short-video creation workflow that focuses on product completeness and end-to-end usability.
+It has two deliberately separated tracks:
 
-The current default branch now keeps both layers connected: the runtime proves state, agents, evaluation, and traceability; the Web product layer lets a user configure providers, test local services, run generation, inspect prompt changes, and open video artifacts.
+1. **Engineering Runtime**: an agent orchestration system for stateful workflow execution, provider boundaries, evaluation, traceability, and versioned iteration.
+2. **Product Studio**: a user-facing short-video creation workflow for provider configuration, local service checks, generation, prompt review, artifact preview, and export.
+
+The current default branch keeps both layers connected: the runtime manages structured state, agents, evaluation, traces, version snapshots, and version diffs; the Web product layer lets a user configure providers, test local services, run generation, inspect prompt changes, compare versions, and open video artifacts.
 
 ## Why Two Tracks
 
 Building an impressive engineering project and building a complete product are not the same job.
 
-The engineering track answers:
+The engineering track explores:
 
 - Can the system model state clearly?
 - Can agents be orchestrated, traced, evaluated, versioned, and extended?
 - Can model providers, tools, evaluators, and correction agents be plugged in without rewriting the workflow?
 
-The product track answers:
+The product track explores:
 
 - Can a user start from one idea and get a usable short-video output?
 - Can they review, edit, refine, preview, and export without reading implementation details?
 - Can the workflow feel like a real creative tool instead of a technical demo?
 
-Keeping these tracks explicit makes the project easier to review, easier to extend, and easier to explain in interviews.
+Keeping these tracks explicit makes the project easier to review, easier to extend, and easier to evolve without mixing runtime architecture decisions with product-surface decisions.
 
 ## Current Capability
 
@@ -36,6 +38,7 @@ ShotForge currently supports:
 - Context building and lightweight knowledge base
 - Skill/tool registry
 - Version snapshots and version diffs
+- Run history, prompt changes, and version-chain inspection
 - Trace logging
 - Evaluation and correction planning
 - Provider profiles for LLM/Judge and Video generation settings
@@ -45,7 +48,7 @@ ShotForge currently supports:
 - Physical target extraction for hard visual facts such as subject count, required objects, location, weather, and action
 - Frame extraction, frame observation, sequence observation, and evaluator-ready video observations
 - Internal test provider kept behind a dedicated test-chain control
-- JSON / CSV / Markdown exports
+- JSON / CSV / Markdown / manifest / trace / run-summary exports
 - Chinese and English output
 - Extension boundaries for MCP, sandboxing, and external video model APIs
 
@@ -74,7 +77,7 @@ docs/                  Track definitions and review guide
 - [Architecture Overview](docs/architecture-overview.md): one-page map of workflow, runtime, interfaces, and deliverables.
 - [Change Log](docs/CHANGELOG.md): implementation milestones and delivery-chain changes.
 - [UI Engineering Framework](docs/ui-engineering-framework.md): Web UI asset, style, motion, icon, and layout organization.
-- [Project Spine And Demo Path](docs/project-spine-and-demo-path.md): concise project framing, demo sequence, and what the demo should prove.
+- [Project Spine And Demo Path](docs/project-spine-and-demo-path.md): concise project framing, demo sequence, and review path.
 - [Engineering Track](docs/engineering-track.md): architecture, engineering value, and implementation surface.
 - [Agent Infra Runtime](docs/agent-infra-runtime.md): MCP-like adapter, sandbox policy, memory store, tool records, and runtime snapshots.
 - [Harness Audit API](docs/harness-audit-api.md): run-level API for contexts, tool calls, policies, readiness, and solution evidence.
@@ -84,7 +87,7 @@ docs/                  Track definitions and review guide
 - [POC Deployment Notes](docs/deployment-poc.md): local setup, CLI/Web demo, exports, storage layout, and production boundaries.
 - [Volcengine JD Alignment](docs/volcengine-jd-alignment.md): how the project maps to the target AI Agent solution architect role.
 - [Solution Blueprint](docs/solution-blueprint.md): customer-facing solution architecture and POC acceptance criteria.
-- [Demo Script](docs/demo-script.md): 5-8 minute walkthrough for interviews or solution demos.
+- [Demo Script](docs/demo-script.md): 5-8 minute walkthrough for solution demos.
 - [Sales Demo Playbook](docs/sales-demo-playbook.md): customer-facing demo narrative, objection handling, and evidence checklist.
 - [POC Test Strategy](docs/poc-test-strategy.md): acceptance gates, test phases, and production exit criteria.
 - [Model Selection Matrix](docs/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
@@ -93,7 +96,7 @@ docs/                  Track definitions and review guide
 - [E-commerce Solution](docs/solutions/ecommerce-video-agent-solution.md): industry package for product short-video workflows.
 - [Game Trailer Solution](docs/solutions/game-trailer-agent-solution.md): industry package for game character and trailer ideation.
 - [Product Track](docs/product-track.md): product goal, user workflow, UX milestones, and video creation loop.
-- [Resume Review Guide](docs/resume-review-guide.md): how a reviewer should read this project in 5-10 minutes.
+- [Repository Review Guide](docs/repository-review-guide.md): how a reviewer should read this project in 5-10 minutes.
 - [Roadmap](ROADMAP.md): longer-term technical roadmap and planned milestones.
 
 ## Quick Start
@@ -160,6 +163,7 @@ Idea
 -> correction plan
 -> optimized prompt/template package
 -> regenerated video
+-> version diff / run history
 -> exports and run summary
 ```
 
@@ -316,8 +320,8 @@ shotforge full-loop "A design director reviews a repaired AI storyboard in a mid
 ```
 
 Set `SHOTFORGE_COMFYUI_MAX_SHOTS=0` or leave it unset to generate every shot.
-At 320x320 and 9 frames, the smoke-test path is intended to prove integration,
-artifact tracking, and evaluation flow rather than final visual quality.
+At 320x320 and 9 frames, the smoke-test path is intended to exercise integration,
+artifact tracking, versioned iterations, and evaluation flow rather than final visual quality.
 
 ComfyUI generation artifacts are written by iteration, with readable filenames:
 

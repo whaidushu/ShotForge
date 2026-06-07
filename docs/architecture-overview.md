@@ -1,6 +1,6 @@
 # Architecture Overview
 
-ShotForge is a local-first AI video creation workflow with an agent runtime underneath it. The video domain is the product scenario; the reusable capability is the runtime pattern for provider configuration, stateful generation, evaluation, iteration, traceability, and export.
+ShotForge is a local-first AI video Agent Workbench with an agent runtime underneath it. The product workflow covers idea intake, prompt/package generation, video provider execution, visual observation, evaluation, correction, versioned iteration, artifact tracking, and handoff export.
 
 ## End-to-End Flow
 
@@ -37,6 +37,7 @@ flowchart LR
 | Runtime Evidence | `AgentHarnessRuntime` | Context snapshots, MCP tools, sandbox policy, memory hits |
 | Agent Contracts | `AgentSpec`, `AgentCatalog` | Agent roles, IO contracts, dependencies, skills, and extension points |
 | Traceability | `TraceLog`, `VersionManager` | Run history, step timing, version snapshots |
+| Version Governance | `VersionDiffBuilder`, `RunService`, Web Version Chain | Prompt changes, issue deltas, field-level diffs, snapshots, and per-iteration artifacts |
 | MCP Boundary | `LocalMCPAdapter` | Tool/resource discovery for knowledge, runs, packages, and harness audit |
 | Sandbox Boundary | `LocalSandboxRunner`, `SandboxExecutionProfile` | Policy-gated execution with structured denial records |
 | Memory | `LocalMemoryStore` | Namespaced, ranked, access-tracked JSONL memory with runtime run promotion |
@@ -87,6 +88,7 @@ Each run can export:
 - `trace.json`
 - `run_summary.md`
 - `evaluation.csv` when evaluation runs
+- version snapshots under `versions/{project_id}/`
 - `iterations/v*/prompts/*`
 - `iterations/v*/workflows/*`
 - `iterations/v*/videos/*` when real video generation runs

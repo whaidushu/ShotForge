@@ -42,7 +42,7 @@ For a solution architect role, the reusable asset is not only code. The reusable
 - how the customer scenario is framed
 - which integrations are likely required
 - which risks need review
-- which metrics prove value
+- which metrics indicate value
 - which POC criteria decide whether the solution should move to pilot
 
 ShotForge keeps this layer explicit so it can later be replaced by customer-specific playbooks, RAG retrieval, or MCP-provided knowledge.

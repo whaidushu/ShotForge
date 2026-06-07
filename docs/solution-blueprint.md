@@ -1,8 +1,8 @@
 # Solution Blueprint
 
-ShotForge is a reference AI Agent solution for video creative workflows.
+ShotForge is a reference AI Agent workbench for video creative workflows.
 
-The demonstration domain is short-form video advertising and creative production. The reusable asset is the end-to-end Agent Harness pattern.
+The reference domain is short-form video advertising and creative production. The reusable asset is the end-to-end Agent Harness pattern with evaluation, versioned iteration, artifact tracking, and handoff exports.
 
 ## Customer Scenario
 
@@ -29,9 +29,11 @@ Business Goal
   -> Structured ProjectState
   -> Solution Architecture
   -> Delivery Readiness Gates
-  -> Mock or Real Generator Provider
+  -> Generator Provider / ComfyUI
+  -> Visual Observation
   -> Evaluation Harness
   -> Correction / Redesign Loop
+  -> Version Diff / Run History
   -> Versioned Run Package
   -> Export / Integration
 ```
@@ -45,22 +47,22 @@ Business Goal
 | Context | Build and trace context sources | ContextBuilder, KnowledgeBase, Memory refs |
 | Agents | Design, evaluation, correction, export | Intent, Storyboard, Motion, Audio, Prompt, Evaluation, Correction |
 | Tools | Tool registry and call trace | SkillRegistry, ToolCallRecord |
-| Model Providers | LLM and generation abstraction | Mock, Ollama/vLLM skeleton, GeneratorProvider catalog |
+| Model Providers | LLM, video, and visual-observer abstraction | Mock diagnostics, Ollama, vLLM, OpenAI-compatible LLM, ComfyUI, VLM observer providers |
 | Knowledge | Domain rules and rubrics | JSON knowledge assets and evaluation rubrics |
 | Solution Assets | Industry scenario patterns and POC path | SolutionPlaybookStore, SolutionArchitecture |
 | Safety | Runtime and sandbox policy | ExecutionPolicy, SandboxPolicy, LocalSandboxRunner |
 | Integration | Agent tool/resource boundary | LocalMCPAdapter |
-| Observability | Run trace and version evidence | TraceLog, VersionDiff, ScoreDelta, RegressionCheck |
+| Observability | Run trace, artifacts, and version evidence | TraceLog, VersionManager, VersionDiff, ScoreDelta, RegressionCheck, run history |
 | Readiness | Handoff gates and pilot next actions | DeliveryReadinessReport |
 
 ## Provider Strategy
 
 ```text
-POC stage:
-  Mock LLM + Mock Generator
+Diagnostic stage:
+  Internal test provider / prompt-proxy observer
 
 Iteration stage:
-  Local or low-cost model provider
+  Local or low-cost LLM/VLM provider + ComfyUI or selected generator
 
 Benchmark stage:
   Small-batch comparison across candidate providers
@@ -69,7 +71,7 @@ Delivery stage:
   Final converged package -> selected production provider
 ```
 
-This separates creative convergence from expensive final generation, making cost and quality easier to explain.
+This separates cheap planning/evaluation cycles from expensive final generation, making cost, quality, and version history easier to explain.
 
 ## POC Acceptance Criteria
 
@@ -78,7 +80,7 @@ This separates creative convergence from expensive final generation, making cost
 | Workflow | One idea produces a complete stateful production package |
 | Evaluation | System outputs scores, issues, suspected causes, and correction types |
 | Redesign | Version diff shows what changed and why |
-| Observability | Runtime evidence shows context, tools, policies, MCP, sandbox, and memory |
+| Observability | Runtime evidence shows context, tools, policies, MCP, sandbox, memory, traces, and artifacts |
 | Solution Design | SolutionArchitecture shows industry, scenario, model strategy, integrations, playbook references, and POC success criteria |
 | Readiness | DeliveryReadinessReport shows gates, handoff deliverables, next actions, and risks |
 | Extensibility | A rubric, provider, or tool can be added without rewriting the workflow |
@@ -103,12 +105,12 @@ These packages translate the same Agent Harness into different customer scenario
 
 ## From POC To Production
 
-1. Replace mock LLM with the selected enterprise LLM provider.
-2. Connect customer knowledge through RAG or MCP.
-3. Replace mock generator with approved video/image provider.
-4. Add real visual/audio evaluators.
-5. Persist memory, traces, and runs in production stores.
-6. Add auth, deployment profiles, health checks, and policy enforcement.
+1. Package deployment with simpler local bootstrap or Docker.
+2. Connect customer knowledge through RAG, MCP, or customer-specific playbook overlays.
+3. Replace local storage with production stores for runs, memory, traces, and artifacts.
+4. Add auth, tenancy, quota controls, and provider credential management.
+5. Add production observability, background jobs, retry/cancel controls, and policy enforcement.
+6. Harden MCP transport and sandbox execution for customer environments.
 
 ## Customer Value
 

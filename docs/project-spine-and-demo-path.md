@@ -1,10 +1,10 @@
 # Project Spine And Demo Path
 
-This document is the short version of how ShotForge should be understood and demonstrated.
+This document is the short version of how ShotForge should be understood and reviewed.
 
 ## One Sentence
 
-ShotForge uses AI video production as the scenario, but the real project is a production-oriented Agent Harness that turns one vague creative idea into a traceable, auditable, versioned, and handoff-ready production package.
+ShotForge is an AI video Agent Workbench that explores how an agent runtime, evaluation loop, and workflow version management can turn one vague creative idea into a traceable, auditable, versioned, and handoff-ready production package.
 
 ## Architecture Spine
 
@@ -16,6 +16,7 @@ User Idea
   -> Tool Orchestration
   -> Solution Architecture
   -> Delivery Readiness
+  -> Version Diff / Run History
   -> Exports
   -> Harness Audit
 ```
@@ -27,16 +28,17 @@ The core is not the video prompt itself. The core is the runtime contract around
 - `ContextBuilder`: ranked, budgeted, redacted, digestable context packs.
 - `SkillRegistry`: governed tool execution with permission scope, risk level, call budget, and audit records.
 - `AgentHarnessRuntime`: context snapshots, tool records, state transitions, policies, MCP, sandbox, and memory evidence.
+- `VersionManager` / `VersionDiffBuilder`: snapshots, forks, field-level changes, prompt diffs, issue deltas, and run history.
 - `LocalMCPAdapter`: MCP-like tool/resource discovery for knowledge, run packages, and harness audit.
 - `LocalSandboxRunner`: local policy gate with execution profiles and structured denial records.
 - `LocalMemoryStore`: namespaced, ranked, access-tracked memory with run promotion.
 - `DeliveryReadinessReport`: POC gates and handoff next actions.
 
-## What The Demo Should Prove
+## What To Review
 
-The demo should not try to prove that ShotForge is already a polished video product.
+The demo should not present ShotForge as an already polished video product.
 
-It should prove these points:
+It should make these points inspectable:
 
 1. A vague idea becomes structured state.
 2. Every agent step is inspectable.
@@ -44,8 +46,9 @@ It should prove these points:
 4. Tools are governed, not just called.
 5. State changes are tracked across the graph.
 6. MCP/Sandbox/Memory are real extension boundaries.
-7. The run produces handoff artifacts, not just screen output.
-8. The system can explain what is ready, mocked, and still required before pilot.
+7. Version diffs and run history explain what changed between iterations.
+8. The run produces handoff artifacts, not just screen output.
+9. The system can explain what is ready, diagnostic-only, and still required before pilot.
 
 ## Primary Demo Path
 
@@ -61,7 +64,7 @@ Show these outputs in order:
 
 1. `run_summary.md`
    - Use it as the customer-facing summary.
-   - Point out solution, readiness, and Harness Evidence.
+   - Point out solution, readiness, and run evidence.
 
 2. `manifest.json`
    - Use it as the integration handoff manifest.
@@ -77,7 +80,7 @@ Show these outputs in order:
 
 5. Web Demo
    - Use it for visual inspection after the CLI path is clear.
-   - Show Harness Inspector, Agent Topology, Delivery Readiness, exports.
+   - Show Harness Inspector, Agent Topology, Delivery Readiness, version chain, artifacts, and exports.
 
 ## Web Demo Path
 
@@ -130,7 +133,7 @@ The most important endpoint is:
 GET /api/runs/{run_id}/harness
 ```
 
-It is the clearest proof that the system is an Agent Harness, not only a prompt generator.
+It is the clearest inspection path for the Agent Harness runtime, not only the generated prompt package.
 
 ## What To Avoid In The Demo
 
@@ -142,7 +145,7 @@ Avoid leading with:
 - Open-ended product vision.
 - Too many docs.
 
-Those are valid later, but they distract from the current strongest asset: the Agent Harness.
+Those are valid later, but they distract from the current strongest asset: the Agent Harness and versioned iteration workflow.
 
 ## Current Boundary
 
@@ -151,9 +154,12 @@ ShotForge is still a local-first POC.
 Implemented:
 
 - mock LLM and mock generator path
+- local LLM / VLM / ComfyUI provider configuration paths
 - typed state
 - multi-agent workflow
 - context/tool/state audit
+- version snapshots and version diffs
+- run history and artifact links
 - MCP-like local adapter
 - local sandbox policy
 - local memory
@@ -166,10 +172,9 @@ Still future work:
 - stronger sandbox isolation
 - production storage
 - auth and tenancy
-- real provider credentials
-- real visual/audio evaluators
 - customer-specific RAG/playbook overlays
-- product-grade UI
+- production-grade background jobs, observability, and quota controls
+- product-grade UI polish
 
 ## Recommended Next Planning Question
 

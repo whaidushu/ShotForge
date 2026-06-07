@@ -1,6 +1,6 @@
 # Engineering Track
 
-The Engineering Harness track is the part of ShotForge meant to demonstrate AI system design and software engineering ability.
+The Engineering Harness track is the part of ShotForge focused on AI system design and software engineering depth.
 
 It should stay clean, testable, modular, and explainable.
 
@@ -16,7 +16,7 @@ The main value is not "one prompt generates a video". The main value is:
 structured state + agent orchestration + evaluation loop + extensible provider boundary
 ```
 
-## What This Track Should Prove
+## What This Track Should Make Inspectable
 
 - Clear domain modeling with Pydantic.
 - Deterministic workflow orchestration with LangGraph.
@@ -28,6 +28,7 @@ structured state + agent orchestration + evaluation loop + extensible provider b
 - Clean extension points for generators, evaluators, MCP, sandboxing, and external APIs.
 - Tests around pipeline behavior, API behavior, i18n, generators, and evaluators.
 - Runtime evidence for context, tool calls, MCP tools, sandbox policy, and memory hits.
+- Versioned iteration through snapshots, diffs, run history, and export artifacts.
 
 ## Core Modules
 
@@ -100,5 +101,5 @@ A reviewer should be able to see:
 1. Strengthen typed contracts between agents.
 2. Add a trace viewer API and compact trace summary.
 3. Add fixture-based tests for version diff and regression checks.
-4. Implement MCP adapter as a real boundary, even if backed by mock tools.
-5. Add a sandbox runner interface with a local mock and documented security constraints.
+4. Extend the MCP-like adapter toward official transport when needed.
+5. Harden sandbox execution beyond local policy checks when needed.

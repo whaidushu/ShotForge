@@ -110,13 +110,16 @@ intent_agent()
 **ComfyUIProvider 工作原理：**
 ```
 1. 从 ProjectState 提取每个 shot 的 prompt
-2. 调用 ComfyUI /prompt 提交 txt2img workflow
-3. 轮询 /history/{prompt_id} 等待完成
-4. 下载结果到 data/runs/{run_id}/artifacts/
-5. 构造 GeneratedShotResult → GeneratedResult
+2. 根据 provider profile 选择内置或用户本地 API-format workflow
+3. 注入 prompt、seed、尺寸、帧数、FPS 等运行参数
+4. 调用 ComfyUI /prompt 提交 workflow
+5. 轮询 /history/{prompt_id} 等待完成
+6. 解析 ComfyUI 输出并下载 MP4 / 图片 / workflow 产物
+7. 按 iteration 写入 data/runs/{run_id}/iterations/v*/
+8. 构造 GeneratedShotResult → GeneratedResult
 ```
 
-**当前限制：** 默认 workflow 是 SDXL txt2img，需要替换为 CogVideoX/LTX Video 等工作流实现真视频生成。
+**当前能力：** 支持内置 `wan2_2_i2v_empty_start` 视频工作流，也支持查询用户本地 ComfyUI workflow 目录并调用 API-format workflow。默认测试链路仍保留 mock provider，用于部署诊断和无模型环境下验证流程。
 
 ---
 
@@ -231,8 +234,9 @@ V2 (修正版) → Generated V2 → Eval Report V2
 **核心能力：**
 - `save_snapshot()` — 持久化版本快照
 - `fork_next_version()` — 从旧版本 fork 出新版本
-- `VersionDiffBuilder` — 追踪字段级变化
+- `VersionDiffBuilder` — 追踪字段级变化、prompt 变化、问题解决情况
 - `/api/runs/{run_id}/versions` — Web 查看版本历史
+- Web Version Chain — 展示 version diff、prompt changes、run history 和 per-iteration artifacts
 
 ---
 
