@@ -117,6 +117,9 @@ def test_index_page():
     assert 'value="mock"' not in response.text
     assert 'type="range"' in response.text
     assert 'id="max_iterations_value"' in response.text
+    assert "window.SHOTFORGE_BOOTSTRAP" in response.text
+    assert "/static/shotforge-ui.js" in response.text
+    assert "const currentProviderPayload" not in response.text
     assert "工作台" in response.text
     assert "服务配置" in response.text
     assert "新建任务" in response.text
@@ -210,6 +213,7 @@ def test_config_page_contains_provider_controls():
     assert 'value="comfyui"' in response.text
     assert 'value="mock"' not in response.text
     assert "disabled" in response.text
+    assert "window.SHOTFORGE_BOOTSTRAP" in response.text
 
 
 def test_provider_profile_api_persists_local_config(tmp_path, monkeypatch):

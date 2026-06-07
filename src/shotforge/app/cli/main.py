@@ -8,6 +8,7 @@ from rich.console import Console
 from rich.table import Table
 
 from shotforge.comfyui import build_workflow_registry, discover_local_workflows
+from shotforge.app.services.provider_service import ProviderService
 from shotforge.config import get_settings
 from shotforge.core.capability_catalog import build_capability_catalog
 from shotforge.core.harness_audit import build_harness_audit
@@ -364,7 +365,12 @@ def comfyui_workflows(
 
 
 @app.command()
-def doctor() -> None:
+def doctor(
+    deep: Annotated[
+        bool,
+        typer.Option("--deep/--basic", help="Run provider preflight checks as well as storage checks."),
+    ] = False,
+) -> None:
     settings = get_settings()
     table = Table(title="ShotForge Doctor")
     table.add_column("Check")
@@ -381,6 +387,36 @@ def doctor() -> None:
         exists = path.exists()
         table.add_row(name, str(path), "ok" if exists or name.endswith("_path") else "missing")
     console.print(table)
+    if not deep:
+        console.print("Run `shotforge doctor --deep` to check LLM, ComfyUI, workflow, and VLM readiness.")
+        return
+
+    provider_service = ProviderService()
+    profile = provider_service.default_provider_profile()
+    preflight = provider_service.preflight_provider_profile(profile)
+    provider_table = Table(title=f"Provider Preflight: {profile.name}")
+    provider_table.add_column("Check")
+    provider_table.add_column("Status")
+    provider_table.add_column("Detail", overflow="fold")
+    for check in preflight["checks"]:
+        provider_table.add_row(check["label"], check["status"], check["detail"])
+    console.print(provider_table)
+
+    workflow_table = Table(title="ComfyUI Workflow Discovery")
+    workflow_table.add_column("Workflow")
+    workflow_table.add_column("Source")
+    workflow_table.add_column("Callable")
+    workflow_table.add_column("Path", overflow="fold")
+    workflow_status = provider_service.comfyui_workflow_status(profile.comfyui_workflows_dir)
+    for workflow in workflow_status["workflows"][:12]:
+        workflow_table.add_row(
+            workflow["workflow_id"],
+            workflow["source"],
+            str(workflow["callable"]),
+            workflow["path"],
+        )
+    console.print(workflow_table)
+    console.print(f"Overall provider status: {preflight['status']}")
 
 
 @app.command("web")

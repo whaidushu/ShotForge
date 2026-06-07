@@ -140,13 +140,15 @@ def effect_contract_for_issue(issue: Issue, language: str) -> str:
             "do not duplicate, merge, hide, or drop the main subject."
         )
     if dimension_id == "element_presence":
-        elements = _metadata_list(issue, "expected_elements") or _extract_list_from_evidence(
+        missing = _metadata_list(issue, "missing_elements")
+        elements = missing or _metadata_list(issue, "expected_elements") or _extract_list_from_evidence(
             evidence,
             "expected_elements",
         )
         element_text = ", ".join(elements[:5]) if elements else "all required visible elements"
+        target_label = "MISSING ELEMENTS" if missing else "ELEMENT CHECKLIST"
         return (
-            f"{prefix}: ELEMENT CHECKLIST - make these elements clearly visible: {element_text}; "
+            f"{prefix}: {target_label} - make these elements clearly visible: {element_text}; "
             "place them as foreground or midground anchors, not vague background texture."
         )
     if dimension_id == "element_description":

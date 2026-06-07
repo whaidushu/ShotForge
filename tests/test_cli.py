@@ -43,3 +43,20 @@ def test_cli_doctor_prints_settings():
     assert "ShotForge Doctor" in result.output
     assert "runs_dir" in result.output
     assert "memory_store_path" in result.output
+    assert "doctor --deep" in result.output
+
+
+def test_cli_doctor_deep_prints_provider_preflight(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_PROVIDER_PROFILES_PATH", str(tmp_path / "profiles.json"))
+    monkeypatch.setenv("SHOTFORGE_COMFYUI_WORKFLOWS_DIR", str(tmp_path))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    result = CliRunner().invoke(app, ["doctor", "--deep"])
+
+    assert result.exit_code == 0
+    assert "Provider Preflight" in result.output
+    assert "ComfyUI Workflow Discovery" in result.output
+    assert "Overall provider status" in result.output
+    get_settings.cache_clear()

@@ -244,3 +244,9 @@ def test_evaluation_report_exposes_layer_metadata(tmp_path, monkeypatch):
     assert any(layer["layer_id"] == "emotion_atmosphere" for layer in layers)
     assert all("layer_id" in issue.metadata for issue in report.issues)
     assert all("prompt_fields" in issue.metadata for issue in report.issues)
+    target_summary = report.metadata["physical_target_summary"]
+    assert target_summary["generated_result_id"] == generated_result.generated_result_id
+    assert "observer_ids" in target_summary
+    assert "required_elements" in target_summary
+    assert "hard_issue_count" in target_summary
+    assert target_summary["observation_confidence_note"].startswith("Use a VLM observer")

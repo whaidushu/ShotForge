@@ -10,7 +10,7 @@ src/shotforge/
     index.html                 Server-rendered product shell
   app/web/static/
     design-system.css          Tokens, layout primitives, reusable component classes
-    shotforge-ui.js            Shared browser behavior
+    shotforge-ui.js            Provider forms, preflight, workflow search, tabs, and run shell behavior
     README.md                  Static asset ownership notes
 ```
 
@@ -28,6 +28,7 @@ app/web/static/
 
 - Use `design-system.css` for tokens, layout primitives, icon buttons, motion utilities, and shared component styling.
 - Keep feature-specific layout in the template only until it is reused by more than one view.
+- Keep executable browser behavior in `shotforge-ui.js`; templates should expose data through a small bootstrap object, not large inline scripts.
 - Prefer semantic component classes such as `.sf-toolbar`, `.sf-sidebar-layout`, and `.sf-icon-button`.
 - Keep animation opt-in and respect `prefers-reduced-motion`.
 - Keep icons, motion, and generated images as managed assets instead of inline one-off markup.
@@ -61,3 +62,21 @@ The Web UI is moving toward a studio workbench rather than a single long form:
 - Configuration page: deeper provider profile editing, local workflow search, preflight, and internal test chain.
 
 Future UI iterations should preserve this split so provider complexity does not crowd the creative workflow.
+
+## Current Interaction Modules
+
+`shotforge-ui.js` currently owns:
+
+- profile selection and form synchronization
+- LLM/video/observer config visibility
+- provider profile save
+- provider preflight
+- internal test-chain trigger
+- ComfyUI local workflow search
+- run form submission state
+- run detail tabs
+
+Provider fields are only synchronized when the user changes the selected
+profile. Submitting a run preserves any manual field edits, which is important
+when a user is testing a new ComfyUI URL, workflow directory, or VLM model before
+saving it as a reusable profile.

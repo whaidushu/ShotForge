@@ -48,6 +48,17 @@ Check local configuration and storage paths:
 shotforge doctor
 ```
 
+Run a deeper local readiness check before using real providers:
+
+```bash
+shotforge doctor --deep
+```
+
+Deep doctor checks the default provider profile, including LLM/Judge endpoint,
+ComfyUI server, selected workflow, local workflow directory, and visual observer
+configuration. It does not start those services for the user; it explains which
+service, URL, model, or path still needs attention.
+
 ## Web Demo
 
 ```bash
@@ -101,6 +112,7 @@ data/
 
 Before a real customer pilot, the following should be added:
 
+- Docker or compose-based bootstrap for local LLM, ComfyUI, storage, and app services
 - auth and tenant/project isolation
 - production database or object storage
 - official MCP transport if external tools are required

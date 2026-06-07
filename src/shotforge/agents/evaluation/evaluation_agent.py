@@ -71,6 +71,7 @@ class EvaluationAgent:
                     "evaluator_sources": sorted({signal.source for signal in signals}),
                     "signal_count": len(signals),
                     "layer_count": len(layer_summaries),
+                    "physical_target_summary": self._physical_target_summary(state, result, issues),
                 },
             )
             state.evaluation_reports.append(report)
@@ -170,6 +171,56 @@ class EvaluationAgent:
         for provider in self.evaluator_registry.providers():
             signals.extend(provider.evaluate(context))
         return signals
+
+    def _physical_target_summary(
+        self,
+        state: ProjectState,
+        result: GeneratedResult,
+        issues: list[Issue],
+    ) -> dict:
+        physical_targets = state.metadata.get("physical_targets", {})
+        required_elements = physical_targets.get("required_elements", [])
+        if not isinstance(required_elements, list):
+            required_elements = []
+        hard_issues = [
+            issue
+            for issue in issues
+            if issue.metadata.get("layer_id") == "physical_effect"
+            or issue.metadata.get("hard_target") is True
+        ]
+        missing_elements = sorted(
+            {
+                str(element)
+                for issue in hard_issues
+                for element in issue.metadata.get("missing_elements", [])
+            }
+        )
+        observed_elements = sorted(
+            {
+                element
+                for shot in result.shots
+                for element in shot.detected_elements
+            }
+        )
+        observer_ids = sorted(
+            {
+                str(report.observer_id)
+                for report in state.observation_reports
+                if report.generated_result_id == result.generated_result_id
+            }
+        )
+        return {
+            "required_elements": [str(element) for element in required_elements],
+            "observed_elements": observed_elements,
+            "missing_elements": missing_elements,
+            "hard_issue_count": len(hard_issues),
+            "observer_ids": observer_ids,
+            "generated_result_id": result.generated_result_id,
+            "observation_required": bool(required_elements),
+            "observation_confidence_note": (
+                "Use a VLM observer for real visual evidence; prompt-proxy only proves prompt coverage."
+            ),
+        }
 
     def _layer_metadata(self, dimension: EvaluationDimensionConfig) -> dict:
         return {

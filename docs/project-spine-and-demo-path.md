@@ -4,24 +4,35 @@ This document is the short version of how ShotForge should be understood and rev
 
 ## One Sentence
 
-ShotForge is an AI video Agent Workbench that explores how an agent runtime, evaluation loop, and workflow version management can turn one vague creative idea into a traceable, auditable, versioned, and handoff-ready production package.
+ShotForge is an AI video Agent Workbench that explores how a production run, evaluation loop, and workflow version management can turn one vague creative idea into a traceable, auditable, versioned, and handoff-ready package.
 
 ## Architecture Spine
 
 ```text
 User Idea
-  -> LangGraph Agent Workflow
+  -> Run
   -> ProjectState
-  -> Context Engineering
-  -> Tool Orchestration
-  -> Solution Architecture
-  -> Delivery Readiness
-  -> Version Diff / Run History
-  -> Exports
-  -> Harness Audit
+  -> Provider Profile
+  -> Design Package
+  -> Video Artifact
+  -> Visual Observation
+  -> Layered Evaluation
+  -> Correction / Version Diff
+  -> Export / Handoff
 ```
 
-The core is not the video prompt itself. The core is the runtime contract around the prompt:
+The core is not the video prompt itself. The core product object is the run:
+
+- creative goal
+- provider profile
+- generated artifacts
+- observed physical facts
+- evaluation issues
+- correction plan
+- version chain
+- export and handoff evidence
+
+The engineering runtime underneath the run remains inspectable:
 
 - `ProjectState`: one typed state object across agents, evaluation, readiness, exports, and audit.
 - `AgentCatalog`: agent roles, inputs, outputs, dependencies, skills, and extension points.
@@ -80,7 +91,7 @@ Show these outputs in order:
 
 5. Web Demo
    - Use it for visual inspection after the CLI path is clear.
-   - Show Harness Inspector, Agent Topology, Delivery Readiness, version chain, artifacts, and exports.
+   - Show run dashboard, provider readiness, generated artifacts, physical target checks, version chain, delivery readiness, and exports.
 
 ## Web Demo Path
 
@@ -100,18 +111,18 @@ Recommended settings:
 
 - Language: English
 - Mode: Design + Evaluation + Redesign V2
-- Generator provider: Mock Generator
+- Generator provider: ComfyUI for a real local demo, or internal test chain only for deployment diagnostics
 - Max redesign iterations: 3
 
 Walkthrough order:
 
-1. Generated storyboard and prompts.
-2. Solution Architecture.
-3. Delivery Readiness.
-4. Harness Inspector.
-5. State Transitions and Agent Topology.
-6. Evaluation and correction loop.
-7. Version chain and exports.
+1. Provider profile and preflight.
+2. Generated storyboard and prompts.
+3. Video artifact and prompt/workflow files.
+4. Physical target summary and missing elements.
+5. Evaluation and correction loop.
+6. Version chain and exports.
+7. Runtime evidence for architecture review.
 
 ## API Demo Path
 
@@ -141,11 +152,10 @@ Avoid leading with:
 
 - UI polish.
 - Electron packaging.
-- Real video generation.
 - Open-ended product vision.
 - Too many docs.
 
-Those are valid later, but they distract from the current strongest asset: the Agent Harness and versioned iteration workflow.
+Those are valid later, but they distract from the current strongest asset: an inspectable Run workflow with provider readiness, evaluation, versioning, and handoff.
 
 ## Current Boundary
 
@@ -175,14 +185,15 @@ Still future work:
 - customer-specific RAG/playbook overlays
 - production-grade background jobs, observability, and quota controls
 - product-grade UI polish
+- one-command local deployment profile
 
 ## Recommended Next Planning Question
 
 The next planning decision should be:
 
 ```text
-Do we deepen the Agent Harness as an infra project,
-or do we freeze the Harness baseline and start productizing the video workflow?
+Do we deepen effect evaluation and real local generation,
+or do we first reduce deployment friction and polish the run workbench?
 ```
 
 Both are valid, but they should not be mixed in the same sprint.

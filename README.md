@@ -125,6 +125,7 @@ Verify the install:
 ```powershell
 python -m pytest
 shotforge doctor
+shotforge doctor --deep
 ```
 
 Run the design pipeline from the CLI:
@@ -173,6 +174,12 @@ spending effort on style, atmosphere, or narrative polish. For example,
 `A cyber cat chases a glowing drone across rainy Shanghai rooftops` is expanded
 into hard targets such as `cyber cat`, `glowing drone`, `rainy night`,
 `Shanghai`, `rooftop`, and `chasing`.
+
+When a visual observer is configured, the evaluation report records a physical
+target summary: required elements, observed elements, missing elements, observer
+source, and hard physical issue count. Correction plans use that summary to
+rewrite prompts around concrete missing objects or scene anchors instead of
+only adding broad descriptive style language.
 
 Run the evaluation and redesign loop with a real OpenAI-compatible LLM judge:
 
@@ -453,13 +460,13 @@ Run IDs use local time, for example `20260520_1452`. If multiple runs are create
 
 ## What This Is Not
 
-ShotForge is not trying to be a single-prompt video model. It is a workflow harness and product prototype around video creation:
+ShotForge is not trying to be a single-prompt video model. It is a production workbench and product prototype around video creation:
 
 ```text
 Idea -> Design -> Generate -> Evaluate -> Correct -> Version -> Export
 ```
 
-The current stage prioritizes workflow quality, structured state, real local provider integration, evaluation loops, and extension boundaries. The internal test provider exists only as a deployment diagnostic path.
+The current stage prioritizes workflow quality, structured state, real local provider integration, evaluation loops, version governance, and extension boundaries. The internal test provider exists only as a deployment diagnostic path.
 
 ## Current Framework Boundary
 
