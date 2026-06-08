@@ -14,9 +14,9 @@ The current default branch keeps the Engineering Harness and Product Studio conn
 ## What To Look At First
 
 1. `README.md`: project positioning and quick start.
-2. `docs/project-spine-and-demo-path.md`: one-page project framing and review path.
-3. `docs/architecture-overview.md`: runtime, provider, API, and deliverable map.
-4. `docs/product-track.md`: product workflow and current direction.
+2. `project-spine-and-demo-path.md`: one-page project framing and review path.
+3. `architecture-overview.md`: runtime, provider, API, and deliverable map.
+4. `product-track.md`: product workflow and current direction.
 5. `src/shotforge/core/project_state.py`: typed project state.
 6. `src/shotforge/workflows/`: LangGraph workflow definitions.
 7. `tests/`: behavior coverage.

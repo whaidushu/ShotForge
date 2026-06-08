@@ -68,18 +68,19 @@ src/shotforge/
   i18n/                Chinese / English labels and output text
   knowledge/           Rubrics, motion templates, audio patterns, prompt rules
 tests/                 Pipeline, API, i18n, generator, evaluator tests
-docs/                  Track definitions and review guide
+docs/                  Bilingual documentation index plus en/ and zh/ documents
 ```
 
 ## Reading Path
 
-- [Repository Review Guide](docs/repository-review-guide.md): how to read the project in 5-10 minutes.
-- [Architecture Overview](docs/architecture-overview.md): one-page map of workflow, runtime, interfaces, and deliverables.
-- [Project Spine And Demo Path](docs/project-spine-and-demo-path.md): concise framing, demo sequence, and review path.
-- [Engineering Track](docs/engineering-track.md): architecture, engineering value, and implementation surface.
-- [Product Track](docs/product-track.md): product goal, user workflow, UX milestones, and video creation loop.
-- [Deployment Notes](docs/deployment-poc.md): local setup, provider configuration, exports, and storage layout.
-- [Model Selection Matrix](docs/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
+- [Documentation Index](docs/index.md): Chinese and English documentation entrypoint.
+- [Repository Review Guide](docs/en/repository-review-guide.md): how to read the project in 5-10 minutes.
+- [Architecture Overview](docs/en/architecture-overview.md): one-page map of workflow, runtime, interfaces, and deliverables.
+- [Project Spine And Demo Path](docs/en/project-spine-and-demo-path.md): concise framing, demo sequence, and review path.
+- [Engineering Track](docs/en/engineering-track.md): architecture, engineering value, and implementation surface.
+- [Product Track](docs/en/product-track.md): product goal, user workflow, UX milestones, and video creation loop.
+- [Deployment Notes](docs/en/local-deployment.md): local setup, provider configuration, exports, and storage layout.
+- [Model Selection Matrix](docs/en/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
 
 ## Quick Start
 
@@ -177,9 +178,9 @@ LLM-as-judge evaluator for storyboard and prompt quality. Use
 `SHOTFORGE_EVALUATOR_MODE=llm` only when a real LLM provider is configured.
 
 Provider setup is intentionally kept out of the README. See
-[docs/deployment-poc.md](docs/deployment-poc.md) for Ollama, vLLM, ComfyUI, VLM,
+[docs/en/local-deployment.md](docs/en/local-deployment.md) for Ollama, vLLM, ComfyUI, VLM,
 and workflow-discovery setup, and
-[docs/model-selection-matrix.md](docs/model-selection-matrix.md) for provider
+[docs/en/model-selection-matrix.md](docs/en/model-selection-matrix.md) for provider
 selection tradeoffs.
 
 LLM/Judge providers decide and revise text. Video providers render MP4 artifacts.
@@ -249,7 +250,7 @@ Provider URLs, model names, workflow paths, and local service ports should be
 saved through the Web configuration page, provider profiles, or environment
 variables. Request-level provider overrides are supported for automation and
 diagnostics, but they are documented in
-[docs/deployment-poc.md](docs/deployment-poc.md), not in the main API example.
+[docs/en/local-deployment.md](docs/en/local-deployment.md), not in the main API example.
 
 Exports:
 
