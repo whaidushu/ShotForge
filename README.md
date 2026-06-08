@@ -181,154 +181,30 @@ source, and hard physical issue count. Correction plans use that summary to
 rewrite prompts around concrete missing objects or scene anchors instead of
 only adding broad descriptive style language.
 
-Run the evaluation and redesign loop with a real OpenAI-compatible LLM judge:
+Run the evaluation and redesign loop with a configured provider profile:
 
 ```powershell
 copy .env.example .env
-# Edit .env and set:
-# SHOTFORGE_LLM_PROVIDER=openai-compatible
-# SHOTFORGE_LLM_MODEL=your-model-name
-# SHOTFORGE_LLM_BASE_URL=https://api.example.com/v1
-# SHOTFORGE_LLM_API_KEY=your-api-key
-# SHOTFORGE_EVALUATOR_MODE=hybrid
+shotforge doctor --deep
 
 shotforge full-loop "A quiet revenge reveal in a luxury elevator" --language en --redesign --max-iterations 2
 ```
 
-`SHOTFORGE_EVALUATOR_MODE=hybrid` keeps the deterministic mock/static
-evaluators and adds an LLM-as-judge evaluator for storyboard and prompt quality.
-Use `SHOTFORGE_EVALUATOR_MODE=llm` only when a real LLM provider is configured.
+`SHOTFORGE_EVALUATOR_MODE=hybrid` keeps deterministic/static checks and adds an
+LLM-as-judge evaluator for storyboard and prompt quality. Use
+`SHOTFORGE_EVALUATOR_MODE=llm` only when a real LLM provider is configured.
 
-Local LLM options use the same evaluation loop.
+Provider setup is intentionally kept out of the README. See
+[docs/deployment-poc.md](docs/deployment-poc.md) for Ollama, vLLM, ComfyUI, VLM,
+and workflow-discovery setup, and
+[docs/model-selection-matrix.md](docs/model-selection-matrix.md) for provider
+selection tradeoffs.
 
-For Ollama:
-
-```powershell
-# Windows install:
-# irm https://ollama.com/install.ps1 | iex
-
-ollama pull qwen2.5:7b
-ollama serve
-
-# .env
-SHOTFORGE_LLM_PROVIDER=ollama
-SHOTFORGE_LLM_MODEL=qwen2.5:7b
-SHOTFORGE_LLM_BASE_URL=http://localhost:11434/v1
-SHOTFORGE_EVALUATOR_MODE=hybrid
-
-shotforge full-loop "A quiet revenge reveal in a luxury elevator" --language en --redesign --max-iterations 2
-```
-
-For a local vLLM OpenAI-compatible server:
-
-Start vLLM in WSL/Linux. On a 16 GB GPU, `Qwen2.5-3B-Instruct` leaves enough
-headroom for the evaluation loop while still exercising a real local model.
-
-```bash
-python3 -m venv ~/vllm-env
-source ~/vllm-env/bin/activate
-python -m pip install --upgrade pip
-python -m pip install vllm
-
-export HF_ENDPOINT=https://hf-mirror.com
-export HF_HUB_ENABLE_HF_TRANSFER=0
-export VLLM_USE_FLASHINFER_SAMPLER=0
-
-python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen2.5-3B-Instruct \
-  --host 0.0.0.0 \
-  --port 8000 \
-  --gpu-memory-utilization 0.75 \
-  --max-model-len 4096
-```
-
-Then run ShotForge from Windows/PowerShell:
-
-```powershell
-# .env
-SHOTFORGE_LLM_PROVIDER=vllm
-SHOTFORGE_LLM_MODEL=Qwen/Qwen2.5-3B-Instruct
-SHOTFORGE_LLM_BASE_URL=http://127.0.0.1:8000/v1
-SHOTFORGE_LLM_API_KEY=local
-SHOTFORGE_EVALUATOR_MODE=hybrid
-
-shotforge full-loop "A quiet revenge reveal in a luxury elevator" --language en --redesign --max-iterations 2
-```
-
-### Visual Observer / VLM setup
-
-LLM/Judge providers decide and revise text. Video providers render video.
+LLM/Judge providers decide and revise text. Video providers render MP4 artifacts.
 Visual observer providers inspect rendered frames so evaluators can check what
-actually appeared in the MP4.
-
-The default `prompt-proxy` observer is a local diagnostic fallback: it reads the
-prompt/package text and keeps the evaluation loop runnable without a vision
-model. For real visual checks, configure one of the VLM observers.
-
-For Ollama vision:
-
-```powershell
-ollama pull qwen2.5vl:7b
-ollama serve
-
-$env:SHOTFORGE_OBSERVER_PROVIDER="ollama-vision"
-$env:SHOTFORGE_VLM_MODEL="qwen2.5vl:7b"
-$env:SHOTFORGE_VLM_BASE_URL="http://localhost:11434"
-$env:SHOTFORGE_VLM_FRAME_SAMPLE_COUNT="4"
-$env:SHOTFORGE_VLM_CONFIDENCE_THRESHOLD="0.65"
-```
-
-For a local vLLM VLM OpenAI-compatible endpoint:
-
-```powershell
-$env:SHOTFORGE_OBSERVER_PROVIDER="vllm-vlm"
-$env:SHOTFORGE_VLM_MODEL="Qwen/Qwen2.5-VL-7B-Instruct"
-$env:SHOTFORGE_VLM_BASE_URL="http://127.0.0.1:8000/v1"
-$env:SHOTFORGE_VLM_API_KEY="local"
-```
-
-The Web configuration page exposes the same settings under Visual Observer.
-Use Run Preflight before real generation to check LLM, ComfyUI, workflow, and
-observer service readiness.
-
-Run with a real local ComfyUI video provider:
-
-The bundled ComfyUI workflow `wan2_2_i2v_empty_start` uses local Wan2.2
-image-to-video nodes. It creates a generated start frame inside ComfyUI, then
-saves each generated shot as an MP4. On the ComfyUI desktop app, the backend is
-commonly `http://127.0.0.1:8001`; standalone ComfyUI is commonly
-`http://127.0.0.1:8188`.
-
-Required local models for the bundled workflow:
-
-- `models/diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors`
-- `models/diffusion_models/wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors`
-- `models/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors`
-- `models/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors`
-- `models/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors`
-- `models/vae/wan_2.1_vae.safetensors`
-
-```powershell
-# Start ComfyUI first, then set:
-$env:SHOTFORGE_COMFYUI_ENABLED="true"
-$env:SHOTFORGE_COMFYUI_BASE_URL="http://127.0.0.1:8001"
-$env:SHOTFORGE_COMFYUI_WORKFLOWS_DIR="C:\Users\your-name\Documents\ComfyUI\user\default\workflows"
-$env:SHOTFORGE_COMFYUI_WORKFLOW_ID="wan2_2_i2v_empty_start"
-$env:SHOTFORGE_COMFYUI_WIDTH="320"
-$env:SHOTFORGE_COMFYUI_HEIGHT="320"
-$env:SHOTFORGE_COMFYUI_LENGTH="9"
-$env:SHOTFORGE_COMFYUI_FPS="8"
-$env:SHOTFORGE_COMFYUI_TIMEOUT_SECONDS="1200"
-
-# Optional: cap real generation during local smoke tests.
-$env:SHOTFORGE_COMFYUI_MAX_SHOTS="1"
-
-shotforge full-loop "A design director reviews a repaired AI storyboard in a midnight studio" --language en --generator comfyui --redesign --max-iterations 1
-```
-
-Set `SHOTFORGE_COMFYUI_MAX_SHOTS=0` or leave it unset to generate every shot.
-At 320x320 and 9 frames, the smoke-test path is intended to exercise integration,
-artifact tracking, versioned iterations, and evaluation flow rather than final visual quality.
+actually appeared in the video. The Web configuration page exposes these as
+separate provider settings, and Run Preflight checks LLM, ComfyUI, workflow, and
+observer readiness before real generation.
 
 ComfyUI generation artifacts are written by iteration, with readable filenames:
 
@@ -355,37 +231,6 @@ ComfyUI generation artifacts are written by iteration, with readable filenames:
 `runs_dir` is `data/runs` by default and can be changed with
 `SHOTFORGE_RUNS_DIR`. The final template package still writes
 `package.json`, exports, traces, and evaluation reports at the run root.
-
-To run the full real generation loop instead of a one-shot smoke test:
-
-```powershell
-$env:SHOTFORGE_COMFYUI_MAX_SHOTS="0"
-shotforge full-loop "A rushed AI storyboard demo starts with a vague broken concept, then the agent repairs it into a clear cinematic launch scene" --language en --generator comfyui --redesign --max-iterations 1
-```
-
-Query available ComfyUI workflows:
-
-```powershell
-shotforge comfyui-workflows
-shotforge comfyui-workflows --root "C:\Users\your-name\Documents\ComfyUI\user\default\workflows"
-```
-
-Local workflow files are exposed with ids like `local:my_workflow` or
-`local:folder/my_workflow`. Only API-format ComfyUI JSON can be sent to
-`/prompt`; normal UI graph exports are listed as `ui_graph` and must be saved
-from ComfyUI in API format before ShotForge can call them. A local API workflow
-can use placeholders such as `{{prompt}}`, `{{negative_prompt}}`, `{{shot_id}}`,
-`{{width}}`, `{{height}}`, `{{length}}`, `{{fps}}`, `{{seed}}`, and
-`{{filename_prefix}}`.
-
-```powershell
-$env:SHOTFORGE_COMFYUI_WORKFLOW_ID="local:my_workflow"
-shotforge full-loop "A cinematic product reveal" --language en --generator comfyui
-
-# Or point directly to an API-format JSON file:
-$env:SHOTFORGE_COMFYUI_WORKFLOW_ID="file:C:\path\to\workflow_api.json"
-shotforge full-loop "A cinematic product reveal" --language en --generator comfyui
-```
 
 Start the Web Demo:
 
