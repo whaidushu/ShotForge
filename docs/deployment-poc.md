@@ -72,6 +72,10 @@ The Web configuration page exposes these as separate settings. After changing
 provider configuration, run `shotforge doctor --deep` or use Run Preflight in the
 Web UI before starting a real generation run.
 
+For normal API calls, prefer passing `provider_profile_id` and keep service URLs,
+model names, and workflow ids in the saved profile or `.env`. Request-level
+provider overrides are mainly for automation, diagnostics, and local smoke tests.
+
 ### OpenAI-Compatible LLM/Judge
 
 Use this for hosted APIs, local gateway services, or vLLM OpenAI-compatible

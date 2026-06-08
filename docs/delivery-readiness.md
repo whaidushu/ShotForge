@@ -2,7 +2,9 @@
 
 ShotForge generates a `DeliveryReadinessReport` for each design run.
 
-The report is intentionally practical: it tells a reviewer what is ready for handoff, what is still mocked, and what needs to be done before a pilot.
+The report is intentionally practical: it tells a reviewer what is ready for
+handoff, which local provider configuration is still incomplete, and what needs
+to be hardened before production use.
 
 ## Readiness Gates
 
@@ -15,9 +17,9 @@ Current gates include:
 - `context_safety`: whether context digests and redaction metadata are present.
 - `mcp_capability`: whether required MCP-like tools are exposed.
 - `memory_strategy`: whether reusable memory is available or should be seeded/promoted.
-- `solution_architecture`: whether customer-facing architecture exists.
+- `solution_architecture`: whether the run has an architecture summary.
 - `export_contract`: whether JSON/CSV/Markdown export skills are registered.
-- `provider_strategy`: whether the run still depends on a mock provider.
+- `provider_strategy`: whether the run has a real provider profile or only a local test profile.
 - `evaluation_loop`: whether evaluation, redesign, or verification evidence exists.
 
 These gates are intentionally broader than file export checks. They evaluate whether the Agent Harness can explain its context, tools, state transitions, MCP surface, memory strategy, and model/provider boundary.
@@ -63,9 +65,9 @@ shotforge audit data/runs/{run_id}/package.json
 
 ## Production Boundary
 
-This report does not claim the POC is production-ready. It makes readiness explicit:
+This report does not claim the prototype is production-ready. It makes readiness explicit:
 
-- mock provider means pilot provider credentials are still required
+- local test provider means real provider credentials and service readiness are still required
 - local file storage means production persistence is still required
 - local sandbox policy means container isolation is still required
 - static playbooks mean customer-specific knowledge overlays are still required

@@ -43,6 +43,8 @@ CLI:
 shotforge capabilities
 ```
 
-The provider catalog intentionally includes unavailable planned providers. User-facing provider selectors hide the internal test provider by default; `/api/test-chain` is the explicit deployment diagnostic path for exercising that provider.
+The provider catalog intentionally includes unavailable planned providers.
+User-facing provider selectors keep local test providers out of the default
+generation path; readiness checks should be used before running real providers.
 
 Visual observer providers are intentionally separate from LLM and video providers. The LLM provider evaluates or rewrites text, the video provider renders MP4 artifacts, and the observer provider inspects frames so physical and consistency evaluators can compare the requested targets against visible output.

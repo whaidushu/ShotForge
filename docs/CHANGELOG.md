@@ -2,7 +2,8 @@
 
 ## 2026-06-01 Agent Harness Strategy And Solution Assets
 
-This milestone deepens the Agent Harness strategy layer and adds customer-facing solution assets for solution-architect review.
+This milestone deepens the Agent Harness strategy layer and adds reusable
+architecture, delivery, and provider-selection documentation.
 
 ### Harness Strategy
 
@@ -25,7 +26,7 @@ This milestone deepens the Agent Harness strategy layer and adds customer-facing
   - game trailer and character video agent solution
 - Added POC test strategy with phases, gates, cases, metrics, and production exit criteria.
 - Added model selection matrix for LLM/Judge, video generation, and visual observation providers.
-- Added sales demo playbook for customer-facing walkthroughs and objection handling.
+- Added demo guidance for end-to-end workflow walkthroughs.
 - Added knowledge asset index for playbooks, rubrics, prompt rules, correction strategies, and solution templates.
 
 ### Verification

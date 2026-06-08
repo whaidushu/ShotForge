@@ -47,7 +47,6 @@ ShotForge currently supports:
 - Visual observer provider profiles for prompt-proxy, OpenAI-compatible vision, Ollama vision, and vLLM VLM inspection
 - Physical target extraction for hard visual facts such as subject count, required objects, location, weather, and action
 - Frame extraction, frame observation, sequence observation, and evaluator-ready video observations
-- Internal test provider kept behind a dedicated test-chain control
 - JSON / CSV / Markdown / manifest / trace / run-summary exports
 - Chinese and English output
 - Extension boundaries for MCP, sandboxing, and external video model APIs
@@ -61,7 +60,7 @@ src/shotforge/
     web/static/        UI tokens, shared styles, and browser behavior
   agents/              Design, evaluation, correction, structuring, export agents
   core/                ProjectState, ContextBuilder, TraceLog, VersionManager, rubrics
-  evaluators/          Evaluator interfaces and mock/static evaluators
+  evaluators/          Evaluator interfaces, static checks, and provider-backed evaluators
   exporters/           JSON, CSV, Markdown, evaluation CSV exporters
   generators/          Test and real video generator providers
   observation/         Frame extraction, VLM/heuristic observation, sequence continuity
@@ -72,31 +71,15 @@ tests/                 Pipeline, API, i18n, generator, evaluator tests
 docs/                  Track definitions and review guide
 ```
 
-## Track Documents
+## Reading Path
 
+- [Repository Review Guide](docs/repository-review-guide.md): how to read the project in 5-10 minutes.
 - [Architecture Overview](docs/architecture-overview.md): one-page map of workflow, runtime, interfaces, and deliverables.
-- [Change Log](docs/CHANGELOG.md): implementation milestones and delivery-chain changes.
-- [UI Engineering Framework](docs/ui-engineering-framework.md): Web UI asset, style, motion, icon, and layout organization.
-- [Project Spine And Demo Path](docs/project-spine-and-demo-path.md): concise project framing, demo sequence, and review path.
+- [Project Spine And Demo Path](docs/project-spine-and-demo-path.md): concise framing, demo sequence, and review path.
 - [Engineering Track](docs/engineering-track.md): architecture, engineering value, and implementation surface.
-- [Agent Infra Runtime](docs/agent-infra-runtime.md): MCP-like adapter, sandbox policy, memory store, tool records, and runtime snapshots.
-- [Harness Audit API](docs/harness-audit-api.md): run-level API for contexts, tool calls, policies, readiness, and solution evidence.
-- [Capability Catalog API](docs/capability-catalog.md): provider catalog, playbooks, export formats, API routes, and Agent Infra capabilities.
-- [Delivery Readiness](docs/delivery-readiness.md): POC gates, handoff deliverables, next actions, and production boundaries.
-- [Industry Solution Playbooks](docs/industry-solution-playbooks.md): reusable scenario knowledge assets used by the solution architect agent.
-- [POC Deployment Notes](docs/deployment-poc.md): local setup, CLI/Web demo, exports, storage layout, and production boundaries.
-- [Volcengine JD Alignment](docs/volcengine-jd-alignment.md): how the project maps to the target AI Agent solution architect role.
-- [Solution Blueprint](docs/solution-blueprint.md): customer-facing solution architecture and POC acceptance criteria.
-- [Demo Script](docs/demo-script.md): 5-8 minute walkthrough for solution demos.
-- [Sales Demo Playbook](docs/sales-demo-playbook.md): customer-facing demo narrative, objection handling, and evidence checklist.
-- [POC Test Strategy](docs/poc-test-strategy.md): acceptance gates, test phases, and production exit criteria.
-- [Model Selection Matrix](docs/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
-- [Knowledge Assets](docs/knowledge-assets.md): reusable playbooks, rubrics, prompt rules, and solution templates.
-- [Advertising Solution](docs/solutions/advertising-agent-solution.md): industry package for brand marketing and campaign video production.
-- [E-commerce Solution](docs/solutions/ecommerce-video-agent-solution.md): industry package for product short-video workflows.
-- [Game Trailer Solution](docs/solutions/game-trailer-agent-solution.md): industry package for game character and trailer ideation.
 - [Product Track](docs/product-track.md): product goal, user workflow, UX milestones, and video creation loop.
-- [Repository Review Guide](docs/repository-review-guide.md): how a reviewer should read this project in 5-10 minutes.
+- [Deployment Notes](docs/deployment-poc.md): local setup, provider configuration, exports, and storage layout.
+- [Model Selection Matrix](docs/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
 - [Roadmap](ROADMAP.md): longer-term technical roadmap and planned milestones.
 
 ## Quick Start
@@ -131,10 +114,10 @@ shotforge doctor --deep
 Run the design pipeline from the CLI:
 
 ```powershell
-shotforge design "一只赛博猫在雨夜上海屋顶追逐发光无人机"
+shotforge design "A cyber cat chases a glowing drone across rainy Shanghai rooftops"
 ```
 
-Run a Windows local demo with package generation and harness audit:
+Run a Windows local demo with package generation and audit output:
 
 ```powershell
 .\scripts\demo.ps1 -Language en
@@ -149,7 +132,7 @@ shotforge full-loop "A neon train crossing a desert at sunrise" --language en
 Run with iterative redesign:
 
 ```powershell
-shotforge full-loop "一只赛博猫在雨夜上海屋顶追逐发光无人机" --redesign --max-iterations 3
+shotforge full-loop "A cyber cat chases a glowing drone across rainy Shanghai rooftops" --redesign --max-iterations 3
 ```
 
 The full-loop path is now:
@@ -203,34 +186,12 @@ selection tradeoffs.
 LLM/Judge providers decide and revise text. Video providers render MP4 artifacts.
 Visual observer providers inspect rendered frames so evaluators can check what
 actually appeared in the video. The Web configuration page exposes these as
-separate provider settings, and Run Preflight checks LLM, ComfyUI, workflow, and
-observer readiness before real generation.
+separate provider settings, and Run Preflight checks provider readiness before
+real generation.
 
-ComfyUI generation artifacts are written by iteration, with readable filenames:
-
-```text
-{runs_dir}/{run_id}/iterations/
-  v001/
-    prompts/
-      v001_shot_01_hook.txt
-      v001_shot_01_hook.json
-    workflows/
-      v001_shot_01_hook.api.json
-    videos/
-      v001_shot_01_hook.mp4
-  v002/
-    prompts/
-      v002_shot_01_hook.txt
-      v002_shot_01_hook.json
-    workflows/
-      v002_shot_01_hook.api.json
-    videos/
-      v002_shot_01_hook.mp4
-```
-
-`runs_dir` is `data/runs` by default and can be changed with
-`SHOTFORGE_RUNS_DIR`. The final template package still writes
-`package.json`, exports, traces, and evaluation reports at the run root.
+Run outputs are written under `data/runs/{run_id}` by default. Iteration-level
+prompts, workflow payloads, video artifacts, exports, traces, and evaluation
+reports are kept together so each generation can be reviewed and compared.
 
 Start the Web Demo:
 
@@ -249,15 +210,11 @@ not serve the template directory with a static file server. The Web UI must be
 served through FastAPI/Jinja; otherwise raw template expressions such as
 `{{ form_state.style }}` will appear instead of rendered values.
 
-Run outputs are written under `data/runs/{run_id}` by default.
-
 The Web UI now has three local delivery controls:
 
 - **Provider Profile**: save and reuse LLM/Judge and Video provider settings.
   Profiles are stored in `data/provider_profiles.json`.
-- **Run Preflight**: check provider configuration before generation. For ComfyUI
-  this validates server reachability and whether the selected workflow is
-  API-callable.
+- **Run Preflight**: check provider configuration before generation.
 - **Recent Runs**: reopen recent generated packages from the left sidebar.
 
 Useful local APIs:
@@ -267,8 +224,6 @@ GET /api/provider-profiles
 POST /api/provider-profiles
 GET /api/observer-providers
 POST /api/preflight
-POST /api/test-chain
-GET /api/comfyui/workflows
 GET /api/runs
 ```
 
@@ -285,12 +240,17 @@ Content-Type: application/json
   "duration_seconds": 24,
   "with_evaluation": true,
   "rubric_id": "baseline_v1",
+  "provider_profile_id": "local-real",
   "generator_provider_id": "comfyui",
-  "comfyui_base_url": "http://127.0.0.1:8188",
-  "comfyui_workflow_id": "wan2_2_i2v_empty_start",
   "observer_provider_id": "prompt-proxy"
 }
 ```
+
+Provider URLs, model names, workflow paths, and local service ports should be
+saved through the Web configuration page, provider profiles, or environment
+variables. Request-level provider overrides are supported for automation and
+diagnostics, but they are documented in
+[docs/deployment-poc.md](docs/deployment-poc.md), not in the main API example.
 
 Exports:
 
@@ -311,7 +271,7 @@ ShotForge is not trying to be a single-prompt video model. It is a production wo
 Idea -> Design -> Generate -> Evaluate -> Correct -> Version -> Export
 ```
 
-The current stage prioritizes workflow quality, structured state, real local provider integration, evaluation loops, version governance, and extension boundaries. The internal test provider exists only as a deployment diagnostic path.
+The current stage prioritizes workflow quality, structured state, real local provider integration, evaluation loops, version governance, and extension boundaries.
 
 ## Current Framework Boundary
 
@@ -320,7 +280,6 @@ ShotForge is now organized around four replaceable provider surfaces:
 - **LLM/Judge provider**: text reasoning, prompt evaluation, and redesign support.
 - **Video provider**: ComfyUI or another renderer that produces MP4 artifacts.
 - **Visual observer provider**: frame-level VLM inspection used by physical and consistency evaluators.
-- **Internal test chain**: explicit deployment diagnostic path, not the default product flow.
 
 This split keeps the product workflow understandable for users while keeping the
 engineering framework open for future models, hosted services, and stronger

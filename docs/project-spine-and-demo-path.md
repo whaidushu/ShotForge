@@ -74,7 +74,7 @@ This generates a run and immediately prints `shotforge audit`.
 Show these outputs in order:
 
 1. `run_summary.md`
-   - Use it as the customer-facing summary.
+   - Use it as the run-level summary.
    - Point out solution, readiness, and run evidence.
 
 2. `manifest.json`

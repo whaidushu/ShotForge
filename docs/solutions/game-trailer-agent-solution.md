@@ -24,7 +24,7 @@ Character or game beat
 -> Storyboard Agent
 -> Motion Agent
 -> Prompt Adapter with identity/action constraints
--> ComfyUI or mock provider
+-> ComfyUI or local test provider
 -> Frame/sequence observation
 -> Evaluation and correction routing
 -> Versioned prompt package

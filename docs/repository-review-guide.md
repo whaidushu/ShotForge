@@ -35,7 +35,7 @@ ShotForge treats that loop as both the product surface and the engineering surfa
 
 - Pydantic state model across the workflow.
 - LangGraph orchestration.
-- Provider surfaces for LLM/Judge, video generation, visual observation, and diagnostic test chains.
+- Provider surfaces for LLM/Judge, video generation, visual observation, and readiness checks.
 - Evaluation rubrics and correction planning.
 - Version snapshots, version diffs, prompt-change cards, and run history.
 - Trace logs and harness audit APIs.

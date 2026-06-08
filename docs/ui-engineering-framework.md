@@ -71,7 +71,7 @@ Future UI iterations should preserve this split so provider complexity does not 
 - LLM/video/observer config visibility
 - provider profile save
 - provider preflight
-- internal test-chain trigger
+- local readiness test trigger
 - ComfyUI local workflow search
 - run form submission state
 - run detail tabs

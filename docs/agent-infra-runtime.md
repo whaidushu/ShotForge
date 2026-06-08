@@ -36,7 +36,8 @@ Agent node starts
 
 ## Why This Matters
 
-The target solution-architect scenario is not only about generating text or video. A customer-facing Agent solution must explain:
+The runtime scenario is not only about generating text or video. A reusable
+Agent workflow must explain:
 
 - What context was used.
 - Which tools were available.
@@ -242,20 +243,19 @@ primary tool planned
 
 This gives the reviewer a concrete answer to "how are skills orchestrated?" instead of only seeing a list of callable functions.
 
-## JD Alignment
+## Runtime Scope
 
-This layer directly supports the JD keywords:
+This layer keeps the agent runtime inspectable across the core engineering
+surfaces:
 
-- Context Engineering
-- Tool Orchestration
-- State Management
-- Skill
-- MCP
-- Agent Sandbox
-- Memory
-- Knowledge Base / RAG foundation
+- Context engineering
+- Tool orchestration
+- State management
+- Skill and MCP-style extension boundaries
+- Sandbox policy
+- Memory and knowledge retrieval foundations
 - Safety policy
-- Stable engineering delivery from demo to production
+- Stable delivery from local prototype to production hardening
 
 ## Tests
 

@@ -41,8 +41,8 @@ flowchart LR
 | MCP Boundary | `LocalMCPAdapter` | Tool/resource discovery for knowledge, runs, packages, and harness audit |
 | Sandbox Boundary | `LocalSandboxRunner`, `SandboxExecutionProfile` | Policy-gated execution with structured denial records |
 | Memory | `LocalMemoryStore` | Namespaced, ranked, access-tracked JSONL memory with runtime run promotion |
-| Knowledge Assets | `SolutionPlaybookStore`, JSON rubrics/rules | Reusable industry and quality patterns |
-| Delivery Gates | `DeliveryReadinessReport` | Shows what is ready, mocked, and required before pilot |
+| Knowledge Rules | JSON rubrics/rules | Reusable evaluation and prompt patterns |
+| Delivery Gates | `DeliveryReadinessReport` | Shows readiness, missing provider configuration, and production hardening gaps |
 | Provider Services | `ProviderService`, `ProviderRuntimeService`, `ComfyUIWorkflowService`, `ProviderPreflightService`, `RunService`, `ArtifactService` | Shared application services used by Web/API and ready for CLI reuse |
 | Observation | `VideoObservationService`, `FrameObserver`, `SequenceObservationBuilder`, observer provider registry | Frame extraction, VLM/prompt-proxy observation, and sequence-ready continuity contracts |
 | UI Foundation | `app/web/static` | Design tokens, reusable layout primitives, shared browser behavior, and future asset organization |
@@ -53,10 +53,9 @@ ShotForge separates model integration into explicit provider surfaces:
 
 | Surface | Current Implementations | Primary Responsibility |
 |---|---|---|
-| LLM/Judge | `mock`, `ollama`, `vllm`, `openai-compatible` | Text reasoning, prompt evaluation, and redesign support |
-| Video Generation | `mock`, `comfyui` | Produce video artifacts from prompt packages |
+| LLM/Judge | local test, `ollama`, `vllm`, `openai-compatible` | Text reasoning, prompt evaluation, and redesign support |
+| Video Generation | local test, `comfyui` | Produce video artifacts from prompt packages |
 | Visual Observation | `prompt-proxy`, `openai-vision`, `ollama-vision`, `vllm-vlm` | Inspect extracted frames and report visible elements, action, identity, style, color, and confidence |
-| Internal Test Chain | `/api/test-chain` | Deployment smoke test, not the default user generation path |
 
 This separation matters because visual quality cannot be improved by changing text alone. The evaluation loop needs a generated MP4, sampled frames, an observer signal, and then a correction plan that writes back into the next prompt/template package.
 
@@ -69,7 +68,6 @@ This separation matters because visual quality cannot be improved by changing te
 | `GET /api/provider-profiles` / `POST /api/provider-profiles` | List and save LLM/Judge and Video provider profiles |
 | `GET /api/observer-providers` | List available prompt-proxy and VLM observer providers |
 | `POST /api/preflight` | Validate local provider configuration before generation |
-| `POST /api/test-chain` | Run the internal deployment smoke test chain |
 | `GET /api/comfyui/workflows` | Discover bundled and user-local ComfyUI workflows |
 | `GET /api/runs/{run_id}/harness` | Inspect context, tools, policies, solution, and readiness |
 | `GET /api/runs/{run_id}/generation-artifacts` | List generated videos, prompts, prompt JSON, and workflow files |
@@ -101,8 +99,11 @@ Each run can export:
 3. Run the Web Demo or `shotforge design`.
 4. Open `manifest.json` and `run_summary.md`.
 5. Call `/api/runs/{run_id}/harness` or run `shotforge audit`.
-6. Review `docs/volcengine-jd-alignment.md` for role alignment.
 
 ## Production Boundary
 
-The current project is intentionally local-first. It supports real local LLM and ComfyUI generation while keeping an internal test chain for deployment diagnostics. Production hardening would add auth, tenant isolation, official MCP transport, stronger sandbox isolation, production storage, observability, background job orchestration, and customer-specific knowledge overlays.
+The current project is intentionally local-first. It supports real local LLM and
+ComfyUI generation, plus explicit readiness checks for provider configuration.
+Production hardening would add auth, tenant isolation, official MCP transport,
+stronger sandbox isolation, production storage, observability, background job
+orchestration, and customer-specific knowledge overlays.

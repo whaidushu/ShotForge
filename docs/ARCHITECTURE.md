@@ -119,7 +119,7 @@ intent_agent()
 8. 构造 GeneratedShotResult → GeneratedResult
 ```
 
-**当前能力：** 支持内置 `wan2_2_i2v_empty_start` 视频工作流，也支持查询用户本地 ComfyUI workflow 目录并调用 API-format workflow。默认测试链路仍保留 mock provider，用于部署诊断和无模型环境下验证流程。
+**当前能力：** 支持内置 `wan2_2_i2v_empty_start` 视频工作流，也支持查询用户本地 ComfyUI workflow 目录并调用 API-format workflow。本地测试 provider 仅用于无模型环境下验证流程，不作为默认生成路径。
 
 ---
 
