@@ -1,6 +1,6 @@
 # Capability Catalog API
 
-ShotForge exposes a compact solution capability catalog:
+ShotForge exposes a compact capability catalog:
 
 ```text
 GET /api/capabilities
@@ -14,11 +14,12 @@ The catalog includes:
 - generator provider catalog
 - LLM provider catalog
 - visual observer provider catalog
-- packaged industry playbooks
+- reusable knowledge and rule assets
 - supported export formats
 - main API routes
 
-This endpoint is useful for solution walkthroughs because it shows what is implemented, what is available, and what is planned without requiring a source-code tour.
+This endpoint is useful for runtime review because it shows what is implemented,
+what is available, and what is planned without requiring a source-code tour.
 
 Important sections:
 
@@ -28,8 +29,10 @@ Important sections:
 - `generator_providers`: available and planned video generation adapters.
 - `llm_providers`: available and planned LLM adapters.
 - `observer_providers`: prompt-proxy and VLM-backed frame observers exposed through `/api/observer-providers`.
-- `playbooks`: reusable industry scenario assets.
-- `api_routes`: run creation, package-view retrieval, run status, provider profiles, observer providers, ComfyUI workflow discovery, preflight, internal test chain, exports, and artifact download routes.
+- `playbooks`: reusable scenario and quality rule assets.
+- `api_routes`: run creation, package-view retrieval, run status, provider
+  profiles, observer providers, ComfyUI workflow discovery, preflight, exports,
+  and artifact download routes.
 
 Example:
 

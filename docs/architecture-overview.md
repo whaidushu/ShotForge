@@ -17,7 +17,7 @@ flowchart LR
   Solution --> Readiness[Delivery Readiness Agent]
   Readiness --> Export[Export Agent]
   Export --> Package[Run package]
-  Package --> Audit[Harness Audit API / CLI audit]
+  Package --> Audit[Runtime Audit API / CLI audit]
 
   Package --> Gen[Video Provider / ComfyUI]
   Gen --> Observe[Frame Extraction / Visual Observer]
@@ -106,4 +106,4 @@ The current project is intentionally local-first. It supports real local LLM and
 ComfyUI generation, plus explicit readiness checks for provider configuration.
 Production hardening would add auth, tenant isolation, official MCP transport,
 stronger sandbox isolation, production storage, observability, background job
-orchestration, and customer-specific knowledge overlays.
+orchestration, and deployment-specific knowledge overlays.

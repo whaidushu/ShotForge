@@ -1,133 +1,75 @@
 # Product Track
 
-The Product Studio track is the part of ShotForge meant to become a usable AI short-video creation tool.
-
-It should prioritize the full user journey over architectural purity.
-
-## Positioning
-
-ShotForge Product Studio should help a user move from:
-
-```text
-idea -> storyboard -> editable plan -> audio/subtitle cues -> preview/export -> refined package/video
-```
-
-The product goal is not to expose every internal agent. The product goal is to make the creative workflow feel complete.
-
-## Target User
-
-Primary user:
-
-- Short-video creator.
-- Growth/content operator.
-- Indie maker testing video ads or social content.
-- Technical user who wants controllable AI video planning before paying for expensive generation.
-
-## Product Promise
-
-Input one idea. Get a structured short-video plan that can be reviewed, refined, exported, and eventually rendered into a preview video.
+The Product Studio track is the user-facing layer of ShotForge. It turns the
+runtime into a short-video workbench where a user can configure providers, run a
+generation loop, inspect prompt changes and artifacts, and export a handoff
+package.
 
 ## Current Product Surface
 
-Current Web Demo:
+The current Web app is organized around two pages:
 
-- Idea input.
-- Language selection.
-- Design / full-loop mode.
-- Generator provider selection.
-- Storyboard cards.
-- Evaluation report.
-- Correction plan and version diff view.
-- Export links.
+- **Workflow page**: idea input, mode selection, run progress, storyboard,
+  prompt changes, generated videos, evaluation reports, correction plans,
+  version chain, and exports.
+- **Configuration page**: provider profiles, LLM/Judge settings, video provider
+  settings, ComfyUI workflow discovery, visual observer settings, preflight, and
+  local readiness testing.
 
-Current outputs:
+The product surface is intentionally profile-driven. Normal users should select
+or save a provider profile instead of passing local service URLs in every run
+request.
 
-- JSON package.
-- CSV storyboard.
-- Markdown production package.
-- Evaluation CSV.
+## Current User Flow
 
-## Product Roadmap
+```text
+Configure provider profile
+-> Run preflight
+-> Enter idea
+-> Generate design package
+-> Render video artifact when a video provider is configured
+-> Extract frames and observe visual facts
+-> Evaluate physical / consistency / style / atmosphere layers
+-> Create correction plan
+-> Regenerate or export
+-> Compare versions and handoff artifacts
+```
 
-### P0: Clear Web Demo
+## What The Product Should Make Visible
 
-Goal: make the existing web demo readable and demo-friendly.
+- Which provider profile is active.
+- Whether LLM, video, workflow, and observer services are ready.
+- What prompt changed between iterations.
+- Which video artifact belongs to each iteration.
+- Which physical targets were required, observed, and missing.
+- Which evaluation issues drove the correction plan.
+- Which files can be exported or handed off.
 
-- Improve first-screen layout.
-- Show workflow mode clearly.
-- Show generated scenes as editable-looking cards.
-- Make exports obvious.
-- Add empty/error states.
-- Add demo screenshots to README.
+## Current Boundaries
 
-### P1: Review and Refine
+In scope now:
 
-Goal: let the user edit before re-running.
+- Single-shot workflow with a path toward multi-shot expansion.
+- Provider profile configuration and local readiness checks.
+- ComfyUI workflow discovery and API-format workflow execution.
+- Prompt, workflow, video, frame, evaluation, and export artifacts.
+- Version history and prompt/evaluation diffs.
+- Layered evaluation from physical facts toward more abstract quality signals.
 
-- Inline scene title and description editing.
-- Edit prompt package per scene.
-- Add review notes.
-- Run refine from selected notes.
-- Compare before/after package versions.
-
-### P2: Media Planning
-
-Goal: move from abstract production package to production-ready assets.
-
-- TTS provider boundary.
-- Subtitle timing plan.
-- BGM and sound effect plan.
-- Local/media library placeholder.
-- Asset manifest export.
-
-### P3: Lightweight MP4 Preview
-
-Goal: generate a real preview artifact without pretending to be a full video model.
-
-- Use still images, text overlays, subtitle cards, and transitions.
-- Use ffmpeg or MoviePy to render a preview MP4.
-- Export vertical 9:16 and horizontal 16:9.
-- Keep quality expectations clear: preview/storyboard video, not final cinematic generation.
-
-### P4: External Video Model Integration
-
-Goal: call real providers only after the plan converges.
-
-- Provider catalog for Kling, Runway, Jimeng, ComfyUI, Open-Sora, or others.
-- Cost estimate per run.
-- "Cheap iteration, expensive final render" workflow.
-- Provider-specific prompt adaptation.
-
-## Product Boundaries
-
-Product Studio should not become a generic video editor.
-
-In scope:
-
-- Creative planning.
-- Storyboard editing.
-- Prompt refinement.
-- Evaluation and correction.
-- Preview rendering.
-- Export packages.
-
-Out of scope for now:
+Out of scope for the current product surface:
 
 - Full timeline editing.
-- Advanced color/audio mixing.
-- Asset marketplace.
 - Multi-user collaboration.
-- Payment system.
+- Payment, quota, and account management.
+- Production deployment packaging.
+- Asset marketplace or full media library.
 
-## Success Criteria
+## Next Product Direction
 
-The product track is working when a non-engineer can:
+The next product work should stay close to the current framework:
 
-1. Open the Web Demo.
-2. Enter a video idea.
-3. Understand the generated scenes.
-4. Make a small edit.
-5. Re-run or refine.
-6. Download a package or preview artifact.
-
-That is different from the engineering track, where success is judged by code structure, traceability, tests, and extensibility.
+- Improve the run workbench layout and artifact comparison.
+- Make physical target extraction and missing-element correction easier to see.
+- Add stronger multi-shot data structures without forcing multi-shot UI early.
+- Keep configuration separate from the creative workflow.
+- Reduce deployment friction without hiding provider readiness requirements.

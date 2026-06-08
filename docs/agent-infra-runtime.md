@@ -13,9 +13,9 @@ This is a v0 implementation. It is intentionally local-first and testable.
 | MCP Adapter | Local MCP-like tool/resource adapter exposes knowledge search and run package access | Official MCP transport can replace adapter | `LocalMCPAdapter` |
 | Sandbox | Local command sandbox enforces command, timeout, cwd, workspace, network, env, file-write, and artifact policy | Docker/container isolation planned | `LocalSandboxRunner`, `SandboxPolicyRecord` |
 | Memory | JSONL local memory store plus governance manager for selection, promotion, namespace, kind, and importance policy | Redis/SQLite/vector memory can replace store | `LocalMemoryStore`, `MemorySelectionRecord` |
-| Runtime Policy | Execution and sandbox policy are captured per agent context | Policy can be customer/project specific | `ExecutionPolicy`, `SandboxPolicy` |
+| Runtime Policy | Execution and sandbox policy are captured per agent context | Policy can be project specific | `ExecutionPolicy`, `SandboxPolicy` |
 | Agent Catalog | Agents have explicit roles, IO contracts, dependencies, skills, tags, and extension points | Dynamic registry and marketplace-style agent loading can replace static catalog | `AgentSpec`, `AgentCatalog` |
-| Agent Contracts | Runtime validates agent preconditions and postconditions around every known agent | Contract severity, repair strategy, and human approval can become customer policy | `AgentContractReport` |
+| Agent Contracts | Runtime validates agent preconditions and postconditions around every known agent | Contract severity, repair strategy, and human approval can become project policy | `AgentContractReport` |
 | Workflow Routing | Runtime records route decisions such as continue, review, repair, block, and complete | LangGraph conditional edges can consume these decisions directly | `WorkflowDecisionRecord` |
 | State Transitions | Runtime records before/after summaries, changed fields, and invariants for every agent | Stronger schema-level validation and rollback can be added | `StateTransitionRecord` |
 
@@ -103,7 +103,9 @@ The controller also attaches gate metadata:
 - observation report count
 - export count
 
-The current LangGraph path still runs as a deterministic POC flow, but these records are the strategy surface for the next step: conditional graph edges that consume routing decisions instead of hard-coded linear edges.
+The current LangGraph path is still mostly deterministic, but these records are
+the strategy surface for the next step: conditional graph edges that consume
+routing decisions instead of hard-coded linear edges.
 
 ## MCP Strategy v1
 
@@ -174,7 +176,9 @@ The runtime can search memory before an agent executes and record memory refs in
 - readiness-aware promotion
 - selection and promotion reasons
 
-Runtime selection and promotion both produce `MemorySelectionRecord`. This gives the local POC a concrete cross-run learning path without requiring an external vector database.
+Runtime selection and promotion both produce `MemorySelectionRecord`. This gives
+the local build a concrete cross-run learning path without requiring an external
+vector database.
 
 ## Context Engineering v2
 
@@ -227,7 +231,10 @@ The current schema validation is intentionally simple and local-first:
 - input schema can require keyword names
 - output schema can validate primitive return type
 
-This is enough to make the harness strategy boundary inspectable without locking the POC into a specific external tool framework. Later production adapters can replace this with JSON Schema, Pydantic models, OpenAPI tool contracts, or MCP tool schemas.
+This is enough to make the runtime strategy boundary inspectable without locking
+the project into a specific external tool framework. Later production adapters
+can replace this with JSON Schema, Pydantic models, OpenAPI tool contracts, or
+MCP tool schemas.
 
 Example behavior:
 

@@ -1,6 +1,8 @@
 # Model Selection Matrix
 
-ShotForge separates provider selection into LLM/Judge, video generation, and visual observation surfaces. This makes cost, latency, privacy, and quality tradeoffs explicit during a POC.
+ShotForge separates provider selection into LLM/Judge, video generation, and
+visual observation surfaces. This makes cost, latency, privacy, quality, and
+readiness tradeoffs explicit before a run starts.
 
 ## Selection Dimensions
 
@@ -18,8 +20,8 @@ ShotForge separates provider selection into LLM/Judge, video generation, and vis
 
 | Provider Type | Best For | Tradeoffs | ShotForge Surface |
 |---|---|---|---|
-| Mock | Deterministic local tests and demo reliability | No real reasoning quality | `MockLLMProvider` |
-| Ollama | Local POC and privacy-sensitive testing | Local hardware limits and slower throughput | `OllamaProvider` |
+| Local test | Deterministic local tests and CI reliability | No real reasoning quality | `MockLLMProvider` |
+| Ollama | Local and privacy-sensitive testing | Local hardware limits and slower throughput | `OllamaProvider` |
 | vLLM | Local or private high-throughput serving | Requires GPU/server setup | `VLLMProvider` |
 | OpenAI-compatible | Enterprise/cloud model integration | Network, cost, credential governance | `OpenAICompatibleProvider` |
 
@@ -27,9 +29,9 @@ ShotForge separates provider selection into LLM/Judge, video generation, and vis
 
 | Provider Type | Best For | Tradeoffs | ShotForge Surface |
 |---|---|---|---|
-| Mock | Pipeline tests, UI demo, CI stability | No real video quality signal | `MockGenerator` |
+| Local test | Pipeline tests, UI checks, CI stability | No real video quality signal | `MockGenerator` |
 | ComfyUI | Local generation, workflow control, private assets | Requires GPU and workflow maintenance | `ComfyUIProvider` |
-| Planned cloud providers | Customer benchmark and production deployment | Cost, API differences, credential/security review | Provider adapter boundary |
+| Planned cloud providers | Future hosted generation adapters | Cost, API differences, credential/security review | Provider adapter boundary |
 
 ## Visual Observation Providers
 
@@ -40,10 +42,10 @@ ShotForge separates provider selection into LLM/Judge, video generation, and vis
 | Ollama vision | Local privacy-sensitive inspection | Model quality and latency vary | VLM observer provider |
 | vLLM VLM | Private high-throughput visual inspection | Requires GPU/server setup | VLM observer provider |
 
-## POC Selection Strategy
+## Provider Selection Strategy
 
 ```text
-Stage 1: Mock providers
+Stage 1: Local test providers
   Validate workflow, state, exports, and audit evidence.
 
 Stage 2: Local LLM/Judge
@@ -56,16 +58,16 @@ Stage 4: Provider benchmark
   Compare quality, latency, cost, retry rate, and operational risk.
 
 Stage 5: Production selection
-  Choose provider mix and approval gates based on customer constraints.
+  Choose provider mix and approval gates based on deployment constraints.
 ```
 
 ## Recommendation Template
 
-| Customer Constraint | Recommended Starting Point |
+| Constraint | Recommended Starting Point |
 |---|---|
 | Needs privacy/local assets | Ollama or vLLM for LLM/Judge, ComfyUI for video |
-| Needs fast managed POC | OpenAI-compatible LLM/Judge, mock or available cloud video provider |
-| Needs deterministic demo | Mock LLM and mock generator |
+| Needs managed model access | OpenAI-compatible LLM/Judge and available video provider |
+| Needs deterministic tests | Local test LLM and local test generator |
 | Needs quality benchmark | Run same ProjectState through multiple provider profiles |
 | Needs cost control | Evaluate and redesign before final video generation |
 
@@ -82,4 +84,5 @@ For every provider decision, the run should record:
 - cost/latency metadata when available
 - fallback or failure reason
 
-This makes model selection part of the solution architecture instead of an implicit implementation detail.
+This makes model selection part of the run architecture instead of an implicit
+implementation detail.

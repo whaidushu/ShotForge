@@ -1,26 +1,32 @@
-# Harness Audit API
+# Runtime Audit API
 
-ShotForge exposes run-level Agent Harness evidence through:
+ShotForge exposes run-level runtime evidence through:
 
 ```text
 GET /api/runs/{run_id}/harness
 ```
 
-The response is designed for demo review, solution walkthroughs, and debugging. It includes:
+The endpoint is read-only and is meant for debugging, review, and architecture
+inspection. It complements the product-level workbench API.
+
+The response includes:
 
 - `contexts`: context snapshots produced for each agent.
 - `tool_calls`: tool execution records from `SkillRegistry`.
 - `state_transitions`: before/after state summaries and invariant status per agent.
 - `agent_topology`: executed agent nodes and edges derived from the run.
-- `policies`: execution policy, MCP tools, sandbox policy, and memory summary.
-- `state_summary`: trace, knowledge, memory, evaluation, correction, and export counts.
-- `solution`: industry scenario, playbook-backed knowledge assets, and POC criteria.
+- `policies`: execution policy, MCP-style tools, sandbox policy, and memory summary.
+- `state_summary`: trace, knowledge, memory, evaluation, correction, generation,
+  and export counts.
+- `solution`: current run architecture metadata when present.
 - `readiness`: delivery gates, next actions, handoff deliverables, and risks.
 
 Example:
 
 ```bash
-curl http://127.0.0.1:8000/api/runs/20260529_1509/harness
+curl http://127.0.0.1:8000/api/runs/{run_id}/harness
 ```
 
-This endpoint is intentionally read-only. It is not a replacement for a full observability stack, but it makes the POC's state management, context engineering, tool orchestration, MCP/Sandbox/Memory hooks, and delivery readiness visible without opening the source code.
+Use this endpoint when you need to inspect how an idea moved through agents,
+context construction, tool policy, provider boundaries, state transitions, and
+export readiness without opening the source code.

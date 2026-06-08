@@ -80,7 +80,6 @@ docs/                  Track definitions and review guide
 - [Product Track](docs/product-track.md): product goal, user workflow, UX milestones, and video creation loop.
 - [Deployment Notes](docs/deployment-poc.md): local setup, provider configuration, exports, and storage layout.
 - [Model Selection Matrix](docs/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
-- [Roadmap](ROADMAP.md): longer-term technical roadmap and planned milestones.
 
 ## Quick Start
 

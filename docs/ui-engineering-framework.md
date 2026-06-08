@@ -38,7 +38,8 @@ app/web/static/
 The Web product should stay split into clear user workflows:
 
 - Workflow page: idea, mode, generation controls, progress, prompt changes, videos, and exports.
-- Configuration page: provider profiles, LLM/Judge settings, video provider settings, ComfyUI workflow discovery, preflight, and internal test chain.
+- Configuration page: provider profiles, LLM/Judge settings, video provider
+  settings, ComfyUI workflow discovery, preflight, and local readiness checks.
 - Visual observer configuration: VLM provider, model, base URL, API key, frame sample count, confidence threshold, and JSON requirement.
 - Run detail sections: progress timeline, prompt diff cards, generated artifact browser, evaluation, correction plans, readiness, and exports.
 
@@ -59,7 +60,8 @@ The Web UI is moving toward a studio workbench rather than a single long form:
 - Left rail: task creation and run history.
 - Center surface: current run status, videos, prompt changes, evaluation, and version progress.
 - Right rail: provider and service configuration.
-- Configuration page: deeper provider profile editing, local workflow search, preflight, and internal test chain.
+- Configuration page: deeper provider profile editing, local workflow search,
+  preflight, and readiness testing.
 
 Future UI iterations should preserve this split so provider complexity does not crowd the creative workflow.
 

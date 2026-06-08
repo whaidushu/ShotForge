@@ -16,7 +16,7 @@ The current default branch keeps the Engineering Harness and Product Studio conn
 1. `README.md`: project positioning and quick start.
 2. `docs/project-spine-and-demo-path.md`: one-page project framing and review path.
 3. `docs/architecture-overview.md`: runtime, provider, API, and deliverable map.
-4. `docs/product-track.md`: product workflow and roadmap.
+4. `docs/product-track.md`: product workflow and current direction.
 5. `src/shotforge/core/project_state.py`: typed project state.
 6. `src/shotforge/workflows/`: LangGraph workflow definitions.
 7. `tests/`: behavior coverage.
@@ -57,7 +57,7 @@ ShotForge treats that loop as both the product surface and the engineering surfa
 
 ```powershell
 pip install -e ".[dev]"
-shotforge design "一只赛博猫在雨夜上海屋顶追逐发光无人机"
+shotforge design "A cyber cat chases a glowing drone across rainy Shanghai rooftops"
 shotforge full-loop "A neon train crossing a desert at sunrise" --language en
 uvicorn shotforge.app.web.app:app --reload
 ```

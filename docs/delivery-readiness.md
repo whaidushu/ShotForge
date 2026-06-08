@@ -32,7 +32,7 @@ A normal run can produce:
 - Storyboard CSV package
 - Markdown production brief
 - Harness Inspector trace
-- Solution architecture summary
+- Run architecture summary
 - Delivery readiness report
 
 Planning/full-loop runs can additionally include:
@@ -70,4 +70,4 @@ This report does not claim the prototype is production-ready. It makes readiness
 - local test provider means real provider credentials and service readiness are still required
 - local file storage means production persistence is still required
 - local sandbox policy means container isolation is still required
-- static playbooks mean customer-specific knowledge overlays are still required
+- static knowledge rules mean deployment-specific knowledge overlays are still required

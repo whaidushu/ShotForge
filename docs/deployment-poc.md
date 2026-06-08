@@ -1,6 +1,7 @@
-# POC Deployment Notes
+# Local Deployment Notes
 
-ShotForge is currently a local-first POC. It is designed to run on a laptop for review, demos, and solution walkthroughs.
+ShotForge is currently local-first. It is designed to run on a laptop for
+development, review, provider testing, and workflow validation.
 
 ## Setup
 
@@ -36,7 +37,7 @@ Inspect the generated harness evidence:
 shotforge audit data/runs/{run_id}/package.json
 ```
 
-Inspect available agents, providers, playbooks, exports, and routes:
+Inspect available agents, providers, exports, and routes:
 
 ```bash
 shotforge capabilities
@@ -74,7 +75,7 @@ Web UI before starting a real generation run.
 
 For normal API calls, prefer passing `provider_profile_id` and keep service URLs,
 model names, and workflow ids in the saved profile or `.env`. Request-level
-provider overrides are mainly for automation, diagnostics, and local smoke tests.
+provider overrides are mainly for automation, readiness checks, and local smoke tests.
 
 ### OpenAI-Compatible LLM/Judge
 
@@ -154,7 +155,7 @@ SHOTFORGE_EVALUATOR_MODE=hybrid
 
 ### Visual Observer / VLM
 
-The default `prompt-proxy` observer is a diagnostic fallback. It reads the
+The default `prompt-proxy` observer is a local fallback. It reads the
 prompt/package text and keeps the loop runnable without a vision model. For real
 visual checks, configure one of the VLM observers.
 
@@ -306,7 +307,7 @@ data/
 
 ## Production Boundary
 
-Before a real customer pilot, the following should be added:
+Before production deployment, the following should be added:
 
 - Docker or compose-based bootstrap for local LLM, ComfyUI, storage, and app services
 - auth and tenant/project isolation
@@ -315,6 +316,7 @@ Before a real customer pilot, the following should be added:
 - stronger sandbox isolation, such as container execution
 - real LLM/video provider credentials and quota controls
 - observability, health checks, and deployment profiles
-- customer-specific playbook overlays or RAG-backed knowledge retrieval
+- deployment-specific knowledge overlays or RAG-backed retrieval
 
-The current value of the POC is that these boundaries are explicit in state, readiness reports, docs, and audit exports.
+The current value of the local-first build is that these boundaries are explicit
+in state, readiness reports, docs, and audit exports.

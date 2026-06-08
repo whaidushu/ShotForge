@@ -1,9 +1,9 @@
 # Change Log
 
-## 2026-06-01 Agent Harness Strategy And Solution Assets
+## 2026-06-01 Runtime Strategy And Public Documentation
 
-This milestone deepens the Agent Harness strategy layer and adds reusable
-architecture, delivery, and provider-selection documentation.
+This milestone deepens the runtime strategy layer and adds reusable architecture,
+delivery, and provider-selection documentation.
 
 ### Harness Strategy
 
@@ -18,16 +18,12 @@ architecture, delivery, and provider-selection documentation.
 - Added MCP access policy and records for tools, resources, prompts, access limits, and denied operations.
 - Exposed memory, sandbox, and MCP evidence through harness audit and CLI audit.
 
-### Solution Assets
+### Public Documentation
 
-- Added industry solution packages:
-  - advertising video agent solution
-  - e-commerce product video agent solution
-  - game trailer and character video agent solution
-- Added POC test strategy with phases, gates, cases, metrics, and production exit criteria.
+- Added public architecture, runtime audit, delivery readiness, and provider
+  selection documentation.
 - Added model selection matrix for LLM/Judge, video generation, and visual observation providers.
-- Added demo guidance for end-to-end workflow walkthroughs.
-- Added knowledge asset index for playbooks, rubrics, prompt rules, correction strategies, and solution templates.
+- Added project spine and product track docs for the current workbench flow.
 
 ### Verification
 
@@ -43,7 +39,8 @@ This milestone turns ShotForge from a concept scaffold into a runnable local del
 - Added a FastAPI Web product shell with separate workflow and configuration pages.
 - Added provider profile management for LLM/Judge, video generation, and visual observer settings.
 - Added service preflight checks so missing local services, unreachable ComfyUI, missing workflows, and non-ready model endpoints are reported as actionable checks instead of raw server errors.
-- Added a dedicated internal test chain button. The test provider remains available for deployment diagnostics but is no longer presented as the normal user path.
+- Added local readiness testing. Test providers remain available for development
+  and CI but are not presented as the normal user generation path.
 - Added run progress, recent run history, prompt-change display, generated artifact display, and readable per-iteration artifact folders.
 
 ### Real Local Provider Path
