@@ -2,6 +2,8 @@
 
 ShotForge is a local-first AI video Agent Workbench that explores how an agent runtime, an evaluation loop, and workflow version governance can support the full path from creative idea to prompt package, video artifact, quality review, iteration, and handoff export.
 
+Documentation: [English docs](docs/en/index.md) | [中文文档](docs/zh/index.md) | [All docs](docs/index.md)
+
 It has two deliberately separated tracks:
 
 1. **Engineering Runtime**: an agent orchestration system for stateful workflow execution, provider boundaries, evaluation, traceability, and versioned iteration.
@@ -73,7 +75,9 @@ docs/                  Bilingual documentation index plus en/ and zh/ documents
 
 ## Reading Path
 
-- [Documentation Index](docs/index.md): Chinese and English documentation entrypoint.
+### English
+
+- [Documentation Index](docs/en/index.md): English documentation entrypoint.
 - [Repository Review Guide](docs/en/repository-review-guide.md): how to read the project in 5-10 minutes.
 - [Architecture Overview](docs/en/architecture-overview.md): one-page map of workflow, runtime, interfaces, and deliverables.
 - [Project Spine And Demo Path](docs/en/project-spine-and-demo-path.md): concise framing, demo sequence, and review path.
@@ -81,6 +85,17 @@ docs/                  Bilingual documentation index plus en/ and zh/ documents
 - [Product Track](docs/en/product-track.md): product goal, user workflow, UX milestones, and video creation loop.
 - [Deployment Notes](docs/en/local-deployment.md): local setup, provider configuration, exports, and storage layout.
 - [Model Selection Matrix](docs/en/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
+
+### 中文
+
+- [中文文档目录](docs/zh/index.md)：中文文档入口。
+- [仓库评审指南](docs/zh/repository-review-guide.md)：5-10 分钟理解项目结构和重点。
+- [架构概览](docs/zh/architecture-overview.md)：工作流、运行时、接口和产物地图。
+- [项目主线与演示路径](docs/zh/project-spine-and-demo-path.md)：项目定位、演示顺序和评审路径。
+- [工程线](docs/zh/engineering-track.md)：架构、工程价值和实现面。
+- [产品线](docs/zh/product-track.md)：产品目标、用户流程和视频生成闭环。
+- [本地部署](docs/zh/local-deployment.md)：本地服务、provider 配置、导出和存储结构。
+- [模型选择矩阵](docs/zh/model-selection-matrix.md)：LLM/Judge、视频和视觉观察 provider 的选择取舍。
 
 ## Quick Start
 

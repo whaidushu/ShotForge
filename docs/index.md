@@ -5,6 +5,7 @@ kebab-case and mirrored across `en/` and `zh/` where possible.
 
 ## English
 
+- [English Documentation Index](en/index.md)
 - [Repository Review Guide](en/repository-review-guide.md)
 - [Architecture Overview](en/architecture-overview.md)
 - [Project Spine And Demo Path](en/project-spine-and-demo-path.md)
@@ -23,6 +24,7 @@ kebab-case and mirrored across `en/` and `zh/` where possible.
 
 ## 中文
 
+- [中文文档目录](zh/index.md)
 - [仓库评审指南](zh/repository-review-guide.md)
 - [架构概览](zh/architecture-overview.md)
 - [项目主线与演示路径](zh/project-spine-and-demo-path.md)
