@@ -1,5 +1,22 @@
 # Change Log
 
+## 2026-06-09 Public Documentation Slimdown
+
+This update reduces the public documentation set to a smaller open-source
+structure:
+
+- getting started
+- configuration
+- architecture
+- providers
+- evaluation
+- API reference
+- development
+- changelog
+
+Interview-style review notes, planning material, and exploratory design notes
+were removed from public docs and archived privately.
+
 ## 2026-06-01 Runtime Strategy And Public Documentation
 
 This milestone deepens the runtime strategy layer and adds reusable architecture,

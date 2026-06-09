@@ -2,29 +2,16 @@
 
 [中文文档](../zh/index.md) | [All docs](../index.md)
 
-File names are lowercase kebab-case and mirrored with `docs/zh` to keep links,
-scripts, and cross-platform paths stable.
+## Start Here
 
-## Core Review Path
+- [Getting Started](getting-started.md): install, run the Web app, and try the demo.
+- [Configuration](configuration.md): environment variables, provider profiles, and local services.
+- [Architecture](architecture.md): runtime, workbench, state, and artifact flow.
 
-- [Repository Review Guide](repository-review-guide.md)
-- [Architecture Overview](architecture-overview.md)
-- [Project Spine And Demo Path](project-spine-and-demo-path.md)
-- [Agent Harness Layer](agent-harness-layer.md)
-- [AI Video Workbench Layer](video-workbench-layer.md)
+## Reference
 
-## Runtime And Delivery
-
-- [Local Deployment](local-deployment.md)
-- [Model Selection Matrix](model-selection-matrix.md)
-- [Runtime Audit API](runtime-audit-api.md)
-- [Capability Catalog](capability-catalog.md)
-- [Delivery Readiness](delivery-readiness.md)
-- [Agent Infra Runtime](agent-infra-runtime.md)
-
-## Evaluation And UI
-
-- [Evaluation Layers](evaluation-layers.md)
-- [Structured Prompt](structured-prompt.md)
-- [UI Engineering Framework](ui-engineering-framework.md)
-- [Change Log](changelog.md)
+- [Providers](providers.md): LLM/Judge, video, and visual observer providers.
+- [Evaluation](evaluation.md): physical targets, frame observation, and layered scoring.
+- [API Reference](api-reference.md): core Web API and CLI entrypoints.
+- [Development](development.md): local development, tests, and extension points.
+- [Change Log](changelog.md): public change history.

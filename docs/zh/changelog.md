@@ -1,5 +1,20 @@
 # 变更日志
 
+## 2026-06-09 公开文档收敛
+
+这一轮把公开文档收敛成更轻量的开源项目结构：
+
+- 快速开始
+- 配置
+- 架构
+- Provider
+- 评估
+- API 参考
+- 开发
+- 变更日志
+
+偏面试评审、内部规划和设计探索的材料从公开 docs 中移除，并归档到本地私有目录。
+
 ## 2026-06-01 Runtime Strategy And Public Documentation
 
 这一阶段加深 runtime strategy，并补充公开的架构、交付和 provider 选择文档。

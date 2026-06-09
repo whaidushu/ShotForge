@@ -2,29 +2,16 @@
 
 [English docs](../en/index.md) | [全部文档](../index.md)
 
-文件名保持小写 kebab-case，并与 `docs/en` 一一对应。这样可以减少 URL 编码、
-终端编码、跨平台脚本和链接维护问题；中文标题和目录展示放在文档内容里。
+## 从这里开始
 
-## 核心评审路径
+- [快速开始](getting-started.md)：安装、启动 Web 应用、查看 demo。
+- [配置](configuration.md)：环境变量、provider profile 和本地服务。
+- [架构](architecture.md)：运行时、工作台、状态和产物流。
 
-- [仓库评审指南](repository-review-guide.md)
-- [架构概览](architecture-overview.md)
-- [项目主线与演示路径](project-spine-and-demo-path.md)
-- [Agent Harness 层](agent-harness-layer.md)
-- [AI 视频工作台层](video-workbench-layer.md)
+## 参考
 
-## 运行时与交付
-
-- [本地部署](local-deployment.md)
-- [模型选择矩阵](model-selection-matrix.md)
-- [运行时审计 API](runtime-audit-api.md)
-- [能力目录](capability-catalog.md)
-- [交付就绪度](delivery-readiness.md)
-- [Agent 基础设施运行时](agent-infra-runtime.md)
-
-## 评估与 UI
-
-- [分层评估](evaluation-layers.md)
-- [结构化 Prompt](structured-prompt.md)
-- [UI 工程框架](ui-engineering-framework.md)
-- [变更日志](changelog.md)
+- [Provider](providers.md)：LLM/Judge、视频和视觉观察 provider。
+- [评估](evaluation.md)：物理目标、帧观察和分层评分。
+- [API 参考](api-reference.md)：核心 Web API 和 CLI 入口。
+- [开发](development.md)：本地开发、测试和扩展点。
+- [变更日志](changelog.md)：公开变更记录。

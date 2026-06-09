@@ -83,18 +83,17 @@ docs/                  Bilingual documentation index plus en/ and zh/ documents
 ## Reading Path
 
 - [Documentation Index](docs/index.md): documentation entrypoint with English and Chinese links.
-- [Repository Review Guide](docs/en/repository-review-guide.md): how to read the project in 5-10 minutes.
-- [Architecture Overview](docs/en/architecture-overview.md): one-page map of workflow, runtime, interfaces, and deliverables.
-- [Project Spine And Demo Path](docs/en/project-spine-and-demo-path.md): concise framing, demo sequence, and review path.
-- [Agent Harness Layer](docs/en/agent-harness-layer.md): runtime architecture, engineering value, and implementation surface.
-- [AI Video Workbench Layer](docs/en/video-workbench-layer.md): user workflow, product completeness layer, and video creation loop.
-- [Deployment Notes](docs/en/local-deployment.md): local setup, provider configuration, exports, and storage layout.
-- [Model Selection Matrix](docs/en/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
+- [Getting Started](docs/en/getting-started.md): install, run the Web app, and try the demo.
+- [Configuration](docs/en/configuration.md): environment variables, provider profiles, and local services.
+- [Architecture](docs/en/architecture.md): runtime, workbench, state, and artifact flow.
+- [Providers](docs/en/providers.md): LLM/Judge, video, and visual observer providers.
+- [Evaluation](docs/en/evaluation.md): physical targets, frame observation, and layered scoring.
+- [API Reference](docs/en/api-reference.md): core Web API and CLI entrypoints.
+- [Development](docs/en/development.md): local development, tests, and extension points.
 
-## Product Review Path
+## Demo Path
 
-For a quick public review, start with the Web workbench instead of reading the
-runtime modules first:
+For a quick public walkthrough, start with the Web workbench:
 
 1. Run `shotforge web --reload`.
 2. Open `http://127.0.0.1:8000/demo?language=en` to load the curated sample run.
@@ -205,10 +204,9 @@ LLM-as-judge evaluator for storyboard and prompt quality. Use
 `SHOTFORGE_EVALUATOR_MODE=llm` only when a real LLM provider is configured.
 
 Provider setup is intentionally kept out of the README. See
-[docs/en/local-deployment.md](docs/en/local-deployment.md) for Ollama, vLLM, ComfyUI, VLM,
-and workflow-discovery setup, and
-[docs/en/model-selection-matrix.md](docs/en/model-selection-matrix.md) for provider
-selection tradeoffs.
+[docs/en/configuration.md](docs/en/configuration.md) for environment variables,
+provider profiles, and workflow discovery, and
+[docs/en/providers.md](docs/en/providers.md) for provider selection tradeoffs.
 
 LLM/Judge providers decide and revise text. Video providers render MP4 artifacts.
 Visual observer providers inspect rendered frames so evaluators can check what
@@ -277,7 +275,7 @@ Provider URLs, model names, workflow paths, and local service ports should be
 saved through the Web configuration page, provider profiles, or environment
 variables. Request-level provider overrides are supported for automation and
 diagnostics, but they are documented in
-[docs/en/local-deployment.md](docs/en/local-deployment.md), not in the main API example.
+[docs/en/configuration.md](docs/en/configuration.md), not in the main API example.
 
 Exports:
 
