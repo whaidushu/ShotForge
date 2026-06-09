@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from shotforge.observation import VLMFrameObserver, VideoFrameExtractor, VideoObservationService
+from shotforge.observation.providers.vlm import _observation_payload
 from shotforge.workflows.design_workflow import run_design_pipeline
 from shotforge.workflows.evaluation_workflow import run_generation, run_evaluation_pipeline
 
@@ -114,3 +115,30 @@ def test_vlm_observer_adapts_frame_descriptions(tmp_path, monkeypatch):
     assert observations[0].source == "test_vlm"
     assert observations[0].detected_elements == ["woman", "red umbrella"]
     assert observations[0].metadata["context_shot"] == generated.shots[0].shot_id
+
+
+def test_vlm_observation_payload_falls_back_from_thinking_text():
+    content = """
+    The frame shows a cat and rain on a wet rooftop.
+    - cyber cat: not visible as a cybernetic subject.
+    - glowing drone: visible ahead of the cat with cyan light.
+    - rain: visible as streaks and puddle reflections.
+    - Shanghai landmark skyline: missing, only a generic city skyline appears.
+    """
+    payload = _observation_payload(
+        content,
+        {
+            "provider_id": "ollama-vision",
+            "required_elements": [
+                "cyber cat",
+                "glowing drone",
+                "rain",
+                "Shanghai landmark skyline",
+            ],
+        },
+    )
+
+    assert payload["detected_elements"] == ["glowing drone", "rain"]
+    assert payload["face_identity"] == ""
+    assert payload["confidence"] > 0
+    assert "Shanghai landmark skyline" in payload["metadata"]["evidence"]

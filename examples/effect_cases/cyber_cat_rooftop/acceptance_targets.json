@@ -1,0 +1,61 @@
+{
+  "case_id": "cyber_cat_rooftop",
+  "title": "Cyber cat rooftop chase",
+  "duration_seconds": 5,
+  "language_ideas": {
+    "en": "A cyber cat chases a glowing drone across a rainy Shanghai rooftop at night.",
+    "zh": "一只赛博猫在雨夜上海屋顶追逐发光无人机。"
+  },
+  "style": "cinematic cyberpunk",
+  "shot": {
+    "title": "Rooftop chase",
+    "description": "A cybernetic cat sprints across a wet high-rise rooftop while a glowing quadcopter drone escapes ahead through visible rain, with a recognizable Shanghai landmark skyline behind them, including Oriental Pearl Tower or Lujiazui tower silhouettes.",
+    "shot_type": "low tracking wide shot",
+    "camera": "low side-tracking camera following the cat and drone in the same direction",
+    "motion": "cat leans forward mid-run, drone flies two meters ahead, rain streaks and neon reflections move past them",
+    "music": "tense electronic pulse with rain ambience"
+  },
+  "required_elements": [
+    "cyber cat",
+    "glowing drone",
+    "rain",
+    "night",
+    "rooftop",
+    "Shanghai landmark skyline"
+  ],
+  "visual_attributes": [
+    "cybernetic cat details",
+    "cyan drone light trail",
+    "wet reflective rooftop",
+    "neon city glow",
+    "recognizable Shanghai landmark silhouette",
+    "dark cloudy sky"
+  ],
+  "spatial_relationships": [
+    "cat and drone appear in the same shot",
+    "drone stays ahead of the cat",
+    "rooftop edge and Shanghai landmark skyline anchor the location"
+  ],
+  "motion_contracts": [
+    "cat is visibly chasing, not posing",
+    "drone is visibly escaping forward",
+    "rain and reflections reinforce motion"
+  ],
+  "negative_constraints": [
+    "no empty rooftop",
+    "no missing drone",
+    "no daylight",
+    "no indoor room",
+    "no static portrait",
+    "no generic animal without cybernetic details",
+    "no generic city skyline without Shanghai landmark cues"
+  ],
+  "success_criteria": [
+    "cyber cat appears in at least half of sampled frames",
+    "glowing drone appears in at least half of sampled frames",
+    "rain or wet reflections appear in most sampled frames",
+    "rooftop location is visually evident",
+    "Shanghai location is supported by recognizable Oriental Pearl Tower, Shanghai Tower, or Lujiazui skyline cues",
+    "cat-drone chase relationship is readable"
+  ]
+}

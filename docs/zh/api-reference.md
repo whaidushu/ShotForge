@@ -41,6 +41,42 @@ http://127.0.0.1:8000
 返回能力目录，包括 agents、generator providers、LLM providers、API routes、
 export formats 和 playbooks。构建配置页或自动化工具时，可以先读这个接口。
 
+## 效果 Demo
+
+### `GET /api/effect-demos`
+
+列出内置效果 demo case。每个条目包含 `case_id`、标题、时长和本地 case 路径。
+
+### `POST /api/effect-demos/{case_id}`
+
+运行固定的 v1/v2/v3 效果 demo case。v1 使用用户原始提示词，v2 使用翻译后的结构化提示词，v3 是基于抽帧观察后的候选补偿版本。对比报告会记录 preservation locks，以及 v3 候选是否被接受或拒绝。
+
+请求体：
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `language` | string | `en` | 输出语言，`en` 或 `zh`。 |
+| `generator_provider_id` | string | `mock` | 所有生成迭代使用的生成 provider。 |
+| `style` | string/null | null | 可选风格覆盖。 |
+
+关键响应字段：
+
+| 字段 | 含义 |
+| --- | --- |
+| `run_id` | 创建出的 run id。 |
+| `case_id` | 效果 case id。 |
+| `comparison` | v1/v2/v3 分数变化、目标变化、已修复/未解决/回归目标、preservation locks、候选状态、接受版本和修正计划。 |
+| `exports` | 标准 run 导出路径。 |
+| `state` | 完整 `ProjectState`。 |
+
+### `GET /api/runs/{run_id}/effect-comparison`
+
+返回已完成效果 demo run 的对比报告。
+
+### `GET /api/effect-demos/{run_id}/comparison`
+
+从 effect-demo API 命名空间读取对比报告的别名。
+
 ## 创建 Run
 
 ### `POST /api/runs`

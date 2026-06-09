@@ -145,11 +145,18 @@ class VLMFrameObserver:
         frame_paths: list[Path],
     ) -> list[FrameObservation]:
         observations: list[FrameObservation] = []
+        targets = state.metadata.get("physical_targets", {})
+        effect_targets = state.metadata.get("effect_demo_targets", {})
         context = {
             "project_id": state.project_id,
             "run_id": state.run_id,
             "shot_id": generated_shot.shot_id,
             "provider_id": self.provider_id,
+            "physical_targets": targets,
+            "required_elements": targets.get("required_elements")
+            or effect_targets.get("required_elements")
+            or [],
+            "success_criteria": effect_targets.get("success_criteria", []),
         }
         for index, frame_path in enumerate(frame_paths):
             raw = self.describe_frame(frame_path, context)

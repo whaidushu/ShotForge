@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="{{ language }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ShotForge Effect Comparison</title>
+    <link rel="stylesheet" href="/static/design-system.css">
+    <style>
+      body {
+        margin: 0;
+        background: #f5f7fb;
+        color: #151922;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .topbar a {
+        color: #3858d6;
+        text-decoration: none;
+        font-weight: 650;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 18px;
+        align-items: stretch;
+        margin-bottom: 18px;
+      }
+      .panel {
+        background: #fff;
+        border: 1px solid #e1e6f0;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(25, 32, 56, 0.06);
+      }
+      h1, h2, h3 {
+        margin: 0;
+        letter-spacing: 0;
+      }
+      h1 {
+        font-size: 28px;
+        line-height: 1.15;
+      }
+      h2 {
+        font-size: 18px;
+        margin-bottom: 14px;
+      }
+      h3 {
+        font-size: 15px;
+      }
+      .muted {
+        color: #647084;
+      }
+      .score-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .score {
+        border: 1px solid #e5eaf3;
+        border-radius: 8px;
+        padding: 14px;
+        background: #f9fbff;
+      }
+      .score strong {
+        display: block;
+        font-size: 26px;
+      }
+      .video-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      video {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 8px;
+        background: #0f1420;
+      }
+      .artifact-list {
+        display: grid;
+        gap: 10px;
+      }
+      .artifact-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid #e5eaf3;
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #e6ebf4;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        color: #647084;
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+      .status-improved {
+        color: #0f7b4d;
+        font-weight: 700;
+      }
+      .status-regressed {
+        color: #b42318;
+        font-weight: 700;
+      }
+      .patches {
+        display: grid;
+        gap: 10px;
+      }
+      .patch {
+        border-left: 3px solid #3858d6;
+        padding: 8px 0 8px 12px;
+      }
+      @media (max-width: 860px) {
+        .hero,
+        .video-grid,
+        .score-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="topbar">
+        <a href="/?run_id={{ state.run_id }}&language={{ language }}">Back to run</a>
+        <span class="muted">{{ state.run_id }}</span>
+      </div>
+
+      <section class="hero">
+        <div class="panel">
+          <p class="muted">Effect Demo</p>
+          <h1>{{ comparison.title }}</h1>
+          <p>{{ state.user_idea }}</p>
+          {% if not comparison.visual_observation_available %}
+            <p class="muted">Visual observation was not available for this run. Scores are based on prompt readiness and generated metadata until a VLM observer is configured.</p>
+          {% endif %}
+        </div>
+        <div class="panel">
+          <h2>Score</h2>
+          <div class="score-grid">
+            <div class="score"><span class="muted">v1</span><strong>{{ comparison.v1_score }}</strong></div>
+            <div class="score"><span class="muted">v2</span><strong>{{ comparison.v2_score }}</strong></div>
+            <div class="score"><span class="muted">v3</span><strong>{{ comparison.v3_score }}</strong></div>
+            <div class="score"><span class="muted">Structured</span><strong>{{ comparison.structured_delta }}</strong></div>
+            <div class="score"><span class="muted">Compensation</span><strong>{{ comparison.compensation_delta }}</strong></div>
+            <div class="score"><span class="muted">Candidate</span><strong>{{ comparison.candidate_status }}</strong></div>
+            <div class="score"><span class="muted">Accepted</span><strong>{{ comparison.accepted_iteration }}</strong></div>
+          </div>
+          {% if comparison.rejection_reasons %}
+            <p class="muted">Rejected: {{ comparison.rejection_reasons | join("; ") }}</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="video-grid">
+        {% for artifact in artifacts[:3] %}
+          <div class="panel">
+            <h2>{{ artifact.iteration }} / {{ artifact.shot_id }}</h2>
+            {% if artifact.video_path and "://" not in artifact.video_path %}
+              <video controls src="{{ artifact.video_url }}"></video>
+            {% else %}
+              <p class="muted">No playable local video for this artifact.</p>
+            {% endif %}
+            <div class="artifact-list">
+              <div class="artifact-row"><span>Provider</span><strong>{{ artifact.provider }}</strong></div>
+              <div class="artifact-row"><span>Prompt</span><a href="{{ artifact.prompt_json_url }}">prompt json</a></div>
+              <div class="artifact-row"><span>Workflow</span><a href="{{ artifact.workflow_url }}">workflow</a></div>
+            </div>
+          </div>
+        {% endfor %}
+      </section>
+
+      <section class="panel">
+        <h2>Target Changes</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Target</th>
+              <th>v1</th>
+              <th>v2</th>
+              <th>v3</th>
+              <th>v2 Delta</th>
+              <th>v3 Delta</th>
+              <th>Frames</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in comparison.target_changes %}
+              <tr>
+                <td><strong>{{ item.target }}</strong></td>
+                <td>{{ item.v1_score }}</td>
+                <td>{{ item.v2_score }}</td>
+                <td>{{ item.v3_score }}</td>
+                <td>{{ item.v2_delta }}</td>
+                <td>{{ item.v3_delta }}</td>
+                <td>{{ item.v1_frame_presence }} -> {{ item.v2_frame_presence }} -> {{ item.v3_frame_presence }}</td>
+                <td class="status-{{ item.status }}">{{ item.status }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel" style="margin-top: 18px;">
+        <h2>Revision Plan</h2>
+        <p class="muted">{{ comparison.revision_plan.revision_intent }}</p>
+        <p class="muted">{{ comparison.revision_plan.control_policy }}</p>
+        <div class="patches">
+          {% for patch in comparison.revision_plan.prompt_patches %}
+            <div class="patch">
+              <h3>{{ patch.target }}</h3>
+              <p>{{ patch.change }}</p>
+            </div>
+          {% endfor %}
+        </div>
+        {% if comparison.revision_plan.preservation_locks %}
+          <h2 style="margin-top: 18px;">Preservation Locks</h2>
+          <div class="patches">
+            {% for lock in comparison.revision_plan.preservation_locks %}
+              <div class="patch">
+                <h3>{{ lock.target }} / {{ lock.frame_presence }}</h3>
+                <p>{{ lock.lock }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import time
 from typing import Any
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from uuid import uuid4
@@ -63,10 +63,38 @@ class ComfyUIClient:
                 f"ComfyUI is not reachable at {self.base_url}. Failed request: {request.full_url}. {exc}"
             ) from exc
 
+    def free_memory(self, *, unload_models: bool = True, free_memory: bool = True) -> dict[str, Any]:
+        payload = json.dumps(
+            {"unload_models": unload_models, "free_memory": free_memory},
+            ensure_ascii=False,
+        ).encode("utf-8")
+        request = Request(
+            f"{self.base_url}/free",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=30) as response:
+                raw = response.read().decode("utf-8")
+        except (OSError, URLError, TimeoutError) as exc:
+            raise ConnectionError(
+                f"ComfyUI is not reachable at {self.base_url}. Failed request: {request.full_url}. {exc}"
+            ) from exc
+        if not raw.strip():
+            return {"status": "ok"}
+        return json.loads(raw)
+
     def _read_json(self, request: Request) -> dict[str, Any]:
         try:
             with urlopen(request, timeout=30) as response:
                 return json.loads(response.read().decode("utf-8"))
+        except HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")
+            raise ConnectionError(
+                f"ComfyUI request failed at {self.base_url}. "
+                f"Failed request: {request.full_url}. HTTP {exc.code}: {body}"
+            ) from exc
         except (OSError, URLError, TimeoutError) as exc:
             raise ConnectionError(
                 f"ComfyUI is not reachable at {self.base_url}. Failed request: {request.full_url}. {exc}"

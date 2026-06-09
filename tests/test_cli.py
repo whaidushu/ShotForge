@@ -60,3 +60,24 @@ def test_cli_doctor_deep_prints_provider_preflight(tmp_path, monkeypatch):
     assert "ComfyUI Workflow Discovery" in result.output
     assert "Overall provider status" in result.output
     get_settings.cache_clear()
+
+
+def test_cli_effect_demo_prints_report(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+    monkeypatch.setenv("SHOTFORGE_PROVIDER_PROFILES_PATH", str(tmp_path / "profiles.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    result = CliRunner().invoke(
+        app,
+        ["effect-demo", "cyber_cat_rooftop", "--language", "en", "--generator", "mock"],
+    )
+
+    assert result.exit_code == 0
+    assert "Effect demo" in result.output
+    assert "cyber_cat_rooftop" in result.output
+    assert "Report:" in result.output
+    get_settings.cache_clear()

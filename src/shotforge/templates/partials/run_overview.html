@@ -61,6 +61,18 @@
       </div>
     {% endif %}
 
+    {% if state.metadata.effect_demo %}
+      <div class="section-divider"></div>
+      <h3>Effect comparison</h3>
+      <p class="muted">v1 {{ state.metadata.effect_demo.v1_score }} -> v2 {{ state.metadata.effect_demo.v2_score }} -> v3 {{ state.metadata.effect_demo.v3_score }} / delta {{ state.metadata.effect_demo.score_delta }}</p>
+      <div class="export-links">
+        <a href="/runs/{{ state.run_id }}/effect-comparison?language={{ form_state.language }}">Open comparison</a>
+        {% if state.metadata.effect_demo.paths.comparison_markdown %}
+          <a href="/api/runs/{{ state.run_id }}/export/run_summary">Run summary</a>
+        {% endif %}
+      </div>
+    {% endif %}
+
     {% if state.solution_architecture %}
       <div class="section-divider"></div>
       <h3>{{ ui.solution_title }}</h3>

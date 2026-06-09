@@ -16,6 +16,7 @@ from shotforge.core.harness_audit import build_harness_audit
 from shotforge.core.packages import ProjectPackageView
 from shotforge.core.project_state import ProjectState
 from shotforge.core.version_manager import VersionManager
+from shotforge.workflows.effect_demo_workflow import load_effect_comparison
 
 
 def build_run_router(run_service: RunService, artifact_service: ArtifactService) -> APIRouter:
@@ -82,6 +83,14 @@ def build_run_router(run_service: RunService, artifact_service: ArtifactService)
     @router.get("/{run_id}/generation-artifacts")
     def get_generation_artifacts(run_id: str) -> list[dict[str, Any]]:
         return artifact_service.generation_artifacts(load_run(run_id))
+
+    @router.get("/{run_id}/effect-comparison")
+    def get_effect_comparison(run_id: str) -> dict[str, Any]:
+        load_run(run_id)
+        try:
+            return load_effect_comparison(run_id)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     @router.get("/{run_id}/artifacts/{artifact_kind}/{iteration}/{shot_id}")
     def download_generation_artifact(

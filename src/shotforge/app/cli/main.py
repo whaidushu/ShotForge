@@ -15,6 +15,7 @@ from shotforge.core.harness_audit import build_harness_audit
 from shotforge.core.project_state import OutputLanguage, ProjectState
 from shotforge.exporters import ExportManager
 from shotforge.workflows.evaluation_workflow import load_project_state, run_evaluation_pipeline
+from shotforge.workflows.effect_demo_workflow import DEFAULT_CASE_ID, list_effect_cases, run_effect_demo
 from shotforge.workflows.design_workflow import run_design_pipeline
 from shotforge.workflows.full_loop_workflow import run_full_loop_pipeline
 from shotforge.workflows.iterative_redesign_workflow import run_iterative_redesign
@@ -110,6 +111,66 @@ def full_loop(
         exporter = ExportManager()
         exporter.export_all(state)
     _print_summary(state)
+
+
+@app.command("effect-demo")
+def effect_demo(
+    case_id: Annotated[
+        str,
+        typer.Argument(help="Effect demo case id."),
+    ] = DEFAULT_CASE_ID,
+    language: Annotated[
+        OutputLanguage,
+        typer.Option("--language", "-l", help="Output language: zh or en."),
+    ] = "en",
+    generator: Annotated[
+        str,
+        typer.Option("--generator", help="Generator provider id."),
+    ] = "mock",
+    style: Annotated[
+        str | None,
+        typer.Option("--style", help="Override case visual style."),
+    ] = None,
+) -> None:
+    state = run_effect_demo(
+        case_id,
+        language=language,
+        generator_provider_id=generator,
+        style=style,
+    )
+    effect = state.metadata.get("effect_demo", {})
+    comparison = effect.get("comparison", {})
+    console.print(f"[bold]Effect demo[/bold] {effect.get('case_id', case_id)}")
+    console.print(f"Run: {state.run_id}")
+    console.print(
+        f"Score: v1={comparison.get('v1_score')} "
+        f"v2={comparison.get('v2_score')} "
+        f"v3={comparison.get('v3_score')} "
+        f"structured_delta={comparison.get('structured_delta')} "
+        f"compensation_delta={comparison.get('compensation_delta')} "
+        f"total_delta={comparison.get('score_delta')}"
+    )
+    paths = effect.get("paths", {})
+    if paths.get("comparison_markdown"):
+        console.print(f"Report: {Path(paths['comparison_markdown']).resolve()}")
+    _print_summary(state)
+
+
+@app.command("effect-cases")
+def effect_cases() -> None:
+    table = Table(title="ShotForge Effect Cases")
+    table.add_column("Case")
+    table.add_column("Title")
+    table.add_column("Duration")
+    table.add_column("Path", overflow="fold")
+    for item in list_effect_cases():
+        table.add_row(
+            item["case_id"],
+            item["title"],
+            f"{item['duration_seconds']}s",
+            item["path"],
+        )
+    console.print(table)
 
 
 @app.command()

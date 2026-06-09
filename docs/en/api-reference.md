@@ -46,6 +46,46 @@ providers, API routes, export formats, and registered playbooks.
 
 Use this endpoint before building a UI around provider or export options.
 
+## Effect Demos
+
+### `GET /api/effect-demos`
+
+Lists packaged effect-demo cases. Each item includes `case_id`, title,
+duration, and local case path.
+
+### `POST /api/effect-demos/{case_id}`
+
+Runs a fixed v1/v2/v3 effect-demo case. v1 uses the raw user prompt, v2 applies
+a translated structured prompt, and v3 is a candidate compensation pass after
+frame observation. The comparison report records preservation locks and whether
+the v3 candidate was accepted or rejected.
+
+Request body:
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `language` | string | `en` | Output language, `en` or `zh`. |
+| `generator_provider_id` | string | `mock` | Generator provider used for all generated iterations. |
+| `style` | string/null | null | Optional style override. |
+
+Key response fields:
+
+| Field | Meaning |
+| --- | --- |
+| `run_id` | Created run id. |
+| `case_id` | Effect case id. |
+| `comparison` | v1/v2/v3 score deltas, target changes, repaired/unresolved/regressed targets, preservation locks, candidate status, accepted iteration, and revision plan. |
+| `exports` | Standard run export paths. |
+| `state` | Full `ProjectState`. |
+
+### `GET /api/runs/{run_id}/effect-comparison`
+
+Returns the effect comparison report for a completed effect-demo run.
+
+### `GET /api/effect-demos/{run_id}/comparison`
+
+Alias for loading the comparison report from the effect-demo API namespace.
+
 ## Create A Run
 
 ### `POST /api/runs`

@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
+from shotforge.app.api.effect_demos import build_effect_demo_router
 from shotforge.app.api.providers import build_provider_router
 from shotforge.app.api.runs import build_run_router
 from shotforge.app.api.system import build_system_router
@@ -23,6 +24,7 @@ from shotforge.comfyui import default_user_workflows_dir
 from shotforge.core.harness_audit import build_harness_audit
 from shotforge.core.project_state import OutputLanguage, ProjectState
 from shotforge.i18n import get_translator
+from shotforge.workflows.effect_demo_workflow import load_effect_comparison
 
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parents[2] / "templates"))
 app = FastAPI(title="ShotForge / 镜铸", version="0.1.0")
@@ -39,6 +41,7 @@ demo_sample_service = DemoSampleService()
 app.include_router(build_run_router(run_service, artifact_service))
 app.include_router(build_provider_router(provider_service))
 app.include_router(build_system_router())
+app.include_router(build_effect_demo_router())
 
 
 def _format_diff_value(value: Any) -> str:
@@ -316,6 +319,30 @@ def config_page(
     language: OutputLanguage = "zh",
 ) -> HTMLResponse:
     return _render_web_page(request, run_id=run_id, language=language, active_page="config")
+
+
+@app.get("/runs/{run_id}/effect-comparison", response_class=HTMLResponse)
+def effect_comparison_page(
+    request: Request,
+    run_id: str,
+    language: OutputLanguage = "en",
+) -> HTMLResponse:
+    try:
+        state = run_service.load_run(run_id)
+        comparison = load_effect_comparison(run_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    artifacts = artifact_service.generation_artifacts(state)
+    return templates.TemplateResponse(
+        request,
+        "effect_comparison.html",
+        {
+            "state": state,
+            "comparison": comparison,
+            "artifacts": artifacts,
+            "language": language,
+        },
+    )
 
 
 @app.get("/demo")

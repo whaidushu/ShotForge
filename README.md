@@ -93,6 +93,19 @@ shotforge doctor --deep
 shotforge full-loop "A product reveal shot in a rainy city street" --language en --generator <provider-id>
 ```
 
+Run the built-in effect demo:
+
+```powershell
+shotforge effect-demo cyber_cat_rooftop --language en --generator mock
+```
+
+The effect demo creates a single-shot v1/v2/v3 run for a concrete
+physical-target case: v1 uses the raw user prompt, v2 applies a translated
+structured prompt, and v3 is treated as a candidate compensation pass after
+frame observation. The report records target-level deltas, preservation locks,
+candidate acceptance or rejection, and the accepted iteration. Use a real
+generator provider when ComfyUI or another video backend is configured.
+
 More setup details are in [Getting Started](docs/en/getting-started.md) and
 [Configuration](docs/en/configuration.md).
 
@@ -109,6 +122,12 @@ The Web workbench is organized around runs:
 7. inspect version changes
 8. export the run package
 
+Effect demo runs also expose a comparison page:
+
+```text
+/runs/<run_id>/effect-comparison
+```
+
 Do not open `src/shotforge/templates/index.html` directly in a browser. The UI
 must be served through FastAPI/Jinja.
 
@@ -119,6 +138,7 @@ Common commands:
 ```powershell
 shotforge design "idea" --language en
 shotforge full-loop "idea" --language en --redesign --max-iterations 3 --generator <provider-id>
+shotforge effect-demo cyber_cat_rooftop --language en --generator <provider-id>
 shotforge inspect data/runs/{run_id}/package.json
 shotforge audit data/runs/{run_id}/package.json
 shotforge capabilities

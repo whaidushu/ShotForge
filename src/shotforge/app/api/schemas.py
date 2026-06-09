@@ -47,6 +47,22 @@ class RunResponse(BaseModel):
     state: ProjectState
 
 
+class EffectDemoRequest(BaseModel):
+    language: OutputLanguage = "en"
+    generator_provider_id: str = "mock"
+    style: str | None = None
+
+
+class EffectDemoResponse(BaseModel):
+    project_id: str
+    run_id: str
+    version: int
+    case_id: str
+    comparison: dict
+    exports: dict[str, str]
+    state: ProjectState
+
+
 class PreflightRequest(BaseModel):
     provider_profile_id: str = "local-real"
     provider_profile_name: str = "Local real generation"

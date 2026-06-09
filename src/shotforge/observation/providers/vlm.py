@@ -49,6 +49,7 @@ def describe_frame_with_ollama(
         "model": model,
         "stream": False,
         "format": "json",
+        "options": {"temperature": 0, "num_predict": 512},
         "messages": [
             {
                 "role": "user",
@@ -70,7 +71,8 @@ def describe_frame_with_ollama(
     except (OSError, URLError, TimeoutError) as exc:
         raise RuntimeError(f"Ollama vision request failed: {exc}") from exc
     message = data.get("message", {}) if isinstance(data, dict) else {}
-    return _observation_payload(str(message.get("content", "{}")), context)
+    content = str(message.get("content") or message.get("thinking") or "{}")
+    return _observation_payload(content, context)
 
 
 def _vision_messages(frame_path: Path, context: dict[str, Any]) -> list[dict[str, Any]]:
@@ -90,27 +92,33 @@ def _vision_messages(frame_path: Path, context: dict[str, Any]) -> list[dict[str
 
 
 def _observer_prompt(context: dict[str, Any]) -> str:
+    required = context.get("required_elements") or []
+    required_text = ", ".join(str(item) for item in required)
     return (
-        "Analyze this generated video frame for ShotForge evaluation. "
-        "Return one JSON object only with keys: detected_elements as short strings, "
-        "face_identity, action_summary, style_summary, color_summary, confidence from 0 to 1, "
-        "and evidence. Focus on visible physical objects, countable subjects, location, weather, "
-        "and action continuity. "
-        f"Context: project={context.get('project_id','')} shot={context.get('shot_id','')}."
+        "/no_think\n"
+        "Return JSON only. Inspect visible physical video content, not captions or text labels. "
+        f"Required targets: {required_text}. "
+        "Use this schema exactly: "
+        "{\"detected_elements\":[],\"face_identity\":\"\",\"action_summary\":\"\","
+        "\"style_summary\":\"\",\"color_summary\":\"\",\"confidence\":0,\"evidence\":\"\"}. "
+        "Only include required targets in detected_elements when physically visible; list missing "
+        f"targets in evidence. Shot={context.get('shot_id','')}."
     )
 
 
 def _observation_payload(content: str, context: dict[str, Any]) -> dict[str, Any]:
     data = _loads_json_object(content)
+    if not data:
+        data = _fallback_observation_from_text(content, context)
     elements = data.get("detected_elements", [])
     if not isinstance(elements, list):
         elements = []
     return {
         "detected_elements": [str(item) for item in elements[:12]],
-        "face_identity": str(data.get("face_identity", "")),
-        "action_summary": str(data.get("action_summary", "")),
-        "style_summary": str(data.get("style_summary", "")),
-        "color_summary": str(data.get("color_summary", "")),
+        "face_identity": _string_or_empty(data.get("face_identity")),
+        "action_summary": _string_or_empty(data.get("action_summary")),
+        "style_summary": _string_or_empty(data.get("style_summary")),
+        "color_summary": _string_or_empty(data.get("color_summary")),
         "confidence": _clamp_float(data.get("confidence", 0.0)),
         "metadata": {
             "provider_id": context.get("provider_id", ""),
@@ -134,6 +142,75 @@ def _loads_json_object(content: str) -> dict[str, Any]:
             except json.JSONDecodeError:
                 return {}
         return {}
+
+
+def _fallback_observation_from_text(content: str, context: dict[str, Any]) -> dict[str, Any]:
+    text = content.strip()
+    lowered = text.lower()
+    detected = []
+    missing = []
+    for target in context.get("required_elements", []) or []:
+        target_text = str(target)
+        target_lower = target_text.lower()
+        target_context = _target_context(lowered, target_lower)
+        if not target_context:
+            missing.append(target_text)
+            continue
+        window = target_context
+        if any(
+            marker in window
+            for marker in [
+                "not visible",
+                "not present",
+                "not shown",
+                "no actual",
+                "no visible",
+                "absent",
+                "missing",
+                "text only",
+            ]
+        ):
+            missing.append(target_text)
+            continue
+        if any(marker in window for marker in ["visible", "present", "shown", "seen", "appears"]):
+            detected.append(target_text)
+    if not text:
+        evidence = "No VLM text returned."
+    else:
+        evidence = text[:1200]
+    if missing and len(missing) == len(context.get("required_elements", []) or []):
+        confidence = 0.35
+    else:
+        confidence = 0.45 if detected else 0.2
+    return {
+        "detected_elements": detected,
+        "face_identity": "",
+        "action_summary": "",
+        "style_summary": "",
+        "color_summary": "",
+        "confidence": confidence,
+        "evidence": evidence,
+    }
+
+
+def _target_context(text: str, target: str) -> str:
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith(("- ", "* ")) and stripped[2:].startswith(target):
+            return stripped
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith(target):
+            return stripped
+    index = text.find(target)
+    if index < 0:
+        return ""
+    return text[max(0, index - 24) : index + len(target) + 160]
+
+
+def _string_or_empty(value: Any) -> str:
+    return "" if value is None else str(value)
 
 
 def _clamp_float(value: Any) -> float:
