@@ -37,7 +37,7 @@ class PlannedGeneratorProvider:
             provider_id=self.provider_id,
             estimated_cost=0.0,
             cost_mode=self._cost_mode,
-            notes="Provider is planned but not enabled in this POC build.",
+            notes="Provider is planned but not enabled in this build.",
             metadata={"shot_count": len(state.shots), "available": False},
         )
 

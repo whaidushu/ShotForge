@@ -12,7 +12,7 @@
 - Industry: 影视内容
 - Scenario: AI 视频生产策划
 - Playbooks: media_advertising_video_ops, evaluation_rubrics.json, prompt_rules.json, correction_strategies.json
-- POC criteria: 6
+- Acceptance criteria: 6
 
 ## Delivery Readiness
 

@@ -36,7 +36,7 @@ def test_pipeline_exports_all_formats(tmp_path, monkeypatch):
     assert len(state.prompt_package.prompts) == 4
     assert state.solution_architecture is not None
     assert state.solution_architecture.components
-    assert state.solution_architecture.poc_success_criteria
+    assert state.solution_architecture.acceptance_criteria
     assert "media_advertising_video_ops" in state.solution_architecture.knowledge_assets
     assert state.solution_architecture.scenario_patterns
     assert state.solution_architecture.evaluation_metrics
@@ -106,8 +106,8 @@ def test_pipeline_supports_english_output(tmp_path, monkeypatch):
     assert state.solution_architecture.industry == "Media and Entertainment"
     assert state.delivery_readiness is not None
     assert any(
-        item.criterion_id == "poc_observability"
-        for item in state.solution_architecture.poc_success_criteria
+        item.criterion_id == "acceptance_observability"
+        for item in state.solution_architecture.acceptance_criteria
     )
     assert state.shots[0].title == "Hook"
     assert "Visual style" in state.prompt_package.prompts[0].prompt

@@ -72,7 +72,7 @@ def build_observer_provider_catalog(settings: Settings | None = None) -> list[Ob
             requires_base_url=True,
             requires_api_key=False,
             default_base_url="http://localhost:11434",
-            default_model_hint="qwen2.5vl:7b",
+            default_model_hint="local-vision-model",
             description="Calls Ollama's native vision chat endpoint with extracted frames.",
         ),
         ObserverProviderDescriptor(
@@ -84,7 +84,7 @@ def build_observer_provider_catalog(settings: Settings | None = None) -> list[Ob
             requires_base_url=True,
             requires_api_key=False,
             default_base_url="http://localhost:8000/v1",
-            default_model_hint="Qwen/Qwen2.5-VL-7B-Instruct",
+            default_model_hint="local-vllm-vision-model",
             description="Calls a local OpenAI-compatible vLLM vision endpoint.",
         ),
     ]

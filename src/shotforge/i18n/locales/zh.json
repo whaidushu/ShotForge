@@ -6,7 +6,7 @@
       "energetic": "动感"
     },
     "constraints": [
-      "POC 阶段不调用真实视频模型",
+      "未配置服务时不调用真实视频模型",
       "保持每个场景提示词可直接用于生产任务拆解"
     ],
     "titles": [
@@ -160,7 +160,7 @@
       "business_objective": "业务目标",
       "model_strategy": "模型策略",
       "agent_components": "Agent 组件",
-      "poc_success_criteria": "POC 成功标准",
+      "acceptance_criteria": "验收标准",
       "rollout_plan": "上线计划",
       "value_metrics": "价值指标",
       "delivery_readiness": "交付就绪度",
@@ -232,8 +232,8 @@
       "provider": "服务",
       "provider_status": "服务状态",
       "provider_ready": "服务就绪",
-      "reviewer_path_title": "产品审查路径",
-      "reviewer_path_body": "先从内置样例进入，再把服务就绪、新建任务、评估、版本历史、导出和 Harness 证据作为一条产品工作流来审查。",
+      "workflow_path_title": "工作流路径",
+      "workflow_path_body": "先从内置样例进入，再把服务就绪、新建任务、评估、版本历史、导出和审计证据作为一条产品工作流来检查。",
       "path_sample_title": "打开样例",
       "path_sample_body": "载入一个已完成的任务，查看分镜、评估、版本差异、导出文件和审计记录。",
       "path_config_title": "检查服务",
@@ -563,7 +563,7 @@
       "model_strategy": "模型策略",
       "components": "智能体组件",
       "integrations": "集成点",
-      "success": "POC 成功标准",
+      "success": "验收标准",
       "rollout": "上线计划",
       "value": "价值指标",
       "safety": "安全控制",
@@ -573,7 +573,7 @@
     },
     "readiness": {
       "title": "交付就绪度",
-      "subtitle": "面向客户交付、Pilot 设置和生产加固的 POC 检查。",
+      "subtitle": "面向交付、试点设置和生产加固的验收检查。",
       "overall": "整体状态",
       "checks": "检查项",
       "handoff": "交付物",

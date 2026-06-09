@@ -4,7 +4,7 @@
 curated public samples for the ShotForge workbench. They demonstrate:
 
 - concrete storyboard beats for a short AI video concept;
-- mock generation, prompt evaluation, iterative redesign, and version diffs;
+- test generation, prompt evaluation, iterative redesign, and version diffs;
 - export artifacts in JSON, CSV, Markdown, manifest, package view, trace, and run summary formats.
 
 Seed it into the local workspace:

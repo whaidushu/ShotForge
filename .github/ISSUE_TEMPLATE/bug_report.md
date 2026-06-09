@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a reproducible issue in the ShotForge POC
+about: Report a reproducible issue in ShotForge
 title: "[Bug] "
 labels: bug
 assignees: ""

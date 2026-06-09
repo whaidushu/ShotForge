@@ -176,7 +176,7 @@ class IntegrationPoint(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-class POCSuccessCriterion(BaseModel):
+class AcceptanceCriterion(BaseModel):
     criterion_id: str
     metric: str
     target: str
@@ -209,7 +209,7 @@ class SolutionArchitecture(BaseModel):
     components: list[ArchitectureComponent] = Field(default_factory=list)
     integration_points: list[IntegrationPoint] = Field(default_factory=list)
     safety_controls: list[str] = Field(default_factory=list)
-    poc_success_criteria: list[POCSuccessCriterion] = Field(default_factory=list)
+    acceptance_criteria: list[AcceptanceCriterion] = Field(default_factory=list)
     rollout_plan: list[RolloutPhase] = Field(default_factory=list)
     value_metrics: list[ValueMetric] = Field(default_factory=list)
     knowledge_assets: list[str] = Field(default_factory=list)
@@ -217,6 +217,7 @@ class SolutionArchitecture(BaseModel):
     evaluation_metrics: list[str] = Field(default_factory=list)
     assumptions: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
 
 
 class ReadinessCheck(BaseModel):

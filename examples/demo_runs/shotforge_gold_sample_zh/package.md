@@ -79,7 +79,7 @@ Version: `3`
 - 行业: 影视内容
 - 场景: AI 视频生产策划
 - 业务目标: 降低创意策划到视频提示词生产的耗时，并让生产过程可追溯、可评估。
-- 模型策略: POC 阶段使用 Mock LLM，保留 ComfyUI/即梦/Kling/Runway/Open-Sora 的可插拔视频模型适配。
+- 模型策略: 默认使用测试 LLM，并保留 ComfyUI/即梦/Kling/Runway/Open-Sora 的可插拔视频模型适配。
 - 知识资产: media_advertising_video_ops, evaluation_rubrics.json, prompt_rules.json, correction_strategies.json
 - 场景模式: campaign concept to storyboard package, brand-safe short-video production planning, multi-provider video model comparison
 - 评测指标: story clarity, brand fit, motion readability, prompt executability
@@ -91,7 +91,7 @@ Version: `3`
 - SkillRegistry / AgentHarnessRuntime: 注册本地工具，并记录工具调用目的、状态、耗时和权限范围。
 - MCP / Sandbox / Memory / AgentHarnessRuntime: 将本地资源、受限执行和可复用运行记忆作为扩展点暴露。
 
-### POC 成功标准
+### 验收标准
 
 - 创意任务包交付时间: Mock 链路 < 2 分钟 (TraceLog 时间戳与导出完成记录)
 - Agent Harness 可观测性: 每次运行可见 context/tool/policy/MCP/sandbox/memory (Harness Inspector 与 ProjectState 导出)
@@ -102,7 +102,7 @@ Version: `3`
 
 ### 上线计划
 
-- POC: 验证流程、schema、导出和 demo 叙事
+- 本地验证: 验证流程、schema、导出和样例叙事
 - Pilot: 接入一个真实 provider 和一个客户素材源
 - Production: 增加租户、治理、监控和成本控制
 
@@ -111,8 +111,8 @@ Version: `3`
 - 速度: 缩短营销内容迭代周期 (人工撰写创意 brief 和分镜 -> 一次运行生成结构化任务包)
 - 稳定性: 可复现交付，更容易定位问题 (不可追溯的 prompt 实验 -> 保留 state/version/trace/tool calls)
 - 成本控制: 减少无效生成调用 (外部生成模型反复试错 -> 在真实模型消耗前先做预评估)
-- speed: 将方案设计连接到客户 KPI (POC 前未结构化追踪 -> 作为场景价值杠杆追踪)
-- creative consistency: 将方案设计连接到客户 KPI (POC 前未结构化追踪 -> 作为场景价值杠杆追踪)
+- speed: 将方案设计连接到客户 KPI (接入 ShotForge 前未结构化追踪 -> 作为场景价值杠杆追踪)
+- creative consistency: 将方案设计连接到客户 KPI (接入 ShotForge 前未结构化追踪 -> 作为场景价值杠杆追踪)
 
 
 ## 交付就绪度
@@ -139,7 +139,7 @@ Version: `3`
 - 选择一个试点客户场景，并将成功标准绑定到可度量数据。
 
 
-## Mock Generation
+## Generation
 
 - Provider: mock
 - Status: mocked

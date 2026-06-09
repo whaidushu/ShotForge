@@ -40,7 +40,7 @@
     profile_id: fieldValue("provider_profile_id") || fieldValue("provider_profile_name") || "default",
     name: fieldValue("provider_profile_name") || fieldValue("provider_profile_id") || ui.profile_default,
     llm_provider_id: fieldValue("llm_provider_id") || "ollama",
-    llm_model: fieldValue("llm_model") || "qwen2.5:7b",
+    llm_model: fieldValue("llm_model"),
     llm_base_url: fieldValue("llm_base_url"),
     llm_api_key: fieldValue("llm_api_key"),
     evaluator_mode: fieldValue("evaluator_mode") || "llm",

@@ -39,23 +39,23 @@
       "motion readability",
       "prompt executability"
     ],
-    "poc_success_criteria": [
+    "acceptance_criteria": [
       {
-        "criterion_id": "poc_latency",
+        "criterion_id": "acceptance_latency",
         "metric": "creative package turnaround",
-        "target": "< 2 minutes for mock pipeline",
+        "target": "< 2 minutes for test pipeline",
         "evaluation_method": "trace log timestamps and export completion",
         "metadata": {}
       },
       {
-        "criterion_id": "poc_observability",
+        "criterion_id": "acceptance_observability",
         "metric": "agent harness observability",
         "target": "context, tool calls, policies, MCP, sandbox, and memory visible per run",
         "evaluation_method": "Harness Inspector and exported ProjectState",
         "metadata": {}
       },
       {
-        "criterion_id": "poc_quality_loop",
+        "criterion_id": "acceptance_quality_loop",
         "metric": "closed-loop improvement readiness",
         "target": "evaluation, correction plan, diff, and verification generated",
         "evaluation_method": "planning mode output",

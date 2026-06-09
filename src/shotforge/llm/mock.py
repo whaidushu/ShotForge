@@ -7,7 +7,7 @@ from shotforge.llm.provider import LLMCostMode
 
 class MockLLMProvider:
     model_name = "mock"
-    display_name = "Mock LLM"
+    display_name = "Test LLM"
     cost_mode = LLMCostMode.MOCK
 
     def complete(self, prompt: str, *, system: str = "", purpose: str = "") -> str:

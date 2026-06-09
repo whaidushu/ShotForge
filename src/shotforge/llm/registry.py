@@ -47,7 +47,7 @@ def build_default_llm_registry() -> LLMRegistry:
     )
     registry.register(
         OllamaProvider(
-            model=settings.llm_model if settings.llm_provider == "ollama" else "qwen2.5:7b",
+            model=settings.llm_model if settings.llm_provider == "ollama" else "local-ollama-model",
             base_url=settings.llm_base_url or "http://localhost:11434/v1",
             api_key=settings.llm_api_key or "ollama",
             temperature=settings.llm_temperature,
@@ -57,7 +57,7 @@ def build_default_llm_registry() -> LLMRegistry:
     )
     registry.register(
         VLLMProvider(
-            model=settings.llm_model if settings.llm_provider == "vllm" else "Qwen/Qwen2.5-7B-Instruct",
+            model=settings.llm_model if settings.llm_provider == "vllm" else "local-vllm-model",
             base_url=settings.llm_base_url or "http://localhost:8000/v1",
             api_key=settings.llm_api_key or "local",
             temperature=settings.llm_temperature,
@@ -81,7 +81,7 @@ def build_llm_catalog() -> LLMRegistry:
     registry.register(openai_compatible, available=openai_compatible.is_configured())
     registry.register(
         OllamaProvider(
-            model=settings.llm_model if settings.llm_provider == "ollama" else "qwen2.5:7b",
+            model=settings.llm_model if settings.llm_provider == "ollama" else "local-ollama-model",
             base_url=settings.llm_base_url or "http://localhost:11434/v1",
             api_key=settings.llm_api_key or "ollama",
             temperature=settings.llm_temperature,
@@ -91,7 +91,7 @@ def build_llm_catalog() -> LLMRegistry:
     )
     registry.register(
         VLLMProvider(
-            model=settings.llm_model if settings.llm_provider == "vllm" else "Qwen/Qwen2.5-7B-Instruct",
+            model=settings.llm_model if settings.llm_provider == "vllm" else "local-vllm-model",
             base_url=settings.llm_base_url or "http://localhost:8000/v1",
             api_key=settings.llm_api_key or "local",
             temperature=settings.llm_temperature,

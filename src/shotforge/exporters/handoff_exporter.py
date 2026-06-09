@@ -68,7 +68,7 @@ def export_run_summary(state: ProjectState, run_dir: Path) -> Path:
                 f"- Industry: {solution.industry}",
                 f"- Scenario: {solution.scenario}",
                 f"- Playbooks: {', '.join(solution.knowledge_assets)}",
-                f"- POC criteria: {len(solution.poc_success_criteria)}",
+                f"- Acceptance criteria: {len(solution.acceptance_criteria)}",
             ]
         )
     if readiness:

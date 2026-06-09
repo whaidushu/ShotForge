@@ -104,8 +104,8 @@ def _solution_summary(state: ProjectState) -> dict[str, Any]:
         "knowledge_assets": solution.knowledge_assets,
         "scenario_patterns": solution.scenario_patterns,
         "evaluation_metrics": solution.evaluation_metrics,
-        "poc_success_criteria": [
-            item.model_dump(mode="json") for item in solution.poc_success_criteria
+        "acceptance_criteria": [
+            item.model_dump(mode="json") for item in solution.acceptance_criteria
         ],
     }
 

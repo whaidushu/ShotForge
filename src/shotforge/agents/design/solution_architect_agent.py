@@ -4,8 +4,8 @@ from shotforge.core.context_builder import ContextBuilder
 from shotforge.core.project_state import (
     runtime_language,
     ArchitectureComponent,
+    AcceptanceCriterion,
     IntegrationPoint,
-    POCSuccessCriterion,
     ProjectState,
     RolloutPhase,
     SolutionArchitecture,
@@ -53,17 +53,17 @@ def solution_architect_agent(
             ),
             model_strategy=_text(
                 state,
-                "Mock LLM in POC, pluggable video providers for ComfyUI/Jimeng/Kling/Runway/Open-Sora.",
-                "POC \u9636\u6bb5\u4f7f\u7528 Mock LLM\uff0c\u4fdd\u7559 ComfyUI/\u5373\u68a6/Kling/Runway/Open-Sora \u7684\u53ef\u63d2\u62d4\u89c6\u9891\u6a21\u578b\u9002\u914d\u3002",
+                "Test LLM by default, with pluggable video providers for ComfyUI/Jimeng/Kling/Runway/Open-Sora.",
+                "\u9ed8\u8ba4\u4f7f\u7528\u6d4b\u8bd5 LLM\uff0c\u5e76\u4fdd\u7559 ComfyUI/\u5373\u68a6/Kling/Runway/Open-Sora \u7684\u53ef\u63d2\u62d4\u89c6\u9891\u6a21\u578b\u9002\u914d\u3002",
             ),
             agent_topology=[
                 "Intent -> Storyboard -> Motion -> Audio Cue -> Prompt Adapter -> Solution Architect -> Export",
-                "Evaluation loop can add Mock Generation -> Multi-signal Evaluation -> Correction Router -> Redesign -> Verification",
+                "Evaluation loop can add Generation -> Multi-signal Evaluation -> Correction Router -> Redesign -> Verification",
             ],
             components=_components(state),
             integration_points=_integration_points(state, playbook),
             safety_controls=_safety_controls(state, playbook),
-            poc_success_criteria=_success_criteria(state, playbook),
+            acceptance_criteria=_success_criteria(state, playbook),
             rollout_plan=_rollout_plan(state),
             value_metrics=_value_metrics(state, playbook),
             knowledge_assets=[
@@ -90,7 +90,7 @@ def solution_architect_agent(
                     "scenario_insight",
                     "agent_harness",
                     "skill_mcp_sandbox_memory",
-                    "poc_acceptance",
+                    "acceptance_criteria",
                     "customer_value",
                 ],
             },
@@ -223,7 +223,7 @@ def _safety_controls(state: ProjectState, playbook: SolutionPlaybook) -> list[st
     controls = [
         _text(state, "Sandbox commands are allowlisted and dry-run by default.", "Sandbox \u547d\u4ee4\u9ed8\u8ba4 dry-run\uff0c\u5e76\u901a\u8fc7\u767d\u540d\u5355\u7ea6\u675f\u3002"),
         _text(state, "Tool calls record permission scope and execution status.", "\u5de5\u5177\u8c03\u7528\u8bb0\u5f55\u6743\u9650\u8303\u56f4\u548c\u6267\u884c\u72b6\u6001\u3002"),
-        _text(state, "External model providers remain mocked unless credentials are explicitly configured.", "\u5916\u90e8\u6a21\u578b provider \u5728\u672a\u663e\u5f0f\u914d\u7f6e\u51ed\u636e\u524d\u4fdd\u6301 mock/planned \u72b6\u6001\u3002"),
+        _text(state, "External model providers remain in test or planned mode unless credentials are explicitly configured.", "\u5916\u90e8\u6a21\u578b provider \u5728\u672a\u663e\u5f0f\u914d\u7f6e\u51ed\u636e\u524d\u4fdd\u6301\u6d4b\u8bd5\u6216 planned \u72b6\u6001\u3002"),
         _text(state, "Version snapshots preserve rollback and auditability.", "\u7248\u672c\u5feb\u7167\u652f\u6301\u56de\u6eda\u548c\u5ba1\u8ba1\u3002"),
     ]
     controls.extend(playbook.risk_controls)
@@ -233,22 +233,22 @@ def _safety_controls(state: ProjectState, playbook: SolutionPlaybook) -> list[st
 def _success_criteria(
     state: ProjectState,
     playbook: SolutionPlaybook,
-) -> list[POCSuccessCriterion]:
+) -> list[AcceptanceCriterion]:
     criteria = [
-        POCSuccessCriterion(
-            criterion_id="poc_latency",
+        AcceptanceCriterion(
+            criterion_id="acceptance_latency",
             metric=_text(state, "creative package turnaround", "\u521b\u610f\u4efb\u52a1\u5305\u4ea4\u4ed8\u65f6\u95f4"),
-            target=_text(state, "< 2 minutes for mock pipeline", "Mock \u94fe\u8def < 2 \u5206\u949f"),
+            target=_text(state, "< 2 minutes for local test pipeline", "\u672c\u5730\u6d4b\u8bd5\u94fe\u8def < 2 \u5206\u949f"),
             evaluation_method=_text(state, "trace log timestamps and export completion", "TraceLog \u65f6\u95f4\u6233\u4e0e\u5bfc\u51fa\u5b8c\u6210\u8bb0\u5f55"),
         ),
-        POCSuccessCriterion(
-            criterion_id="poc_observability",
+        AcceptanceCriterion(
+            criterion_id="acceptance_observability",
             metric=_text(state, "agent harness observability", "Agent Harness \u53ef\u89c2\u6d4b\u6027"),
             target=_text(state, "context, tool calls, policies, MCP, sandbox, and memory visible per run", "\u6bcf\u6b21\u8fd0\u884c\u53ef\u89c1 context/tool/policy/MCP/sandbox/memory"),
             evaluation_method=_text(state, "Harness Inspector and exported ProjectState", "Harness Inspector \u4e0e ProjectState \u5bfc\u51fa"),
         ),
-        POCSuccessCriterion(
-            criterion_id="poc_quality_loop",
+        AcceptanceCriterion(
+            criterion_id="acceptance_quality_loop",
             metric=_text(state, "closed-loop improvement readiness", "\u95ed\u73af\u6539\u8fdb\u80fd\u529b"),
             target=_text(state, "evaluation, correction plan, diff, and verification generated", "\u80fd\u751f\u6210\u8bc4\u4f30\u3001\u4fee\u6b63\u8ba1\u5212\u3001diff \u548c\u9a8c\u8bc1\u7ed3\u679c"),
             evaluation_method=_text(state, "planning mode output", "planning \u6a21\u5f0f\u8f93\u51fa"),
@@ -256,7 +256,7 @@ def _success_criteria(
     ]
     for index, metric in enumerate(playbook.evaluation_metrics[:3], start=1):
         criteria.append(
-            POCSuccessCriterion(
+            AcceptanceCriterion(
                 criterion_id=f"playbook_metric_{index}",
                 metric=metric,
                 target=_text(state, "measurable in evaluation report", "\u53ef\u5728\u8bc4\u4f30\u62a5\u544a\u4e2d\u91cf\u5316"),
@@ -269,9 +269,9 @@ def _success_criteria(
 def _rollout_plan(state: ProjectState) -> list[RolloutPhase]:
     return [
         RolloutPhase(
-            phase="POC",
-            objective=_text(state, "validate workflow, schema, exports, and demo narrative", "\u9a8c\u8bc1\u6d41\u7a0b\u3001schema\u3001\u5bfc\u51fa\u548c demo \u53d9\u4e8b"),
-            exit_criteria=["mock_pipeline_passes", "web_demo_available", "json_csv_md_exports"],
+            phase="Local validation",
+            objective=_text(state, "validate workflow, schema, exports, and sample narrative", "\u9a8c\u8bc1\u6d41\u7a0b\u3001schema\u3001\u5bfc\u51fa\u548c\u6837\u4f8b\u53d9\u4e8b"),
+            exit_criteria=["test_pipeline_passes", "web_demo_available", "json_csv_md_exports"],
         ),
         RolloutPhase(
             phase="Pilot",
@@ -311,7 +311,7 @@ def _value_metrics(state: ProjectState, playbook: SolutionPlaybook) -> list[Valu
         metrics.append(
             ValueMetric(
                 name=lever,
-                baseline=_text(state, "not tracked before POC", "POC \u524d\u672a\u7ed3\u6784\u5316\u8ffd\u8e2a"),
+                baseline=_text(state, "not tracked before ShotForge", "\u63a5\u5165 ShotForge \u524d\u672a\u7ed3\u6784\u5316\u8ffd\u8e2a"),
                 target=_text(state, "tracked as a scenario value lever", "\u4f5c\u4e3a\u573a\u666f\u4ef7\u503c\u6760\u6746\u8ffd\u8e2a"),
                 business_value=_text(state, "connect solution design to customer KPI", "\u5c06\u65b9\u6848\u8bbe\u8ba1\u8fde\u63a5\u5230\u5ba2\u6237 KPI"),
             )

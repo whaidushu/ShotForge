@@ -204,7 +204,7 @@ def test_llm_evaluator_flattens_nested_signal_array():
 
 def test_local_ollama_provider_uses_env_configuration(monkeypatch):
     monkeypatch.setenv("SHOTFORGE_LLM_PROVIDER", "ollama")
-    monkeypatch.setenv("SHOTFORGE_LLM_MODEL", "qwen2.5:7b")
+    monkeypatch.setenv("SHOTFORGE_LLM_MODEL", "local-chat-model")
     monkeypatch.setenv("SHOTFORGE_LLM_BASE_URL", "http://localhost:11434/v1")
     monkeypatch.setenv("SHOTFORGE_LLM_TEMPERATURE", "0.1")
 
@@ -215,14 +215,14 @@ def test_local_ollama_provider_uses_env_configuration(monkeypatch):
     provider = registry.get("ollama")
 
     assert registry.is_available("ollama")
-    assert provider.model == "qwen2.5:7b"
+    assert provider.model == "local-chat-model"
     assert provider.base_url == "http://localhost:11434/v1"
     assert provider.temperature == 0.1
 
 
 def test_local_vllm_provider_uses_env_configuration(monkeypatch):
     monkeypatch.setenv("SHOTFORGE_LLM_PROVIDER", "vllm")
-    monkeypatch.setenv("SHOTFORGE_LLM_MODEL", "Qwen/Qwen2.5-7B-Instruct")
+    monkeypatch.setenv("SHOTFORGE_LLM_MODEL", "local-vllm-model")
     monkeypatch.setenv("SHOTFORGE_LLM_BASE_URL", "http://localhost:8000/v1")
     monkeypatch.setenv("SHOTFORGE_LLM_API_KEY", "local")
 
@@ -233,6 +233,6 @@ def test_local_vllm_provider_uses_env_configuration(monkeypatch):
     provider = registry.get("vllm")
 
     assert registry.is_available("vllm")
-    assert provider.model == "Qwen/Qwen2.5-7B-Instruct"
+    assert provider.model == "local-vllm-model"
     assert provider.base_url == "http://localhost:8000/v1"
     assert provider.api_key == "local"

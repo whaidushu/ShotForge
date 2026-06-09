@@ -79,7 +79,7 @@ A quiet revenge reveal in a luxury elevator
 - Industry: Media and Entertainment
 - Scenario: AI video production planning
 - Business objective: Reduce creative planning latency and make video prompt production auditable.
-- Model strategy: Mock LLM in POC, pluggable video providers for ComfyUI/Jimeng/Kling/Runway/Open-Sora.
+- Model strategy: Test LLM by default, with pluggable video providers for ComfyUI/Jimeng/Kling/Runway/Open-Sora.
 - Knowledge assets: media_advertising_video_ops, evaluation_rubrics.json, prompt_rules.json, correction_strategies.json
 - Scenario patterns: campaign concept to storyboard package, brand-safe short-video production planning, multi-provider video model comparison
 - Evaluation metrics: story clarity, brand fit, motion readability, prompt executability
@@ -91,9 +91,9 @@ A quiet revenge reveal in a luxury elevator
 - SkillRegistry / AgentHarnessRuntime: Register local tools and record tool-call purpose, status, latency, and permission scope.
 - MCP / Sandbox / Memory / AgentHarnessRuntime: Expose local resources, constrained execution, and reusable run memory as extension points.
 
-### POC success criteria
+### Acceptance criteria
 
-- creative package turnaround: < 2 minutes for mock pipeline (trace log timestamps and export completion)
+- creative package turnaround: < 2 minutes for test pipeline (trace log timestamps and export completion)
 - agent harness observability: context, tool calls, policies, MCP, sandbox, and memory visible per run (Harness Inspector and exported ProjectState)
 - closed-loop improvement readiness: evaluation, correction plan, diff, and verification generated (planning mode output)
 - story clarity: measurable in evaluation report (scenario playbook rubric mapping)
@@ -102,7 +102,7 @@ A quiet revenge reveal in a luxury elevator
 
 ### Rollout plan
 
-- POC: validate workflow, schema, exports, and demo narrative
+- Local validation: validate workflow, schema, exports, and sample narrative
 - Pilot: connect one real provider and one customer asset source
 - Production: add tenancy, governance, monitoring, and cost controls
 
@@ -111,8 +111,8 @@ A quiet revenge reveal in a luxury elevator
 - Speed: shorter campaign iteration cycle (manual creative brief and storyboard drafting -> structured task package generated in one run)
 - Stability: repeatable delivery and easier issue diagnosis (untracked prompt experiments -> state, versions, trace, and tool calls retained)
 - Cost control: reduce wasted generation calls (trial-and-error external generation -> pre-flight evaluation before real model spend)
-- speed: connect solution design to customer KPI (not tracked before POC -> tracked as a scenario value lever)
-- creative consistency: connect solution design to customer KPI (not tracked before POC -> tracked as a scenario value lever)
+- speed: connect solution design to customer KPI (not tracked before ShotForge -> tracked as a scenario value lever)
+- creative consistency: connect solution design to customer KPI (not tracked before ShotForge -> tracked as a scenario value lever)
 
 
 ## Delivery Readiness
@@ -139,7 +139,7 @@ A quiet revenge reveal in a luxury elevator
 - Select one pilot customer scenario and bind success criteria to measurable data.
 
 
-## Mock Generation
+## Generation
 
 - Provider: mock
 - Status: mocked

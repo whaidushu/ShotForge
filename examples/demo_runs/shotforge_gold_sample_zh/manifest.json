@@ -39,23 +39,23 @@
       "motion readability",
       "prompt executability"
     ],
-    "poc_success_criteria": [
+    "acceptance_criteria": [
       {
-        "criterion_id": "poc_latency",
+        "criterion_id": "acceptance_latency",
         "metric": "创意任务包交付时间",
         "target": "Mock 链路 < 2 分钟",
         "evaluation_method": "TraceLog 时间戳与导出完成记录",
         "metadata": {}
       },
       {
-        "criterion_id": "poc_observability",
+        "criterion_id": "acceptance_observability",
         "metric": "Agent Harness 可观测性",
         "target": "每次运行可见 context/tool/policy/MCP/sandbox/memory",
         "evaluation_method": "Harness Inspector 与 ProjectState 导出",
         "metadata": {}
       },
       {
-        "criterion_id": "poc_quality_loop",
+        "criterion_id": "acceptance_quality_loop",
         "metric": "闭环改进能力",
         "target": "能生成评估、修正计划、diff 和验证结果",
         "evaluation_method": "planning 模式输出",

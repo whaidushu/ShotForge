@@ -10,7 +10,7 @@
       "mood": "动感",
       "visual_style": "cinematic",
       "constraints": [
-        "POC 阶段不调用真实视频模型",
+        "未配置服务时不调用真实视频模型",
         "保持每个场景提示词可直接用于生产任务拆解",
         "PHYSICAL TARGETS: keep all explicitly requested visible elements on screen.",
         "Every required physical target must be visible or the generation should be treated as failed.",
@@ -671,10 +671,10 @@
       "scenario": "AI 视频生产策划",
       "business_objective": "降低创意策划到视频提示词生产的耗时，并让生产过程可追溯、可评估。",
       "reference_customer": "品牌营销、内容工作室或 AI 视频运营团队",
-      "model_strategy": "POC 阶段使用 Mock LLM，保留 ComfyUI/即梦/Kling/Runway/Open-Sora 的可插拔视频模型适配。",
+      "model_strategy": "默认使用测试 LLM，并保留 ComfyUI/即梦/Kling/Runway/Open-Sora 的可插拔视频模型适配。",
       "agent_topology": [
         "Intent -> Storyboard -> Motion -> Audio Cue -> Prompt Adapter -> Solution Architect -> Export",
-        "Evaluation loop can add Mock Generation -> Multi-signal Evaluation -> Correction Router -> Redesign -> Verification"
+        "Evaluation loop can add Generation -> Multi-signal Evaluation -> Correction Router -> Redesign -> Verification"
       ],
       "components": [
         {
@@ -795,23 +795,23 @@
         "copyright and likeness review",
         "prompt/version trace"
       ],
-      "poc_success_criteria": [
+      "acceptance_criteria": [
         {
-          "criterion_id": "poc_latency",
+          "criterion_id": "acceptance_latency",
           "metric": "创意任务包交付时间",
           "target": "Mock 链路 < 2 分钟",
           "evaluation_method": "TraceLog 时间戳与导出完成记录",
           "metadata": {}
         },
         {
-          "criterion_id": "poc_observability",
+          "criterion_id": "acceptance_observability",
           "metric": "Agent Harness 可观测性",
           "target": "每次运行可见 context/tool/policy/MCP/sandbox/memory",
           "evaluation_method": "Harness Inspector 与 ProjectState 导出",
           "metadata": {}
         },
         {
-          "criterion_id": "poc_quality_loop",
+          "criterion_id": "acceptance_quality_loop",
           "metric": "闭环改进能力",
           "target": "能生成评估、修正计划、diff 和验证结果",
           "evaluation_method": "planning 模式输出",
@@ -841,7 +841,7 @@
       ],
       "rollout_plan": [
         {
-          "phase": "POC",
+          "phase": "Local validation",
           "objective": "验证流程、schema、导出和 demo 叙事",
           "exit_criteria": [
             "mock_pipeline_passes",
@@ -895,14 +895,14 @@
         },
         {
           "name": "speed",
-          "baseline": "POC 前未结构化追踪",
+          "baseline": "接入 ShotForge 前未结构化追踪",
           "target": "作为场景价值杠杆追踪",
           "business_value": "将方案设计连接到客户 KPI",
           "metadata": {}
         },
         {
           "name": "creative consistency",
-          "baseline": "POC 前未结构化追踪",
+          "baseline": "接入 ShotForge 前未结构化追踪",
           "target": "作为场景价值杠杆追踪",
           "business_value": "将方案设计连接到客户 KPI",
           "metadata": {}
@@ -937,7 +937,7 @@
           "scenario_insight",
           "agent_harness",
           "skill_mcp_sandbox_memory",
-          "poc_acceptance",
+          "acceptance_criteria",
           "customer_value"
         ]
       }
@@ -1874,9 +1874,9 @@
         ],
         "observation_report_id": "obs_4665e1716ba3",
         "metadata": {
-          "source": "MockGenerator",
+          "source": "TestGenerator",
           "provider_id": "mock",
-          "display_name": "Mock Generator",
+          "display_name": "Test Generator",
           "supports_real_generation": false,
           "supports_evaluation": true,
           "cost_estimate": {
@@ -2671,9 +2671,9 @@
         ],
         "observation_report_id": "obs_3811f944c614",
         "metadata": {
-          "source": "MockGenerator",
+          "source": "TestGenerator",
           "provider_id": "mock",
-          "display_name": "Mock Generator",
+          "display_name": "Test Generator",
           "supports_real_generation": false,
           "supports_evaluation": true,
           "cost_estimate": {
@@ -3468,9 +3468,9 @@
         ],
         "observation_report_id": "obs_2c0cb8c6b0e4",
         "metadata": {
-          "source": "MockGenerator",
+          "source": "TestGenerator",
           "provider_id": "mock",
-          "display_name": "Mock Generator",
+          "display_name": "Test Generator",
           "supports_real_generation": false,
           "supports_evaluation": true,
           "cost_estimate": {

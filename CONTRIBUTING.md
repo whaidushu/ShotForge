@@ -1,6 +1,7 @@
 # Contributing
 
-ShotForge is a local-first AI Agent Harness POC for video creative workflows.
+ShotForge is a local-first AI video workflow platform for creative planning,
+generation, evaluation, iteration, and export.
 
 ## Development Setup
 
@@ -28,7 +29,7 @@ Good contributions include:
 - generator provider adapters
 - evaluation rubrics and correction agents
 - export and handoff improvements
-- public docs that explain solution architecture or POC delivery
+- public docs that explain solution architecture, provider setup, or delivery workflows
 
 Avoid committing:
 
@@ -38,7 +39,7 @@ Avoid committing:
 
 ## Design Principles
 
-- Keep the POC runnable without paid model calls.
+- Keep the local development path runnable without paid model calls.
 - Prefer typed state and explicit artifacts over hidden side effects.
 - Make agent execution inspectable through trace, audit API, Web, and CLI.
-- Keep customer-facing docs clear about what is implemented, mocked, and planned.
+- Keep public docs clear about implemented behavior, test providers, and planned adapters.

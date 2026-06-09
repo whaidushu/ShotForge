@@ -62,7 +62,7 @@ class FormState(BaseModel):
     provider_profile_name: str = "Local real generation"
     generator_provider_id: str = "comfyui"
     llm_provider_id: str = "ollama"
-    llm_model: str = "qwen2.5:7b"
+    llm_model: str = ""
     llm_base_url: str = ""
     llm_api_key: str = ""
     evaluator_mode: str = "llm"
@@ -482,7 +482,7 @@ def create_run_form(
     provider_profile_name: str = Form("Local real generation"),
     generator_provider_id: str = Form("comfyui"),
     llm_provider_id: str = Form("ollama"),
-    llm_model: str = Form("qwen2.5:7b"),
+    llm_model: str = Form(""),
     llm_base_url: str = Form(""),
     llm_api_key: str = Form(""),
     evaluator_mode: str = Form("llm"),

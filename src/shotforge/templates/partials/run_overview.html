@@ -68,7 +68,7 @@
       <div class="metric-strip">
         <div class="metric"><strong>{{ ui.solution_industry }}</strong><span>{{ state.solution_architecture.industry }}</span></div>
         <div class="metric"><strong>{{ ui.solution_scenario }}</strong><span>{{ state.solution_architecture.scenario }}</span></div>
-        <div class="metric"><strong>{{ ui.solution_success }}</strong><span>{{ state.solution_architecture.poc_success_criteria | length }}</span></div>
+        <div class="metric"><strong>{{ ui.solution_success }}</strong><span>{{ state.solution_architecture.acceptance_criteria | length }}</span></div>
       </div>
       <p>{{ state.solution_architecture.business_objective }}</p>
     {% endif %}
@@ -94,8 +94,8 @@
     <div class="section-divider"></div>
     <div class="product-path">
       <div class="product-path-intro">
-        <h4>{{ web.workspace.reviewer_path_title }}</h4>
-        <p>{{ web.workspace.reviewer_path_body }}</p>
+        <h4>{{ web.workspace.workflow_path_title }}</h4>
+        <p>{{ web.workspace.workflow_path_body }}</p>
       </div>
       <div class="product-steps">
         <a class="product-step" href="/demo?language={{ form_state.language }}">

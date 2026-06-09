@@ -6,7 +6,7 @@
       "energetic": "energetic"
     },
     "constraints": [
-      "No real model calls in POC stage",
+      "No real model calls unless providers are configured",
       "Keep scene prompts production-ready"
     ],
     "titles": [
@@ -162,7 +162,7 @@
       "scenario_patterns": "Scenario patterns",
       "evaluation_metrics": "Evaluation metrics",
       "agent_components": "Agent components",
-      "poc_success_criteria": "POC success criteria",
+      "acceptance_criteria": "Acceptance criteria",
       "rollout_plan": "Rollout plan",
       "value_metrics": "Value metrics",
       "delivery_readiness": "Delivery Readiness",
@@ -232,8 +232,8 @@
       "provider": "Provider",
       "provider_status": "Provider status",
       "provider_ready": "Provider Ready",
-      "reviewer_path_title": "Product review path",
-      "reviewer_path_body": "Start from a curated run, then inspect provider readiness, run creation, evaluation, version history, exports, and harness evidence as one product workflow.",
+      "workflow_path_title": "Workflow path",
+      "workflow_path_body": "Start from a curated run, then inspect provider readiness, run creation, evaluation, version history, exports, and audit evidence as one product workflow.",
       "path_sample_title": "Open sample",
       "path_sample_body": "Load a completed run with storyboard, evaluation, version diff, exports, and audit records.",
       "path_config_title": "Check providers",
@@ -442,7 +442,7 @@
       "model_strategy": "Model strategy",
       "components": "Agent components",
       "integrations": "Integrations",
-      "success": "POC success",
+      "success": "Acceptance criteria",
       "rollout": "Rollout",
       "value": "Value metrics",
       "safety": "Safety controls",
@@ -452,7 +452,7 @@
     },
     "readiness": {
       "title": "Delivery Readiness",
-      "subtitle": "POC gates for customer handoff, pilot setup, and production hardening.",
+      "subtitle": "Acceptance gates for handoff, pilot setup, and production hardening.",
       "overall": "Overall status",
       "checks": "Checks",
       "handoff": "Handoff",

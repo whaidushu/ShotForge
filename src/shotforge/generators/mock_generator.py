@@ -6,7 +6,7 @@ from shotforge.generators.base import GenerationCostEstimate, GeneratorCapabilit
 
 class MockGenerator:
     provider_id = "mock"
-    display_name = "Mock Generator"
+    display_name = "Test Generator"
 
     def supports_real_generation(self) -> bool:
         return False
@@ -66,7 +66,7 @@ class MockGenerator:
             shots=shots,
             artifact_refs=[shot.mock_video_uri for shot in shots],
             metadata={
-                "source": "MockGenerator",
+                "source": "TestGenerator",
                 "provider_id": self.provider_id,
                 "display_name": self.display_name,
                 "supports_real_generation": self.supports_real_generation(),

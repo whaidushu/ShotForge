@@ -21,7 +21,7 @@ def delivery_readiness_agent(
         context_builder.build(
             state,
             "Delivery Readiness Agent",
-            ["poc-readiness", "deployment", "governance"],
+            ["acceptance-readiness", "deployment", "governance"],
         )
         checks = [
             _state_schema_check(state),
@@ -344,7 +344,7 @@ def _solution_architecture_check(state: ProjectState) -> ReadinessCheck:
         architecture
         and architecture.components
         and architecture.integration_points
-        and architecture.poc_success_criteria
+        and architecture.acceptance_criteria
     )
     return ReadinessCheck(
         check_id="solution_architecture",
@@ -481,8 +481,8 @@ def _risk_register(state: ProjectState) -> list[str]:
     risks = [
         _text(
             state,
-            "External video model quality is not validated in mock mode.",
-            "Mock 模式下尚未验证外部视频模型质量。",
+            "External video model quality is not validated in test mode.",
+            "测试模式下尚未验证外部视频模型质量。",
         ),
         _text(
             state,

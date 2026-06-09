@@ -23,4 +23,4 @@ How would this improve speed, cost, stability, quality, or traceability?
 - [ ] State/artifact contract is clear
 - [ ] Context/tool/runtime evidence is inspectable
 - [ ] Tests cover the new behavior
-- [ ] Docs explain what is implemented, mocked, and planned
+- [ ] Docs explain what is implemented, test-only, and planned

@@ -12,7 +12,7 @@
 - Industry: Media and Entertainment
 - Scenario: AI video production planning
 - Playbooks: media_advertising_video_ops, evaluation_rubrics.json, prompt_rules.json, correction_strategies.json
-- POC criteria: 6
+- Acceptance criteria: 6
 
 ## Delivery Readiness
 

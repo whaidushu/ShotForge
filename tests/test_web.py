@@ -229,14 +229,14 @@ def test_provider_profile_api_persists_local_config(tmp_path, monkeypatch):
             "profile_id": "local-comfy",
             "name": "Local ComfyUI",
             "llm_provider_id": "ollama",
-            "llm_model": "qwen2.5:7b",
+            "llm_model": "local-chat-model",
             "llm_base_url": "http://localhost:11434/v1",
             "generator_provider_id": "comfyui",
             "comfyui_base_url": "http://127.0.0.1:8001",
             "comfyui_workflows_dir": str(tmp_path),
             "comfyui_workflow_id": "wan2_2_i2v_empty_start",
             "observer_provider_id": "ollama-vision",
-            "vlm_model": "qwen2.5vl:7b",
+            "vlm_model": "local-vision-model",
             "vlm_base_url": "http://localhost:11434",
             "vlm_api_key": "secret",
             "vlm_frame_sample_count": 5,
@@ -252,7 +252,7 @@ def test_provider_profile_api_persists_local_config(tmp_path, monkeypatch):
     assert profiles.json()["profiles"][0]["name"] == "Local ComfyUI"
     assert profiles.json()["profiles"][0]["llm_api_key"] == ""
     assert profiles.json()["profiles"][0]["observer_provider_id"] == "ollama-vision"
-    assert profiles.json()["profiles"][0]["vlm_model"] == "qwen2.5vl:7b"
+    assert profiles.json()["profiles"][0]["vlm_model"] == "local-vision-model"
     assert profiles.json()["profiles"][0]["vlm_api_key"] == ""
     assert profiles.json()["profiles"][0]["has_vlm_api_key"] is True
     get_settings.cache_clear()
@@ -433,7 +433,7 @@ def test_create_run_form_reports_runtime_service_errors(monkeypatch):
             "rubric_id": "baseline_v1",
             "generator_provider_id": "comfyui",
             "llm_provider_id": "ollama",
-            "llm_model": "qwen2.5:7b",
+            "llm_model": "local-chat-model",
             "llm_base_url": "",
             "llm_api_key": "",
             "evaluator_mode": "llm",
@@ -471,7 +471,7 @@ def test_create_run_api_reports_runtime_service_errors(monkeypatch):
             "with_evaluation": True,
             "generator_provider_id": "mock",
             "llm_provider_id": "ollama",
-            "llm_model": "qwen2.5:7b",
+            "llm_model": "local-chat-model",
             "evaluator_mode": "llm",
         },
     )
@@ -581,7 +581,7 @@ def test_create_run_api_with_planning(tmp_path, monkeypatch):
     assert_template_rendered(page.text)
     assert "Version Chain" in page.text
     assert "Solution Architecture" in page.text
-    assert "POC success" in page.text
+    assert "Acceptance criteria" in page.text
     assert "Delivery Readiness" in page.text
     assert "Handoff" in page.text
     assert "Manifest" in page.text

@@ -61,9 +61,9 @@ Version: `{{ state.version }}`
 - {{ component.name }} / {{ component.owner_agent }}: {{ component.responsibility }}
 {% endfor %}
 
-### {{ labels.get("poc_success_criteria", "POC success criteria") }}
+### {{ labels.get("acceptance_criteria", "Acceptance criteria") }}
 
-{% for criterion in solution.poc_success_criteria %}
+{% for criterion in solution.acceptance_criteria %}
 - {{ criterion.metric }}: {{ criterion.target }} ({{ criterion.evaluation_method }})
 {% endfor %}
 
@@ -108,7 +108,7 @@ Version: `{{ state.version }}`
 {% endif %}
 
 {% if state.generation_results %}
-## Mock Generation
+## Generation
 
 {% set generation = state.generation_results[-1] %}
 - Provider: {{ generation.provider }}

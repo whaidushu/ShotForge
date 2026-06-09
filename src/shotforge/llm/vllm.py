@@ -10,7 +10,7 @@ class VLLMProvider(OllamaProvider):
 
     def __init__(
         self,
-        model: str = "Qwen/Qwen2.5-7B-Instruct",
+        model: str = "",
         base_url: str = "http://localhost:8000/v1",
         api_key: str = "local",
         temperature: float = 0.2,

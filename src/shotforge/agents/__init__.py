@@ -178,11 +178,11 @@ def build_default_agent_catalog() -> AgentCatalog:
             ),
             AgentSpec(
                 agent_name="delivery_readiness_agent",
-                role="Evaluate POC readiness gates and handoff requirements.",
+                role="Evaluate acceptance gates and handoff requirements.",
                 inputs=["project_state", "solution_architecture", "skill_registry"],
                 outputs=["delivery_readiness"],
                 dependencies=["solution_architect_agent"],
-                context_tags=["poc-readiness", "deployment", "governance"],
+                context_tags=["acceptance-readiness", "deployment", "governance"],
                 extension_points=["customer_gate_policy", "security_review_policy"],
             ),
             AgentSpec(
@@ -286,7 +286,7 @@ class AgentHarness:
                 self.context_builder,
                 self.registry,
             ),
-            tags=["poc-readiness", "deployment", "governance"],
+            tags=["acceptance-readiness", "deployment", "governance"],
         )
 
     def export_agent(self, state: ProjectState) -> ProjectState:

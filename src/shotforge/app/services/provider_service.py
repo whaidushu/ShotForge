@@ -106,7 +106,7 @@ class ProviderService:
             return profiles[0]
         settings = get_settings()
         llm_provider_id = settings.llm_provider if settings.llm_provider != "mock" else "ollama"
-        llm_model = settings.llm_model if settings.llm_provider != "mock" else "qwen2.5:7b"
+        llm_model = settings.llm_model if settings.llm_provider != "mock" else ""
         evaluator_mode = settings.evaluator_mode if settings.evaluator_mode != "mock" else "llm"
         return ProviderProfile(
             profile_id="local-real",

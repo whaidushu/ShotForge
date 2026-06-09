@@ -23,7 +23,7 @@ def test_mock_generator_implements_provider_contract(tmp_path, monkeypatch):
     provider = MockGenerator()
 
     assert provider.provider_id == "mock"
-    assert provider.display_name == "Mock Generator"
+    assert provider.display_name == "Test Generator"
     assert provider.supports_real_generation() is False
     assert provider.capabilities().supports_video is True
     assert provider.estimate_cost(state).cost_mode == "free"

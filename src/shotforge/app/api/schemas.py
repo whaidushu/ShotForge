@@ -18,7 +18,7 @@ class RunRequest(BaseModel):
     provider_profile_name: str = "Local real generation"
     generator_provider_id: str = "comfyui"
     llm_provider_id: str | None = "ollama"
-    llm_model: str | None = "qwen2.5:7b"
+    llm_model: str | None = ""
     llm_base_url: str | None = None
     llm_api_key: str | None = None
     evaluator_mode: str | None = "llm"
@@ -52,7 +52,7 @@ class PreflightRequest(BaseModel):
     provider_profile_name: str = "Local real generation"
     generator_provider_id: str = "comfyui"
     llm_provider_id: str = "ollama"
-    llm_model: str = "qwen2.5:7b"
+    llm_model: str = ""
     llm_base_url: str = ""
     llm_api_key: str = ""
     evaluator_mode: str = "llm"
