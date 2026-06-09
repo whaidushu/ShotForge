@@ -408,10 +408,13 @@
       }
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: minmax(280px, 1fr) minmax(320px, 0.8fr);
         gap: 16px;
-        align-items: center;
+        align-items: start;
         padding-top: 6px;
+      }
+      .hero > div:first-child {
+        min-width: 0;
       }
       .hero-title {
         margin: 0;
@@ -422,6 +425,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
+        justify-content: flex-end;
       }
       .export-links a, .pill, .badge {
         border: 1px solid var(--line);
@@ -556,6 +560,53 @@
         font-size: 14px;
         overflow-wrap: anywhere;
       }
+      .product-path {
+        display: grid;
+        grid-template-columns: minmax(220px, 0.74fr) minmax(0, 1fr);
+        gap: 12px;
+        align-items: stretch;
+      }
+      .product-path-intro {
+        border: 1px solid #c7d8d4;
+        border-radius: 10px;
+        padding: 13px;
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.09), rgba(244, 184, 96, 0.1)),
+          #fbfcfd;
+      }
+      .product-path-intro h4 {
+        margin: 0 0 7px;
+        font-size: 14px;
+      }
+      .product-path-intro p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .product-steps {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .product-step {
+        display: grid;
+        gap: 5px;
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 10px;
+        background: #fbfcfd;
+        color: var(--ink);
+      }
+      .product-step strong {
+        color: var(--accent-dark);
+        font-size: 12px;
+      }
+      .product-step span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
       .timeline {
         display: grid;
         gap: 8px;
@@ -587,6 +638,7 @@
         display: grid;
         gap: 7px;
         margin-top: 10px;
+        min-width: 0;
       }
       .status-row {
         border: 1px solid var(--line);
@@ -594,6 +646,8 @@
         padding: 9px 10px;
         background: var(--panel-soft);
         font-size: 12px;
+        overflow-wrap: anywhere;
+        word-break: break-all;
       }
       .status-row.failed { border-color: #fca5a5; background: #fff1f0; color: var(--red); }
       .status-row.warning { border-color: #facc15; background: #fffbeb; color: var(--amber); }
@@ -611,6 +665,10 @@
         background: var(--panel);
         padding: 14px 18px;
         box-shadow: var(--shadow-soft);
+        overflow: hidden;
+      }
+      .runtime-banner > * {
+        min-width: 0;
       }
       .runtime-banner strong {
         display: block;
@@ -871,15 +929,22 @@
         .sidebar, .history-rail, .inspector-rail { position: static; max-height: none; overflow: visible; }
         .inspector-rail, .workbench-layout .review-stack { grid-template-columns: 1fr; }
         .hero { grid-template-columns: 1fr; }
+        .export-links { justify-content: flex-start; }
         .studio-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .runtime-banner { grid-template-columns: 1fr; margin: 14px; }
       }
       @media (max-width: 720px) {
         .topbar { grid-template-columns: 1fr; }
+        .nav { justify-content: flex-start; }
+        .nav a, .nav-select { font-size: 12px; padding-top: 7px; padding-bottom: 7px; }
         .layout, .config-layout { padding: 14px; }
         .config-grid, .prompt-change, .step-row { grid-template-columns: 1fr; }
+        .runtime-banner .status-list { display: none; }
+        .actions { flex-direction: column; }
+        .actions button, .actions a { width: 100%; }
         .studio-kpis { grid-template-columns: 1fr; }
         .workbench-callouts { grid-template-columns: 1fr; }
+        .product-path, .product-steps { grid-template-columns: 1fr; }
       }
     </style>
   </head>

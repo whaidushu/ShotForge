@@ -84,6 +84,23 @@ docs/                  Bilingual documentation index plus en/ and zh/ documents
 - [Deployment Notes](docs/en/local-deployment.md): local setup, provider configuration, exports, and storage layout.
 - [Model Selection Matrix](docs/en/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
 
+## Product Review Path
+
+For a quick public review, start with the Web workbench instead of reading the
+runtime modules first:
+
+1. Run `shotforge web --reload`.
+2. Open `http://127.0.0.1:8000/demo?language=en` to load the curated sample run.
+3. Inspect the run overview, storyboard, prompt package, generation artifacts,
+   evaluation, version changes, exports, and harness evidence.
+4. Open Configuration to check how LLM/Judge, Video, and Visual Observer
+   providers are separated and preflighted.
+5. Create a new run from the left rail to see how the same workflow starts from
+   one idea.
+
+This path presents ShotForge as a run-management workbench first, with the Agent
+Harness evidence available as the inspection layer underneath.
+
 ## Quick Start
 
 ### Conda setup

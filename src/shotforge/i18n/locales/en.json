@@ -231,7 +231,17 @@
       "pipeline": "Pipeline",
       "provider": "Provider",
       "provider_status": "Provider status",
-      "provider_ready": "Provider Ready"
+      "provider_ready": "Provider Ready",
+      "reviewer_path_title": "Product review path",
+      "reviewer_path_body": "Start from a curated run, then inspect provider readiness, run creation, evaluation, version history, exports, and harness evidence as one product workflow.",
+      "path_sample_title": "Open sample",
+      "path_sample_body": "Load a completed run with storyboard, evaluation, version diff, exports, and audit records.",
+      "path_config_title": "Check providers",
+      "path_config_body": "Review LLM/Judge, video, and visual observer readiness before real generation.",
+      "path_run_title": "Create run",
+      "path_run_body": "Turn one idea into a managed production run with state, artifacts, and lifecycle tracking.",
+      "path_handoff_title": "Inspect handoff",
+      "path_handoff_body": "Use the sample run to review export files, readiness gates, and traceable delivery evidence."
     },
     "dashboard": {
       "title": "Run Dashboard",

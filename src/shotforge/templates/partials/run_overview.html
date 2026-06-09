@@ -91,6 +91,31 @@
       <div class="metric"><strong>{{ web.dashboard.ready_for_handoff }}</strong><span>{{ run_dashboard.ready_for_handoff }}</span></div>
       <div class="metric"><strong>{{ web.workspace.provider_ready }}</strong><span>{% if service_warnings %}{{ web.common.attention }}{% else %}{{ web.common.ready }}{% endif %}</span></div>
     </div>
+    <div class="section-divider"></div>
+    <div class="product-path">
+      <div class="product-path-intro">
+        <h4>{{ web.workspace.reviewer_path_title }}</h4>
+        <p>{{ web.workspace.reviewer_path_body }}</p>
+      </div>
+      <div class="product-steps">
+        <a class="product-step" href="/demo?language={{ form_state.language }}">
+          <strong>01 / {{ web.workspace.path_sample_title }}</strong>
+          <span>{{ web.workspace.path_sample_body }}</span>
+        </a>
+        <a class="product-step" href="/config?language={{ form_state.language }}">
+          <strong>02 / {{ web.workspace.path_config_title }}</strong>
+          <span>{{ web.workspace.path_config_body }}</span>
+        </a>
+        <a class="product-step" href="#new-run">
+          <strong>03 / {{ web.workspace.path_run_title }}</strong>
+          <span>{{ web.workspace.path_run_body }}</span>
+        </a>
+        <a class="product-step" href="/demo?language={{ form_state.language }}">
+          <strong>04 / {{ web.workspace.path_handoff_title }}</strong>
+          <span>{{ web.workspace.path_handoff_body }}</span>
+        </a>
+      </div>
+    </div>
     {% if run_dashboard.runs %}
       <div class="section-divider"></div>
       <h3>{{ web.workspace.current_focus }}</h3>

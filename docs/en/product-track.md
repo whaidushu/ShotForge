@@ -20,6 +20,25 @@ The product surface is intentionally profile-driven. Normal users should select
 or save a provider profile instead of passing local service URLs in every run
 request.
 
+## Product Completeness Layer
+
+The current product work is not a full UI redesign. It is a reviewer-facing
+completion layer that makes the existing runtime readable as a tool:
+
+- **Curated sample first**: a public reviewer can open `/demo?language=en` and
+  inspect a completed run without configuring GPU services.
+- **Run as the product object**: the workbench frames each video job as a run
+  with lifecycle, provider profile, artifacts, evaluation, versions, exports,
+  and audit evidence.
+- **Configuration is separate**: provider readiness lives on the Configuration
+  page so the creative workflow is not mixed with local service details.
+- **Handoff is visible**: exports, readiness gates, trace, and package files are
+  presented as delivery artifacts, not hidden implementation files.
+
+This is the minimum product layer needed before deeper UI polish. It lets a
+reviewer understand the workflow in minutes while still making the Agent
+Harness evidence available underneath the workbench.
+
 ## Current User Flow
 
 ```text

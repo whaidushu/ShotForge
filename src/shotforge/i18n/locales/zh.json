@@ -231,7 +231,17 @@
       "pipeline": "流程进度",
       "provider": "服务",
       "provider_status": "服务状态",
-      "provider_ready": "服务就绪"
+      "provider_ready": "服务就绪",
+      "reviewer_path_title": "产品审查路径",
+      "reviewer_path_body": "先从内置样例进入，再把服务就绪、新建任务、评估、版本历史、导出和 Harness 证据作为一条产品工作流来审查。",
+      "path_sample_title": "打开样例",
+      "path_sample_body": "载入一个已完成的任务，查看分镜、评估、版本差异、导出文件和审计记录。",
+      "path_config_title": "检查服务",
+      "path_config_body": "在真实生成前检查 LLM/评估、视频生成和视觉观察服务是否就绪。",
+      "path_run_title": "新建任务",
+      "path_run_body": "把一句创意转成可管理的生产任务，包含状态、产物和生命周期跟踪。",
+      "path_handoff_title": "检查交付",
+      "path_handoff_body": "通过样例任务查看导出文件、就绪门禁和可追溯的交付证据。"
     },
     "dashboard": {
       "title": "Run 任务看板",
