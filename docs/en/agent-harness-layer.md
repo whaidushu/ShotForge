@@ -1,14 +1,19 @@
-# Engineering Track
+# Agent Harness Layer
 
-The Engineering Harness track is the part of ShotForge focused on AI system design and software engineering depth.
+The Agent Harness layer is the inspectable runtime underneath ShotForge. It is
+responsible for AI system design and software engineering depth: typed state,
+context construction, agent contracts, tool orchestration, memory, MCP-style
+access, sandbox policy, evaluation, traceability, and versioned iteration.
 
 It should stay clean, testable, modular, and explainable.
 
 ## Positioning
 
-ShotForge Engineering Harness is an agent workflow system for AI video creative planning.
+ShotForge is an AI video workbench built on top of this runtime layer.
 
-It converts a one-line idea into a structured production package through explicit state, agent nodes, evaluation signals, correction plans, version snapshots, and exports.
+The runtime converts a one-line idea into a structured production package
+through explicit state, agent nodes, evaluation signals, correction plans,
+version snapshots, and exports.
 
 The main value is not "one prompt generates a video". The main value is:
 
@@ -16,7 +21,7 @@ The main value is not "one prompt generates a video". The main value is:
 structured state + agent orchestration + evaluation loop + extensible provider boundary
 ```
 
-## What This Track Should Make Inspectable
+## What This Layer Should Make Inspectable
 
 - Clear domain modeling with Pydantic.
 - Deterministic workflow orchestration with LangGraph.
@@ -65,14 +70,16 @@ src/shotforge/agents/
   export/
 ```
 
-## Engineering Boundaries
+## Runtime Boundaries
 
-This track should avoid becoming a heavy product app too early.
+The runtime layer should not become a heavy product app. It should expose
+capabilities that the workbench can use without embedding UI assumptions into
+the core workflow.
 
 Good additions:
 
 - More robust state schemas.
-- Better trace and version diff views.
+- Better trace and version diff APIs.
 - More evaluator plugins.
 - Better correction routing.
 - Provider abstraction improvements.
@@ -96,7 +103,7 @@ A reviewer should be able to see:
 - Provider boundaries are designed before external integrations are added.
 - Evaluation/refinement is part of the architecture, not an afterthought.
 
-## Next Engineering Milestones
+## Next Runtime Milestones
 
 1. Strengthen typed contracts between agents.
 2. Add a trace viewer API and compact trace summary.

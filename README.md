@@ -1,33 +1,40 @@
 # ShotForge
 
-ShotForge is a local-first AI video Agent Workbench that explores how an agent runtime, an evaluation loop, and workflow version governance can support the full path from creative idea to prompt package, video artifact, quality review, iteration, and handoff export.
+ShotForge is a local-first AI video workbench built on top of an inspectable
+Agent Harness runtime. It explores how state management, context engineering,
+tool orchestration, evaluation loops, provider boundaries, and workflow version
+governance can support the path from creative idea to prompt package, video
+artifact, quality review, iteration, and handoff export.
 
 Documentation: [Docs index](docs/index.md)
 
-It has two deliberately separated tracks:
+## Architecture Layers
 
-1. **Engineering Runtime**: an agent orchestration system for stateful workflow execution, provider boundaries, evaluation, traceability, and versioned iteration.
-2. **Product Studio**: a user-facing short-video creation workflow for provider configuration, local service checks, generation, prompt review, artifact preview, and export.
+ShotForge has two connected layers:
 
-The current default branch keeps both layers connected: the runtime manages structured state, agents, evaluation, traces, version snapshots, and version diffs; the Web product layer lets a user configure providers, test local services, run generation, inspect prompt changes, compare versions, and open video artifacts.
+1. **Agent Harness Runtime**: the orchestration layer for typed state,
+   context construction, agent contracts, skill/tool orchestration, memory,
+   MCP-style access, sandbox policy, evaluation, traceability, and versioned
+   iteration.
+2. **AI Video Workbench**: the user-facing layer for provider configuration,
+   local service checks, run creation, storyboard and prompt review, generated
+   artifacts, evaluation results, version comparison, and handoff export.
 
-## Why Two Tracks
+The Web workbench is the product surface. The Agent Harness runtime is the
+inspectable execution layer underneath it.
 
-Building an impressive engineering project and building a complete product are not the same job.
+## Why This Shape
 
-The engineering track explores:
+AI video generation is not only a single model-call problem. For a production
+workflow, the harder problem is managing the loop around the model:
 
-- Can the system model state clearly?
-- Can agents be orchestrated, traced, evaluated, versioned, and extended?
-- Can model providers, tools, evaluators, and correction agents be plugged in without rewriting the workflow?
+```text
+idea -> design -> generate -> observe -> evaluate -> correct -> version -> export
+```
 
-The product track explores:
-
-- Can a user start from one idea and get a usable short-video output?
-- Can they review, edit, refine, preview, and export without reading implementation details?
-- Can the workflow feel like a real creative tool instead of a technical demo?
-
-Keeping these tracks explicit makes the project easier to review, easier to extend, and easier to evolve without mixing runtime architecture decisions with product-surface decisions.
+ShotForge keeps the runtime and workbench separated so the system can be
+reviewed in two ways: as an Agent Harness architecture and as a usable video
+production workspace.
 
 ## Current Capability
 
@@ -79,8 +86,8 @@ docs/                  Bilingual documentation index plus en/ and zh/ documents
 - [Repository Review Guide](docs/en/repository-review-guide.md): how to read the project in 5-10 minutes.
 - [Architecture Overview](docs/en/architecture-overview.md): one-page map of workflow, runtime, interfaces, and deliverables.
 - [Project Spine And Demo Path](docs/en/project-spine-and-demo-path.md): concise framing, demo sequence, and review path.
-- [Engineering Track](docs/en/engineering-track.md): architecture, engineering value, and implementation surface.
-- [Product Track](docs/en/product-track.md): product goal, user workflow, UX milestones, and video creation loop.
+- [Agent Harness Layer](docs/en/agent-harness-layer.md): runtime architecture, engineering value, and implementation surface.
+- [AI Video Workbench Layer](docs/en/video-workbench-layer.md): user workflow, product completeness layer, and video creation loop.
 - [Deployment Notes](docs/en/local-deployment.md): local setup, provider configuration, exports, and storage layout.
 - [Model Selection Matrix](docs/en/model-selection-matrix.md): LLM/Judge, video, and observer provider selection tradeoffs.
 

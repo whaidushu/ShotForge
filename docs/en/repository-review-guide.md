@@ -4,19 +4,24 @@ This document is for a reviewer who opens the repository and has limited time.
 
 ## 30-Second Read
 
-ShotForge is an AI video Agent Workbench exploration with two tracks:
+ShotForge is an AI video workbench built on top of an inspectable Agent Harness
+runtime.
 
-- Engineering Harness: agent workflow architecture, typed state, traceability, versioning, evaluation, and provider extensibility.
-- Product Studio: the same core surfaced as a short-video creation workflow with provider configuration, run history, artifacts, prompt changes, and exports.
+It has two connected architecture layers:
 
-The current default branch keeps the Engineering Harness and Product Studio connected while preserving their boundaries.
+- Agent Harness Layer: workflow architecture, typed state, traceability,
+  versioning, evaluation, memory, MCP-style access, sandbox policy, and provider
+  extensibility.
+- AI Video Workbench Layer: the user-facing short-video creation workflow with
+  provider configuration, run history, artifacts, prompt changes, evaluation,
+  version comparison, and exports.
 
 ## What To Look At First
 
 1. `README.md`: project positioning and quick start.
 2. `project-spine-and-demo-path.md`: one-page project framing and review path.
 3. `architecture-overview.md`: runtime, provider, API, and deliverable map.
-4. `product-track.md`: product workflow and current direction.
+4. `video-workbench-layer.md`: product workflow and current direction.
 5. `src/shotforge/core/project_state.py`: typed project state.
 6. `src/shotforge/workflows/`: LangGraph workflow definitions.
 7. `tests/`: behavior coverage.
@@ -29,7 +34,8 @@ AI video generation is not only a model-call problem. For complex creative outpu
 plan -> generate -> observe -> evaluate -> correct -> version -> converge -> export
 ```
 
-ShotForge treats that loop as both the product surface and the engineering surface.
+ShotForge treats that loop as a user-facing workbench backed by an inspectable
+runtime.
 
 ## Engineering Highlights
 

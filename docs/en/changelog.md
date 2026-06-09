@@ -23,7 +23,7 @@ delivery, and provider-selection documentation.
 - Added public architecture, runtime audit, delivery readiness, and provider
   selection documentation.
 - Added model selection matrix for LLM/Judge, video generation, and visual observation providers.
-- Added project spine and product track docs for the current workbench flow.
+- Added project spine and workbench-layer docs for the current workbench flow.
 
 ### Verification
 

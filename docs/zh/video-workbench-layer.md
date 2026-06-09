@@ -1,6 +1,6 @@
-# 产品线
+# AI 视频工作台层
 
-产品线是 ShotForge 面向用户的一层。它把底层 runtime 做成短视频工作台，让用户可以配置 provider、运行生成闭环、查看 prompt 变化和视频产物，并导出交付包。
+AI 视频工作台层是 ShotForge 面向用户的产品表面。它把底层 Agent Harness 运行时做成短视频生产工作台，让用户可以配置 provider、运行生成闭环、查看 prompt 变化和视频产物、复核评估结果、对比版本，并导出交付包。
 
 ## 当前产品表面
 
@@ -9,7 +9,7 @@
 - **Workflow page**：创意输入、模式选择、运行进度、storyboard、prompt changes、生成视频、评估报告、修正计划、版本链和导出。
 - **Configuration page**：provider profiles、LLM/Judge 设置、视频 provider 设置、ComfyUI workflow 搜索、视觉观察器设置、preflight 和本地 readiness 测试。
 
-产品表面应优先使用 provider profile。普通用户不应该每次 API 调用都手动传本地服务 URL。
+工作台应优先使用 provider profile。普通用户不应该每次 API 调用都手动传本地服务 URL。
 
 ## 产品完整度层
 
@@ -37,7 +37,7 @@
 -> 对比版本和交付文件
 ```
 
-## 产品需要显式展示
+## 工作台需要显式展示什么
 
 - 当前使用的 provider profile。
 - LLM、视频、workflow、observer 是否 ready。

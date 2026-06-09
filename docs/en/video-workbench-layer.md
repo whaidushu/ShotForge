@@ -1,8 +1,9 @@
-# Product Track
+# AI Video Workbench Layer
 
-The Product Studio track is the user-facing layer of ShotForge. It turns the
-runtime into a short-video workbench where a user can configure providers, run a
-generation loop, inspect prompt changes and artifacts, and export a handoff
+The AI Video Workbench layer is the user-facing surface of ShotForge. It turns
+the Agent Harness runtime into a short-video production workspace where a user
+can configure providers, run a generation loop, inspect prompt changes and
+artifacts, review evaluation results, compare versions, and export a handoff
 package.
 
 ## Current Product Surface
@@ -16,8 +17,8 @@ The current Web app is organized around two pages:
   settings, ComfyUI workflow discovery, visual observer settings, preflight, and
   local readiness testing.
 
-The product surface is intentionally profile-driven. Normal users should select
-or save a provider profile instead of passing local service URLs in every run
+The workbench is intentionally profile-driven. Normal users should select or
+save a provider profile instead of passing local service URLs in every run
 request.
 
 ## Product Completeness Layer
@@ -54,7 +55,7 @@ Configure provider profile
 -> Compare versions and handoff artifacts
 ```
 
-## What The Product Should Make Visible
+## What The Workbench Should Make Visible
 
 - Which provider profile is active.
 - Whether LLM, video, workflow, and observer services are ready.
@@ -75,7 +76,7 @@ In scope now:
 - Version history and prompt/evaluation diffs.
 - Layered evaluation from physical facts toward more abstract quality signals.
 
-Out of scope for the current product surface:
+Out of scope for the current workbench:
 
 - Full timeline editing.
 - Multi-user collaboration.

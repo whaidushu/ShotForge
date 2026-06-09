@@ -4,17 +4,19 @@
 
 ## 30 秒理解
 
-ShotForge 是一个本地优先的 AI 视频 Agent Workbench，包含两条线：
+ShotForge 是一个构建在可审计 Agent Harness 运行时之上的 AI 视频工作台。
 
-- **工程运行时**：Agent 工作流、类型化状态、可追踪性、版本管理、评估与 provider 扩展。
-- **产品工作台**：把同一套运行时能力做成短视频生成工作流，支持 provider 配置、运行历史、产物查看、提示词变更和导出。
+它有两个连接在一起的架构层：
+
+- **Agent Harness 层**：负责工作流架构、类型化状态、可追踪性、版本管理、评估、Memory、MCP-style 访问、Sandbox 策略和 provider 扩展。
+- **AI 视频工作台层**：负责面向用户的短视频生产流程，包括 provider 配置、运行历史、产物查看、提示词变更、评估、版本对比和导出。
 
 ## 优先阅读
 
 1. `README.md`：项目定位与快速开始。
 2. `project-spine-and-demo-path.md`：项目主线和演示路径。
 3. `architecture-overview.md`：运行时、provider、API 和产物地图。
-4. `product-track.md`：当前产品工作流和后续方向。
+4. `video-workbench-layer.md`：当前产品工作流和后续方向。
 5. `src/shotforge/core/project_state.py`：核心状态模型。
 6. `src/shotforge/workflows/`：LangGraph 工作流定义。
 7. `tests/`：行为覆盖。
@@ -27,7 +29,7 @@ AI 视频生成不只是一次模型调用。复杂创意输出更像一个工�
 plan -> generate -> observe -> evaluate -> correct -> version -> converge -> export
 ```
 
-ShotForge 把这个闭环同时作为产品表面和工程表面来实现。
+ShotForge 把这个闭环做成用户可操作的工作台，并在底层保留可审计的 Agent Harness 运行时。
 
 ## 工程亮点
 

@@ -10,8 +10,8 @@ scripts, and cross-platform paths stable.
 - [Repository Review Guide](repository-review-guide.md)
 - [Architecture Overview](architecture-overview.md)
 - [Project Spine And Demo Path](project-spine-and-demo-path.md)
-- [Engineering Track](engineering-track.md)
-- [Product Track](product-track.md)
+- [Agent Harness Layer](agent-harness-layer.md)
+- [AI Video Workbench Layer](video-workbench-layer.md)
 
 ## Runtime And Delivery
 

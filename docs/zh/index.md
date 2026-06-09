@@ -10,8 +10,8 @@
 - [仓库评审指南](repository-review-guide.md)
 - [架构概览](architecture-overview.md)
 - [项目主线与演示路径](project-spine-and-demo-path.md)
-- [工程线](engineering-track.md)
-- [产品线](product-track.md)
+- [Agent Harness 层](agent-harness-layer.md)
+- [AI 视频工作台层](video-workbench-layer.md)
 
 ## 运行时与交付
 

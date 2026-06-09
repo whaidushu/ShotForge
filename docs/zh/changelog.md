@@ -16,7 +16,7 @@
 
 - 增加公开 architecture、runtime audit、delivery readiness 和 provider selection 文档。
 - 增加 model selection matrix。
-- 增加 project spine 和 product track 文档，对齐当前 workbench flow。
+- 增加 project spine 和 workbench layer 文档，对齐当前 workbench flow。
 
 ### Verification
 
