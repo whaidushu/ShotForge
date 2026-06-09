@@ -43,6 +43,5 @@ src/shotforge/
 
 ## Documentation Scope
 
-Public docs should stay user-oriented. Internal planning, interview notes,
-roadmap drafts, and design explorations belong in `_private/`, which is ignored
-by git.
+Public docs should stay user-oriented and focus on setup, configuration,
+architecture, providers, evaluation, API usage, and development.

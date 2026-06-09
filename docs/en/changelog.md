@@ -14,8 +14,8 @@ structure:
 - development
 - changelog
 
-Interview-style review notes, planning material, and exploratory design notes
-were removed from public docs and archived privately.
+The public docs now focus on installation, configuration, usage, extension, and
+reference material.
 
 ## 2026-06-01 Runtime Strategy And Public Documentation
 
@@ -31,7 +31,7 @@ delivery, and provider-selection documentation.
   - max hits per agent
   - promotion decisions and reasons
 - Added workflow gate metadata for tool failures, memory, sandbox, MCP, observations, and exports.
-- Added sandbox strategy records for workspace boundary, private path fragments, network policy, file-write policy, env allowlist, and artifact boundary.
+- Added sandbox strategy records for workspace boundary, protected path fragments, network policy, file-write policy, env allowlist, and artifact boundary.
 - Added MCP access policy and records for tools, resources, prompts, access limits, and denied operations.
 - Exposed memory, sandbox, and MCP evidence through harness audit and CLI audit.
 

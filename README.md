@@ -4,7 +4,7 @@ ShotForge is a local-first AI video workbench built on top of an inspectable
 Agent Harness runtime. It explores how state management, context engineering,
 tool orchestration, evaluation loops, provider boundaries, and workflow version
 governance can support the path from creative idea to prompt package, video
-artifact, quality review, iteration, and handoff export.
+artifact, quality check, iteration, and handoff export.
 
 Documentation: [Docs index](docs/index.md)
 
@@ -17,7 +17,7 @@ ShotForge has two connected layers:
    MCP-style access, sandbox policy, evaluation, traceability, and versioned
    iteration.
 2. **AI Video Workbench**: the user-facing layer for provider configuration,
-   local service checks, run creation, storyboard and prompt review, generated
+   local service checks, run creation, storyboard and prompt inspection, generated
    artifacts, evaluation results, version comparison, and handoff export.
 
 The Web workbench is the product surface. The Agent Harness runtime is the
@@ -32,9 +32,9 @@ workflow, the harder problem is managing the loop around the model:
 idea -> design -> generate -> observe -> evaluate -> correct -> version -> export
 ```
 
-ShotForge keeps the runtime and workbench separated so the system can be
-reviewed in two ways: as an Agent Harness architecture and as a usable video
-production workspace.
+ShotForge keeps the runtime and workbench separated so the same system can serve
+both an inspectable Agent Harness architecture and a usable video production
+workspace.
 
 ## Current Capability
 
@@ -216,7 +216,7 @@ real generation.
 
 Run outputs are written under `data/runs/{run_id}` by default. Iteration-level
 prompts, workflow payloads, video artifacts, exports, traces, and evaluation
-reports are kept together so each generation can be reviewed and compared.
+reports are kept together so each generation can be inspected and compared.
 
 Start the Web Demo:
 

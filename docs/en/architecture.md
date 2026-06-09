@@ -3,7 +3,7 @@
 ShotForge has two connected layers:
 
 - **AI Video Workbench**: the Web/API/CLI surface for creating runs, configuring
-  providers, reviewing prompts and artifacts, evaluating outputs, comparing
+  providers, inspecting prompts and artifacts, evaluating outputs, comparing
   versions, and exporting deliverables.
 - **Agent Harness Runtime**: the inspectable execution layer for typed state,
   context construction, agent contracts, tool calls, provider boundaries,
