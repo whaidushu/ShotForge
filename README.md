@@ -91,7 +91,8 @@ docs/                  Bilingual documentation index plus en/ and zh/ documents
 From a fresh clone, create and activate a dedicated Conda environment:
 
 ```powershell
-cd D:\Github\ShotForge\ShotForge
+git clone https://github.com/whaidushu/ShotForge.git
+cd ShotForge
 conda create -n ShotForge python=3.11 pip -y
 conda activate ShotForge
 pip install -r requirements.txt
@@ -277,7 +278,7 @@ The current stage prioritizes workflow quality, structured state, real local pro
 
 ## Current Framework Boundary
 
-ShotForge is now organized around four replaceable provider surfaces:
+ShotForge is now organized around three replaceable provider surfaces:
 
 - **LLM/Judge provider**: text reasoning, prompt evaluation, and redesign support.
 - **Video provider**: ComfyUI or another renderer that produces MP4 artifacts.
