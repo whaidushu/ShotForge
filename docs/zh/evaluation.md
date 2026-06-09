@@ -1,30 +1,135 @@
 # 评估
 
-ShotForge 把视频评估作为迭代闭环处理，而不是只给一个分数。
+ShotForge 把评估作为迭代 workflow，而不是单次打分。系统会检查生成 artifact 是否匹配用户创意，
+识别缺口，写入 correction plan，并保留版本证据用于对比。
+
+## 评估流水线
+
+```text
+ProjectState
+-> generated video artifact
+-> frame extraction
+-> visual observation
+-> evaluator registry
+-> score card and issues
+-> correction plan
+-> prompt/template patch
+-> regenerated version
+-> score delta and regression check
+```
 
 ## 分层
 
-评估从具体视觉事实开始，再逐步走向更主观的创意质量：
+评估从具体视觉事实开始，再逐步走向更抽象的创意质量：
 
-1. `physical_effect`：主体、物体数量、颜色、地点、天气、动作。
-2. `frame_consistency`：物体、身份和动作是否在帧与帧之间保持稳定。
-3. `style_color`：风格、色彩、光照和视觉处理。
-4. `emotion_atmosphere`：情绪、张力和氛围。
-5. `prompt_execution`：生成的提示词包是否遵循用户意图和修正计划。
+| Layer | 检查内容 | 示例信号 |
+| --- | --- | --- |
+| `physical_effect` | 必须可见的事实 | 主体数量、物体、颜色、地点、天气、动作 |
+| `frame_consistency` | 帧间稳定性 | 元素连续性、动作连续性、身份稳定性 |
+| `style_color` | 视觉处理 | 色彩、光照、风格匹配 |
+| `emotion_atmosphere` | 表达质量 | 情绪、张力、氛围 |
+| `prompt_execution` | prompt/package 质量 | prompt 覆盖、约束、correction 执行 |
 
-## 观察
+## 物理目标
 
-视频 run 可以抽帧、调用视觉观察 provider，并把 observation 附加到评估报告中。
-这样评估器检查的是实际渲染产物，而不只是提示词文本。
+`src/shotforge/core/physical_targets.py` 会从用户 idea 中抽取具体目标，包括：
 
-## 迭代
+- primary subject
+- required objects
+- location and setting
+- weather or atmosphere
+- action
+- explicit counts
 
-当评估发现缺口时，correction 步骤可以把以下内容写回 prompt/template package：
+这些目标会转换为 prompt constraint 和 evaluation expectation。例如用户要求发光无人机，
+physical-effect evaluator 可以标记生成 artifact 中没有无人机类元素的问题。
 
-- 必须可见的元素
-- 缺失的物理目标
-- 动作约束
-- 负向约束
-- 版本说明
+## 视觉观察
 
-下一次生成会保留前一次 run，用版本 diff 和 run history 支持对比。
+`VideoObservationService` 在生成后运行：
+
+1. 从 shot metadata 定位生成视频文件
+2. 抽取采样帧
+3. 调用配置的 frame observer
+4. 构建 shot observations
+5. 构建 sequence observations
+6. 将 observation reports 附加到 `ProjectState`
+
+Observation record 包含 frame path、detected elements、action summary、identity summary、
+confidence 和 metadata。
+
+## Evaluator Registry
+
+`EvaluatorRegistry.defaults()` 会根据 settings 注册 evaluator：
+
+- `PhysicalEffectEvaluator`
+- `FrameConsistencyEvaluator`
+- `MockVisualEvaluator`，当 mode 为 `mock` 或 `hybrid`
+- `PromptStaticEvaluator`，当 mode 为 `mock` 或 `hybrid`
+- `LLMStoryPromptEvaluator`，当 mode 为 `llm` 或 `hybrid`
+
+## 分数与问题
+
+`EvaluationReport` 包含：
+
+- `score_card.overall_score`
+- dimension scores
+- issues
+- strengths
+- suggested focus
+- rubric id
+- metadata
+
+每个 issue 包含：
+
+- severity：`low`、`medium`、`high` 或 `critical`
+- dimension id 和 label
+- 可选 shot id
+- description
+- evidence
+- suspected cause
+- correction type
+
+## 修正与版本
+
+发现问题后，correction planning 可以创建：
+
+- `CorrectionPlan`
+- `RedesignPlan`
+- `CorrectionPatch`
+- `CorrectionOperation`
+
+支持的 patch operation 会追加或更新目标字段，例如 shot description、motion、prompt text、
+negative prompt、structured template fields、scene description、audio sound design、
+character behavior。
+
+重新生成后，ShotForge 会构建：
+
+- `VersionDiff`
+- `ScoreDelta`
+- `RegressionCheck`
+- `ConvergenceStep`
+
+这些记录解释变更内容、分数是否提升、哪些问题已解决、是否出现新问题。
+
+## Rubric
+
+Rubric 通过 `RubricStore` 加载，使用以下类型化配置：
+
+- `EvaluationLayerConfig`
+- `EvaluationDimensionConfig`
+- `EvaluationIssueRule`
+- `EvaluationRubric`
+
+Dimension 会定义目标描述、权重、layer mapping、signal key、hard-target flag 和 issue threshold。
+
+## 实际用途
+
+评估用于回答：
+
+- 必须出现的物体是否真的出现？
+- 场景和动作是否符合 idea？
+- 物体或身份是否在帧间变化？
+- 第二次生成是否比第一次更好？
+- 版本之间 prompt constraint 改了什么？
+- 导出前还有哪些问题？

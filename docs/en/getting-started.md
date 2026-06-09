@@ -1,6 +1,7 @@
 # Getting Started
 
-This guide gets ShotForge running locally with the built-in development path.
+This guide gets ShotForge running locally and explains what to inspect after the
+first run.
 
 ## Install
 
@@ -19,11 +20,29 @@ For development tools:
 pip install -e ".[dev]"
 ```
 
+## Configure
+
+Create a local environment file:
+
+```powershell
+copy .env.example .env
+```
+
+You can run the demo and design-only workflows without real model services.
+Full video generation needs configured providers. See
+[Configuration](configuration.md) and [Providers](providers.md).
+
 ## Run Checks
 
 ```powershell
 ruff check src tests
 pytest -q
+```
+
+Run provider and storage checks:
+
+```powershell
+shotforge doctor --deep
 ```
 
 ## Start The Web App
@@ -38,17 +57,48 @@ Open:
 http://127.0.0.1:8000
 ```
 
-The demo page is useful when local model services are not configured yet:
+The demo page is useful when model services are not configured yet:
 
 ```text
 http://127.0.0.1:8000/demo?language=en
 ```
 
-## Run The CLI
+## First Web Flow
+
+1. Open Configuration.
+2. Create or select a provider profile.
+3. Run preflight.
+4. Return to Workflow.
+5. Enter an idea.
+6. Run design or full-loop mode.
+7. Inspect storyboard, prompt package, generated artifacts, evaluation issues,
+   version changes, and exports.
+
+## CLI Examples
+
+Design-only:
 
 ```powershell
-shotforge design "A cyber cat chases a glowing drone across rainy Shanghai rooftops" --language en
-shotforge full-loop "A neon train crossing a desert at sunrise" --language en
+shotforge design "A neon train crossing a desert at sunrise" --language en
+```
+
+Full loop:
+
+```powershell
+shotforge full-loop "A product reveal shot in a rainy city street" --language en --generator <provider-id>
+```
+
+Full loop with iterative redesign:
+
+```powershell
+shotforge full-loop "A product reveal shot in a rainy city street" --language en --redesign --max-iterations 3 --generator <provider-id>
+```
+
+Inspect a saved package:
+
+```powershell
+shotforge inspect data/runs/{run_id}/package.json
+shotforge audit data/runs/{run_id}/package.json
 ```
 
 ## Output Location
@@ -59,12 +109,25 @@ Run outputs are written under:
 data/runs/{run_id}
 ```
 
-Each run can contain prompts, workflow payloads, generated videos, extracted
-frames, observations, evaluation reports, version diffs, traces, and export
-files.
+Common files:
 
-## Next Steps
+- `package.json`
+- `package_view.json`
+- `package.csv`
+- `package.md`
+- `manifest.json`
+- `trace.json`
+- `run_summary.md`
+- `evaluation.csv`
+- generated videos
+- prompt text and prompt JSON
+- workflow payloads
+- extracted frames
 
-- Configure real local providers in [Configuration](configuration.md).
-- Review supported provider types in [Providers](providers.md).
-- Understand the evaluation loop in [Evaluation](evaluation.md).
+## What To Check After A Run
+
+- `GET /api/runs/{run_id}/workbench` for product-level status.
+- `GET /api/runs/{run_id}/generation-artifacts` for artifact links.
+- `GET /api/runs/{run_id}/harness` for runtime evidence.
+- `GET /api/runs/{run_id}/versions` for version snapshots.
+- `data/runs/{run_id}/package.json` for the full saved state.
