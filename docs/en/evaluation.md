@@ -48,6 +48,23 @@ These targets are converted into prompt constraints and evaluation expectations.
 For example, if the idea requires a glowing drone, the physical-effect evaluator
 can flag a generated artifact where no drone-like element is observed.
 
+## Physical Convergence
+
+`src/shotforge/core/physical_convergence.py` turns physical-effect evaluation
+into target-level iteration evidence:
+
+- target scores for required visible elements
+- repair targets for missing or weak elements
+- preservation locks for targets that are already visible
+- candidate gates that accept or reject a regenerated version
+- next revision focus when a candidate still misses or regresses targets
+
+The built-in effect demo uses this module for its v1/v2/v3 comparison, and the
+main redesign workflow uses the same module after ordinary full-loop evaluation.
+This keeps demo cases separate from platform behavior: example-specific labels
+and prompt patches stay in `examples/effect_cases`, while candidate acceptance
+and regression checks stay in the core workflow layer.
+
 ## Observation
 
 `VideoObservationService` runs after generation:
@@ -116,6 +133,12 @@ After regeneration, ShotForge builds:
 
 These records explain what changed, whether the score improved, which issues
 were resolved, and whether new issues appeared.
+
+For physical-effect redesigns, `RegressionCheck.metadata` and
+`ConvergenceStep.metadata` also include a `physical_convergence_candidate_gate`.
+If a candidate regresses a locked physical target or drops the target-level
+score beyond tolerance, the candidate is marked as rejected and the accepted
+version remains the source version in metadata.
 
 ## Rubrics
 

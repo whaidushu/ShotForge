@@ -102,6 +102,30 @@ def effect_contracts_for_shot(issues: list[Issue], shot_id: str, language: str) 
     return seen
 
 
+def physical_convergence_contracts(plan: CorrectionPlan) -> list[str]:
+    physical = plan.metadata.get("physical_convergence", {})
+    if not isinstance(physical, dict):
+        return []
+    revision_plan = physical.get("revision_plan", {})
+    if not isinstance(revision_plan, dict):
+        return []
+    contracts = []
+    for item in revision_plan.get("prompt_patches", []):
+        if isinstance(item, dict) and item.get("change"):
+            contracts.append(f"PHYSICAL REPAIR TARGET - {item['change']}")
+    for item in revision_plan.get("preservation_locks", []):
+        if isinstance(item, dict) and item.get("lock"):
+            contracts.append(f"PHYSICAL PRESERVATION LOCK - {item['lock']}")
+    strategy = revision_plan.get("convergence_strategy", {})
+    if isinstance(strategy, dict) and strategy.get("regression_guard"):
+        contracts.append(f"PHYSICAL REGRESSION GUARD - {strategy['regression_guard']}")
+    seen = []
+    for contract in contracts:
+        if contract and contract not in seen:
+            seen.append(contract)
+    return seen
+
+
 def effect_contract_for_issue(issue: Issue, language: str) -> str:
     dimension_id = issue.dimension_id
     evidence = issue.evidence

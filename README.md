@@ -106,6 +106,11 @@ frame observation. The report records target-level deltas, preservation locks,
 candidate acceptance or rejection, and the accepted iteration. Use a real
 generator provider when ComfyUI or another video backend is configured.
 
+The same physical-convergence primitives are used by the main redesign flow:
+physical-effect issues produce target-level repair plans, preservation locks,
+and candidate gates. The demo remains a packaged example case; the convergence
+logic lives in the core workflow layer.
+
 More setup details are in [Getting Started](docs/en/getting-started.md) and
 [Configuration](docs/en/configuration.md).
 

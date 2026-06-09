@@ -5,6 +5,7 @@ from shotforge.agents.correction._helpers import (
     localized_note,
     negative_constraints_for_issues,
     operation,
+    physical_convergence_contracts,
     prompt_revision_note,
     story_beat_upgrade,
     target_issues,
@@ -25,7 +26,10 @@ class SceneCorrectionAgent(CorrectionAgent):
         for shot_id in target_shot_ids(state, plan):
             shot = next(item for item in state.shots if item.shot_id == shot_id)
             shot_issues = [issue for issue in issues if issue.shot_id == shot_id]
-            contracts = effect_contracts_for_shot(shot_issues, shot_id, language)
+            contracts = [
+                *effect_contracts_for_shot(shot_issues, shot_id, language),
+                *physical_convergence_contracts(plan),
+            ]
             contract_text = " ".join(contracts)
             scene_note = story_beat_upgrade(
                 state,

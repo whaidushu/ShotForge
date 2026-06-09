@@ -44,6 +44,21 @@ ProjectState
 这些目标会转换为 prompt constraint 和 evaluation expectation。例如用户要求发光无人机，
 physical-effect evaluator 可以标记生成 artifact 中没有无人机类元素的问题。
 
+## 物理收敛
+
+`src/shotforge/core/physical_convergence.py` 会把 physical-effect 评估转换成目标级迭代证据：
+
+- 必须可见元素的 target score
+- 缺失或较弱元素的 repair target
+- 已经可见元素的 preservation lock
+- 接受或拒绝重新生成版本的 candidate gate
+- 候选版本仍然缺失或回归时的 next revision focus
+
+内置 effect demo 使用这个模块生成 v1/v2/v3 对比；主 redesign workflow 也在普通
+full-loop evaluation 之后使用同一个模块。这意味着 demo case 和平台能力是分离的：
+示例特定的标签、目标和 prompt patch 保留在 `examples/effect_cases`，候选接受、
+回归检查和收敛记录保留在核心 workflow 层。
+
 ## 视觉观察
 
 `VideoObservationService` 在生成后运行：
@@ -111,6 +126,11 @@ character behavior。
 - `ConvergenceStep`
 
 这些记录解释变更内容、分数是否提升、哪些问题已解决、是否出现新问题。
+
+对于 physical-effect redesign，`RegressionCheck.metadata` 和
+`ConvergenceStep.metadata` 还会包含 `physical_convergence_candidate_gate`。如果候选版本
+回归了已经锁定的物理目标，或者目标级分数下降超过容忍范围，候选会被标记为 rejected，
+metadata 中的 accepted version 会保持为源版本。
 
 ## Rubric
 

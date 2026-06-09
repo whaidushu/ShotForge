@@ -6,6 +6,10 @@ from statistics import mean
 from typing import Any
 
 from shotforge.config import get_settings
+from shotforge.core.physical_convergence import (
+    build_revision_plan_from_target_evaluation,
+    compare_iteration_evaluations,
+)
 from shotforge.core.project_state import (
     AudioCue,
     FieldChange,
@@ -447,58 +451,22 @@ def _build_revision_plan(
     *,
     target_iteration: str,
 ) -> dict[str, Any]:
-    issue_targets = [issue["target"] for issue in evaluation["issues"]]
-    patch_map = _target_patch_map()
-    lock_map = _target_lock_map()
-    prompt_patches = [
-        {
-            "target": target,
-            "change": patch_map.get(target, f"make {target} clearly visible and measurable in the frame"),
-        }
-        for target in issue_targets
-    ]
-    preservation_locks = [
-        {
-            "target": item["target"],
-            "score": item["score"],
-            "frame_presence": f"{len(item['frame_hits'])}/{item['sampled_frame_count']}",
-            "lock": lock_map.get(
-                item["target"],
-                f"preserve {item['target']} with at least the same visibility as the source iteration",
-            ),
-        }
-        for item in evaluation["target_scores"]
-        if item["target"] not in issue_targets and item["score"] >= 0.68
-    ]
-    if not prompt_patches:
-        prompt_patches = [
-            {
-                "target": "all targets",
-                "change": "preserve all required elements while strengthening the action relationship",
-            }
-        ]
-    return {
-        "revision_intent": "make missing or weak physical targets visible and measurable",
-        "source_iteration": evaluation["iteration"],
-        "target_iteration": target_iteration,
-        "prompt_patches": prompt_patches,
-        "preservation_locks": preservation_locks,
-        "negative_prompt_patches": case.get("negative_constraints", []),
-        "success_criteria": case.get("success_criteria", []),
-        "convergence_strategy": {
-            "repair_targets": issue_targets,
-            "locked_targets": [item["target"] for item in preservation_locks],
-            "regression_guard": (
-                "Do not improve one physical target by removing or weakening a target that was "
-                "already visible in the source iteration."
-            ),
-            "composition_policy": (
-                "Keep a stable single-shot composition: foreground cyber cat, glowing drone ahead, "
-                "wet rooftop surface, rain/night atmosphere, and Shanghai landmark skyline in the background."
-            ),
-        },
-        "control_policy": "release generation resources before visual inspection; keep provider, workflow, duration, seed policy, and composition anchors stable; change only the prompt package",
-    }
+    return build_revision_plan_from_target_evaluation(
+        evaluation,
+        target_iteration=target_iteration,
+        success_criteria=case.get("success_criteria", []),
+        negative_constraints=case.get("negative_constraints", []),
+        patch_catalog=_target_patch_map(),
+        lock_catalog=_target_lock_map(),
+        composition_policy=(
+            "Keep a stable single-shot composition: foreground cyber cat, glowing drone ahead, "
+            "wet rooftop surface, rain/night atmosphere, and Shanghai landmark skyline in the background."
+        ),
+        control_policy=(
+            "release generation resources before visual inspection; keep provider, workflow, duration, "
+            "seed policy, and composition anchors stable; change only the prompt package"
+        ),
+    )
 
 
 def _apply_revision_plan(
@@ -659,91 +627,13 @@ def _build_comparison(
     revision_plan: dict[str, Any],
     resource_events: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    by_iteration = {item["iteration"]: item for item in evaluations}
-    v1_evaluation = by_iteration["v1"]
-    v2_evaluation = by_iteration["v2"]
-    v3_evaluation = by_iteration["v3"]
-    v1_by_target = {item["target"]: item for item in v1_evaluation["target_scores"]}
-    v2_by_target = {item["target"]: item for item in v2_evaluation["target_scores"]}
-    changes = []
-    repaired = []
-    unresolved = []
-    regressed = []
-    for item in v3_evaluation["target_scores"]:
-        target = item["target"]
-        v1_item = v1_by_target[target]
-        v2_item = v2_by_target[target]
-        v2_delta = round(v2_item["score"] - v1_item["score"], 3)
-        v3_delta = round(item["score"] - v2_item["score"], 3)
-        row = {
-            "target": target,
-            "v1_score": v1_item["score"],
-            "v2_score": v2_item["score"],
-            "v3_score": item["score"],
-            "v2_delta": v2_delta,
-            "v3_delta": v3_delta,
-            "v1_frame_presence": f"{len(v1_item['frame_hits'])}/{v1_item['sampled_frame_count']}",
-            "v2_frame_presence": f"{len(v2_item['frame_hits'])}/{v2_item['sampled_frame_count']}",
-            "v3_frame_presence": f"{len(item['frame_hits'])}/{item['sampled_frame_count']}",
-            "status": "improved" if v3_delta > 0.05 else "unchanged" if v3_delta >= -0.02 else "regressed",
-        }
-        changes.append(row)
-        if row["status"] == "regressed":
-            regressed.append(target)
-        if item["status"] == "passed" and v2_item["status"] != "passed":
-            repaired.append(target)
-        elif item["status"] != "passed":
-            unresolved.append(target)
-    structured_delta = round(v2_evaluation["overall_score"] - v1_evaluation["overall_score"], 3)
-    compensation_delta = round(v3_evaluation["overall_score"] - v2_evaluation["overall_score"], 3)
-    total_delta = round(v3_evaluation["overall_score"] - v1_evaluation["overall_score"], 3)
-    locked_targets = set(revision_plan.get("convergence_strategy", {}).get("locked_targets", []))
-    locked_regressions = [target for target in regressed if target in locked_targets]
-    rejection_reasons = []
-    if locked_regressions:
-        rejection_reasons.append(
-            "candidate regressed locked targets: " + ", ".join(locked_regressions)
-        )
-    if compensation_delta < -0.02:
-        rejection_reasons.append(f"candidate score dropped from source iteration by {compensation_delta}")
-    candidate_status = "rejected" if rejection_reasons else "accepted"
-    accepted_iteration = "v2" if candidate_status == "rejected" else "v3"
-    next_revision_focus = sorted(set(unresolved + regressed))
-    return {
-        "case_id": case["case_id"],
-        "title": case["title"],
-        "v1_score": v1_evaluation["overall_score"],
-        "v2_score": v2_evaluation["overall_score"],
-        "v3_score": v3_evaluation["overall_score"],
-        "score_delta": total_delta,
-        "structured_delta": structured_delta,
-        "compensation_delta": compensation_delta,
-        "status": (
-            "converged"
-            if candidate_status == "accepted" and not unresolved and not regressed
-            else "improved"
-            if candidate_status == "accepted" and total_delta > 0.05
-            else "needs_more_work"
-        ),
-        "candidate_status": candidate_status,
-        "accepted_iteration": accepted_iteration,
-        "rejected_iteration": "v3" if candidate_status == "rejected" else "",
-        "rejection_reasons": rejection_reasons,
-        "locked_regressions": locked_regressions,
-        "next_revision_focus": next_revision_focus,
-        "visual_observation_available": any(item["visual_observation_available"] for item in evaluations),
-        "observer_ids": sorted({str(item.get("observer_id", "")) for item in evaluations if item.get("observer_id")}),
-        "target_changes": changes,
-        "repaired": repaired,
-        "unresolved": unresolved,
-        "regressed": regressed,
-        "revision_plan": revision_plan,
-        "resource_events": resource_events,
-        "v1": v1_evaluation,
-        "v2": v2_evaluation,
-        "v3": v3_evaluation,
-        "iterations": evaluations,
-    }
+    return compare_iteration_evaluations(
+        case_id=case["case_id"],
+        title=case["title"],
+        evaluations=evaluations,
+        revision_plan=revision_plan,
+        resource_events=resource_events,
+    )
 
 
 def _write_effect_outputs(

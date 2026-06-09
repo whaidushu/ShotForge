@@ -147,6 +147,11 @@ Workflow 负责 agent 和 provider 调用顺序：
 - iterative redesign workflow：应用 correction plan、重新生成、比较版本。
 - evaluation workflow：评估已有 package。
 
+物理收敛属于核心 workflow 能力，而不是只服务于示例 demo。
+`src/shotforge/core/physical_convergence.py` 提供目标级摘要、修复计划、preservation lock
+和 candidate gate。effect demo 会调用这个模块完成一个固定 case 的 v1/v2/v3 对比；
+`redesign_workflow` 也会在主 run 生命周期里针对普通 physical-effect 问题使用同一套能力。
+
 ## 运行时证据
 
 `src/shotforge/core/harness_runtime.py`

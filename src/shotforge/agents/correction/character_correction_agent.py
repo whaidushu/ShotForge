@@ -5,6 +5,7 @@ from shotforge.agents.correction._helpers import (
     localized_note,
     negative_constraints_for_issues,
     operation,
+    physical_convergence_contracts,
     target_issues,
     target_shot_ids,
 )
@@ -31,7 +32,10 @@ class CharacterCorrectionAgent(CorrectionAgent):
         )
         for shot_id in target_shot_ids(state, plan):
             shot_issues = [issue for issue in issues if issue.shot_id == shot_id]
-            contracts = effect_contracts_for_shot(shot_issues, shot_id, runtime_language(state))
+            contracts = [
+                *effect_contracts_for_shot(shot_issues, shot_id, runtime_language(state)),
+                *physical_convergence_contracts(plan),
+            ]
             operations.append(
                 operation(
                     "append_prompt_text",

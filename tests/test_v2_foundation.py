@@ -113,6 +113,12 @@ def test_redesign_workflow_applies_structured_patches(tmp_path, monkeypatch):
     assert next_state.regression_checks
     assert next_state.score_deltas[-1].to_version == 2
     assert next_state.regression_checks[-1].to_version == 2
+    assert "physical_convergence" in next_state.metadata
+    assert next_state.metadata["physical_convergence"]["candidate_gate"]["candidate_status"] in {
+        "accepted",
+        "rejected",
+    }
+    assert "physical_convergence_candidate_gate" in next_state.regression_checks[-1].metadata
     assert any(plan.status == "applied" for plan in next_state.correction_plans)
     assert not next_state.metadata.get("skipped_correction_plan_ids")
     assert next_state.version_diffs[-1].changed_prompts

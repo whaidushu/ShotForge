@@ -154,6 +154,7 @@ class EvaluationAgent:
                         "generated_result_id": result.generated_result_id,
                         "signal_id": signal.signal_id,
                         "signal_source": signal.source,
+                        **signal.metadata,
                         **self._layer_metadata(dimension),
                     },
                 )

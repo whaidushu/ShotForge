@@ -152,6 +152,12 @@ Workflows are responsible for ordering agents and provider calls:
 - iterative redesign workflow: apply correction plans, regenerate, compare versions.
 - evaluation workflow: evaluate an existing package.
 
+Physical convergence is a core workflow concern rather than an example-only
+demo. `src/shotforge/core/physical_convergence.py` provides target-level
+summaries, repair plans, preservation locks, and candidate gates. The effect
+demo calls this module for a curated v1/v2/v3 case, while `redesign_workflow`
+uses it for ordinary physical-effect issues in the main run lifecycle.
+
 ## Runtime Evidence
 
 `src/shotforge/core/harness_runtime.py`

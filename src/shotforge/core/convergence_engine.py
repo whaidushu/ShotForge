@@ -83,6 +83,9 @@ class ConvergenceEngine:
                 "remaining_issue_count": len(regression_check.remaining_issue_ids),
                 "new_issue_count": len(regression_check.new_issue_ids),
                 "meaningful_change_count": self._meaningful_change_count(state),
+                "physical_convergence_candidate_gate": regression_check.metadata.get(
+                    "physical_convergence_candidate_gate", {}
+                ),
             },
         )
         state.convergence_steps.append(step)
