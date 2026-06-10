@@ -20,7 +20,7 @@ from shotforge.workflows.design_workflow import run_design_pipeline
 from shotforge.workflows.full_loop_workflow import run_full_loop_pipeline
 from shotforge.workflows.iterative_redesign_workflow import run_iterative_redesign
 
-app = typer.Typer(help="ShotForge evaluation-driven agent harness")
+app = typer.Typer(help="ShotForge evaluation-driven video workflow runtime")
 console = Console()
 
 
@@ -202,7 +202,7 @@ def audit(
     state = ProjectState.model_validate_json(package_json.read_text(encoding="utf-8"))
     report = build_harness_audit(state)
 
-    console.print(f"[bold]ShotForge Harness Audit[/bold] {report['run_id']}")
+    console.print(f"[bold]ShotForge Runtime Evidence[/bold] {report['run_id']}")
     readiness = report.get("readiness") or {}
     solution = report.get("solution") or {}
     policies = report.get("policies") or {}

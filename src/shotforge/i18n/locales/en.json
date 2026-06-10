@@ -218,7 +218,7 @@
       "flow": "Flow",
       "design_to_handoff": "Design to Handoff",
       "evidence": "Evidence",
-      "harness_records": "Harness records",
+      "harness_records": "Runtime records",
       "run_contract": "Run Contract",
       "run_contract_body": "Creative goal + production state + generated outputs + evaluation issues + version iteration + handoff artifacts + audit evidence.",
       "latest_artifacts": "Latest Artifacts",
@@ -263,7 +263,7 @@
       "evaluation": "Evaluation",
       "iterations": "Iterations",
       "exports": "Exports",
-      "harness_evidence": "Harness Evidence"
+      "harness_evidence": "Runtime Evidence"
     },
     "provider_health": {
       "title": "Provider Health",
@@ -435,7 +435,7 @@
     },
     "solution": {
       "title": "Solution Architecture",
-      "subtitle": "Customer-facing path from scenario insight to a delivery-ready video package.",
+      "subtitle": "Workflow path from scenario insight to a delivery-ready video package.",
       "industry": "Industry",
       "scenario": "Scenario",
       "objective": "Business objective",
@@ -452,13 +452,13 @@
     },
     "readiness": {
       "title": "Delivery Readiness",
-      "subtitle": "Acceptance gates for handoff, pilot setup, and production hardening.",
+      "subtitle": "Acceptance gates for handoff, provider setup, and production hardening.",
       "overall": "Overall status",
       "checks": "Checks",
       "handoff": "Handoff",
       "next_actions": "Next actions",
       "risks": "Risks",
-      "required": "Required for pilot",
+      "required": "Release gate",
       "remediation": "Remediation"
     },
     "evaluation": {

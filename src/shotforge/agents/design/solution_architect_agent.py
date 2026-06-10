@@ -86,12 +86,12 @@ def solution_architect_agent(
                 "schema_version": "solution_architecture_v1",
                 "source": "solution_architect_agent",
                 "playbook_id": playbook.playbook_id,
-                "jd_alignment": [
+                "capability_alignment": [
                     "scenario_insight",
-                    "agent_harness",
+                    "runtime_evidence",
                     "skill_mcp_sandbox_memory",
                     "acceptance_criteria",
-                    "customer_value",
+                    "workflow_value",
                 ],
             },
         )
@@ -183,7 +183,7 @@ def _components(state: ProjectState) -> list[ArchitectureComponent]:
 def _integration_points(state: ProjectState, playbook: SolutionPlaybook) -> list[IntegrationPoint]:
     integrations = [
         IntegrationPoint(
-            system="FastAPI Web Demo",
+            system="FastAPI Web Workbench",
             interface="/api/runs, /api/runs/{run_id}, /api/runs/{run_id}/export/{format}",
             data_contract="ProjectState JSON and exported production packages",
             status="ready",
@@ -201,9 +201,9 @@ def _integration_points(state: ProjectState, playbook: SolutionPlaybook) -> list
             status="planned",
         ),
         IntegrationPoint(
-            system="Customer Asset Store",
+            system="User Asset Store",
             interface=_text(state, "file/object storage adapter", "\u6587\u4ef6/\u5bf9\u8c61\u5b58\u50a8\u9002\u914d\u5668"),
-            data_contract="brand assets, references, generated artifacts",
+            data_contract="user assets, references, generated artifacts",
             status="planned",
         ),
     ]
@@ -211,8 +211,8 @@ def _integration_points(state: ProjectState, playbook: SolutionPlaybook) -> list
         integrations.append(
             IntegrationPoint(
                 system=integration,
-                interface=_text(state, "customer adapter", "\u5ba2\u6237\u4fa7\u9002\u914d\u5668"),
-                data_contract=_text(state, "scenario-specific customer data", "\u573a\u666f\u5316\u5ba2\u6237\u6570\u636e"),
+                interface=_text(state, "workflow adapter", "\u5de5\u4f5c\u6d41\u9002\u914d\u5668"),
+                data_contract=_text(state, "scenario-specific workflow data", "\u573a\u666f\u5316\u5de5\u4f5c\u6d41\u6570\u636e"),
                 status="planned",
             )
         )
@@ -243,7 +243,7 @@ def _success_criteria(
         ),
         AcceptanceCriterion(
             criterion_id="acceptance_observability",
-            metric=_text(state, "agent harness observability", "Agent Harness \u53ef\u89c2\u6d4b\u6027"),
+            metric=_text(state, "workflow runtime observability", "工作流运行时可观测性"),
             target=_text(state, "context, tool calls, policies, MCP, sandbox, and memory visible per run", "\u6bcf\u6b21\u8fd0\u884c\u53ef\u89c1 context/tool/policy/MCP/sandbox/memory"),
             evaluation_method=_text(state, "Harness Inspector and exported ProjectState", "Harness Inspector \u4e0e ProjectState \u5bfc\u51fa"),
         ),
@@ -274,8 +274,8 @@ def _rollout_plan(state: ProjectState) -> list[RolloutPhase]:
             exit_criteria=["test_pipeline_passes", "web_demo_available", "json_csv_md_exports"],
         ),
         RolloutPhase(
-            phase="Pilot",
-            objective=_text(state, "connect one real provider and one customer asset source", "\u63a5\u5165\u4e00\u4e2a\u771f\u5b9e provider \u548c\u4e00\u4e2a\u5ba2\u6237\u7d20\u6750\u6e90"),
+            phase="Provider validation",
+            objective=_text(state, "connect one real provider and one user asset source", "\u63a5\u5165\u4e00\u4e2a\u771f\u5b9e provider \u548c\u4e00\u4e2a\u7528\u6237\u7d20\u6750\u6e90"),
             exit_criteria=["provider_credentials_configured", "artifact_tracking", "manual_review_gate"],
         ),
         RolloutPhase(
@@ -313,7 +313,11 @@ def _value_metrics(state: ProjectState, playbook: SolutionPlaybook) -> list[Valu
                 name=lever,
                 baseline=_text(state, "not tracked before ShotForge", "\u63a5\u5165 ShotForge \u524d\u672a\u7ed3\u6784\u5316\u8ffd\u8e2a"),
                 target=_text(state, "tracked as a scenario value lever", "\u4f5c\u4e3a\u573a\u666f\u4ef7\u503c\u6760\u6746\u8ffd\u8e2a"),
-                business_value=_text(state, "connect solution design to customer KPI", "\u5c06\u65b9\u6848\u8bbe\u8ba1\u8fde\u63a5\u5230\u5ba2\u6237 KPI"),
+                business_value=_text(
+                    state,
+                    "connect solution design to measurable workflow goals",
+                    "\u5c06\u65b9\u6848\u8bbe\u8ba1\u8fde\u63a5\u5230\u53ef\u5ea6\u91cf\u7684\u5de5\u4f5c\u6d41\u76ee\u6807",
+                ),
             )
         )
     return metrics

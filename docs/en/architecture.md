@@ -10,7 +10,7 @@ evaluation, and ends as a local package with artifacts and exports.
 Web / CLI / API
   -> App services
   -> LangGraph workflows
-  -> Agent Harness Runtime
+  -> Workflow Runtime
   -> Provider adapters
   -> ProjectState + artifacts
 ```
@@ -19,7 +19,7 @@ ShotForge keeps the user-facing workbench and the execution runtime separated:
 
 - **AI Video Workbench**: pages, API endpoints, run history, provider
   configuration, artifact access, progress, lifecycle status, and exports.
-- **Agent Harness Runtime**: typed state, context construction, agent contracts,
+- **Workflow Runtime**: typed state, context construction, agent contracts,
   tool records, provider boundaries, trace logs, version snapshots, and policy
   records.
 
@@ -174,7 +174,7 @@ The runtime records execution evidence during agent execution:
 - access records
 
 This evidence is exposed through `shotforge audit` and
-`GET /api/runs/{run_id}/harness`.
+`GET /api/runs/{run_id}/runtime-evidence`.
 
 ## Provider Boundary
 

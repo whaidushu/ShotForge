@@ -5,7 +5,11 @@ curated public samples for the ShotForge workbench. They demonstrate:
 
 - concrete storyboard beats for a short AI video concept;
 - test generation, prompt evaluation, iterative redesign, and version diffs;
-- export artifacts in JSON, CSV, Markdown, manifest, package view, trace, and run summary formats.
+- lightweight public exports in JSON, CSV, Markdown, manifest, and run summary formats.
+
+The public samples intentionally omit local execution traces and package-view
+snapshots because those files can contain machine-local paths from the run that
+created them.
 
 Seed it into the local workspace:
 

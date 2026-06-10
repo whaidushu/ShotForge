@@ -434,7 +434,7 @@ class RunStatusService:
 
     @staticmethod
     def _public_deliverable_label(label: str) -> str:
-        return label.replace("Harness Inspector", "Harness evidence")
+        return label.replace("Harness Inspector", "Runtime evidence")
 
 
 __all__ = ["RunDashboard", "RunStatusService", "RunSummary", "RunWorkbench"]

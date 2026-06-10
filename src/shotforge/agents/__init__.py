@@ -97,14 +97,14 @@ def build_default_registry() -> SkillRegistry:
     registry.register(
         "export.trace",
         ExportManager().export_trace,
-        description="Export trace and harness audit JSON.",
+        description="Export trace and runtime evidence JSON.",
         permission_scope="local_file_write",
         risk_level="medium",
     )
     registry.register(
         "export.run_summary",
         ExportManager().export_run_summary,
-        description="Export customer-facing run summary.",
+        description="Export run summary.",
         permission_scope="local_file_write",
         risk_level="medium",
     )
@@ -168,7 +168,7 @@ def build_default_agent_catalog() -> AgentCatalog:
             ),
             AgentSpec(
                 agent_name="solution_architect_agent",
-                role="Translate the run into customer-facing solution architecture.",
+                role="Translate the run into solution architecture.",
                 inputs=["prompt_package", "industry_playbooks"],
                 outputs=["solution_architecture"],
                 dependencies=["prompt_adapter_agent"],

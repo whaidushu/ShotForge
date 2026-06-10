@@ -1,6 +1,6 @@
 ---
 name: Solution request
-about: Propose a new Agent Harness, industry playbook, provider, or delivery capability
+about: Propose a new workflow runtime, industry playbook, provider, or delivery capability
 title: "[Solution] "
 labels: enhancement
 assignees: ""
@@ -12,7 +12,7 @@ Which customer or industry scenario should ShotForge support?
 
 ## Desired Capability
 
-What should the Agent Harness, workflow, provider, playbook, or export layer do?
+What should the workflow runtime, provider, playbook, or export layer do?
 
 ## Value
 

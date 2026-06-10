@@ -1,4 +1,4 @@
-"""ShotForge AI Video Creative Agent Harness."""
+"""ShotForge AI video workflow runtime."""
 
 import warnings
 

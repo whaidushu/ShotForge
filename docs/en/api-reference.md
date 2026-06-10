@@ -230,10 +230,12 @@ Returns job status and progress steps. Missing runs return `404`.
 
 Returns trace log entries from the run package.
 
-### `GET /api/runs/{run_id}/harness`
+### `GET /api/runs/{run_id}/runtime-evidence`
 
 Returns runtime evidence such as context snapshots, tool calls, state
 transitions, workflow decisions, policy records, and topology.
+
+`GET /api/runs/{run_id}/harness` remains available as a compatibility alias.
 
 ### `GET /api/runs/{run_id}/workbench`
 

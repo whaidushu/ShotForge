@@ -1,99 +1,36 @@
 {
-  "project_id": "proj_d41bd05dc0b0",
   "run_id": "shotforge_gold_sample_zh",
+  "project_id": "proj_ce402e25d3f2",
   "version": 3,
-  "created_at": "2026-06-03T10:26:39.313097+00:00",
-  "updated_at": "2026-06-03T10:26:39.843148+00:00",
-  "deliverables": [
+  "demo_sample": true,
+  "exports": [
+    {
+      "format": "json",
+      "path": "examples/demo_runs/shotforge_gold_sample_zh/package.json"
+    },
     {
       "format": "csv",
-      "path": "examples\\demo_runs\\shotforge_gold_sample_zh\\package.csv"
+      "path": "examples/demo_runs/shotforge_gold_sample_zh/package.csv"
     },
     {
       "format": "markdown",
-      "path": "examples\\demo_runs\\shotforge_gold_sample_zh\\package.md"
+      "path": "examples/demo_runs/shotforge_gold_sample_zh/package.md"
     },
     {
       "format": "evaluation_csv",
-      "path": "examples\\demo_runs\\shotforge_gold_sample_zh\\evaluation.csv"
+      "path": "examples/demo_runs/shotforge_gold_sample_zh/evaluation.csv"
+    },
+    {
+      "format": "manifest",
+      "path": "examples/demo_runs/shotforge_gold_sample_zh/manifest.json"
+    },
+    {
+      "format": "run_summary",
+      "path": "examples/demo_runs/shotforge_gold_sample_zh/run_summary.md"
     }
   ],
-  "solution": {
-    "industry": "影视内容",
-    "scenario": "AI 视频生产策划",
-    "business_objective": "降低创意策划到视频提示词生产的耗时，并让生产过程可追溯、可评估。",
-    "knowledge_assets": [
-      "media_advertising_video_ops",
-      "evaluation_rubrics.json",
-      "prompt_rules.json",
-      "correction_strategies.json"
-    ],
-    "scenario_patterns": [
-      "campaign concept to storyboard package",
-      "brand-safe short-video production planning",
-      "multi-provider video model comparison"
-    ],
-    "evaluation_metrics": [
-      "story clarity",
-      "brand fit",
-      "motion readability",
-      "prompt executability"
-    ],
-    "acceptance_criteria": [
-      {
-        "criterion_id": "acceptance_latency",
-        "metric": "创意任务包交付时间",
-        "target": "Mock 链路 < 2 分钟",
-        "evaluation_method": "TraceLog 时间戳与导出完成记录",
-        "metadata": {}
-      },
-      {
-        "criterion_id": "acceptance_observability",
-        "metric": "Agent Harness 可观测性",
-        "target": "每次运行可见 context/tool/policy/MCP/sandbox/memory",
-        "evaluation_method": "Harness Inspector 与 ProjectState 导出",
-        "metadata": {}
-      },
-      {
-        "criterion_id": "acceptance_quality_loop",
-        "metric": "闭环改进能力",
-        "target": "能生成评估、修正计划、diff 和验证结果",
-        "evaluation_method": "planning 模式输出",
-        "metadata": {}
-      },
-      {
-        "criterion_id": "playbook_metric_1",
-        "metric": "story clarity",
-        "target": "可在评估报告中量化",
-        "evaluation_method": "场景 playbook 评估映射",
-        "metadata": {}
-      },
-      {
-        "criterion_id": "playbook_metric_2",
-        "metric": "brand fit",
-        "target": "可在评估报告中量化",
-        "evaluation_method": "场景 playbook 评估映射",
-        "metadata": {}
-      },
-      {
-        "criterion_id": "playbook_metric_3",
-        "metric": "motion readability",
-        "target": "可在评估报告中量化",
-        "evaluation_method": "场景 playbook 评估映射",
-        "metadata": {}
-      }
-    ]
-  },
-  "readiness": {
-    "overall_status": "warning",
-    "check_count": 15,
-    "next_actions": [
-      "为所有生产工具记录权限范围和执行状态。",
-      "为试点配置一个真实视频生成服务和凭证。",
-      "运行 full_loop 或 planning 模式，生成评估与修正证据。",
-      "选择一个试点客户场景，并将成功标准绑定到可度量数据。"
-    ]
-  },
-  "audit_api": "/api/runs/shotforge_gold_sample_zh/harness",
-  "package_api": "/api/runs/shotforge_gold_sample_zh"
+  "routes": {
+    "workbench": "/?run_id=shotforge_gold_sample_zh&language=zh",
+    "package_api": "/api/runs/shotforge_gold_sample_zh"
+  }
 }

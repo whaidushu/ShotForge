@@ -225,7 +225,10 @@ class ReadinessCheck(BaseModel):
     category: str
     status: ReadinessStatus
     evidence: str
-    required_for_pilot: bool = True
+    required_for_release: bool = Field(
+        default=True,
+        validation_alias=AliasChoices("required_for_release", "required_for_pilot"),
+    )
     remediation: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
 

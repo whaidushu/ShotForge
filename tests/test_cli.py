@@ -18,7 +18,7 @@ def test_cli_audit_prints_harness_evidence(tmp_path, monkeypatch):
     result = CliRunner().invoke(app, ["audit", package_json])
 
     assert result.exit_code == 0
-    assert "ShotForge Harness Audit" in result.output
+    assert "ShotForge Runtime Evidence" in result.output
     assert "Agent Contexts" in result.output
     assert "Tool Calls" in result.output
     assert "State Transitions" in result.output
@@ -33,7 +33,7 @@ def test_cli_capabilities_prints_catalog():
     assert result.exit_code == 0
     assert "ShotForge Capability Catalog" in result.output
     assert "Generator Providers" in result.output
-    assert "GET /api/runs/{run_id}/harness" in result.output
+    assert "GET /api/runs/{run_id}/runtime-evidence" in result.output
 
 
 def test_cli_doctor_prints_settings():

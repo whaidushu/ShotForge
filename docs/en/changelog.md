@@ -22,7 +22,7 @@ reference material.
 This milestone deepens the runtime strategy layer and adds reusable architecture,
 delivery, and provider-selection documentation.
 
-### Harness Strategy
+### Runtime Evidence Strategy
 
 - Added memory governance around local JSONL memory:
   - namespace policy
@@ -33,7 +33,7 @@ delivery, and provider-selection documentation.
 - Added workflow gate metadata for tool failures, memory, sandbox, MCP, observations, and exports.
 - Added sandbox strategy records for workspace boundary, protected path fragments, network policy, file-write policy, env allowlist, and artifact boundary.
 - Added MCP access policy and records for tools, resources, prompts, access limits, and denied operations.
-- Exposed memory, sandbox, and MCP evidence through harness audit and CLI audit.
+- Exposed memory, sandbox, and MCP evidence through runtime evidence and CLI audit.
 
 ### Public Documentation
 

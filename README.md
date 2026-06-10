@@ -182,7 +182,7 @@ POST /api/runs
 GET /api/runs
 GET /api/runs/{run_id}/workbench
 GET /api/runs/{run_id}/generation-artifacts
-GET /api/runs/{run_id}/harness
+GET /api/runs/{run_id}/runtime-evidence
 GET /api/runs/{run_id}/export/json
 ```
 

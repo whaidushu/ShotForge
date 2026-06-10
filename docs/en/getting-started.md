@@ -128,6 +128,6 @@ Common files:
 
 - `GET /api/runs/{run_id}/workbench` for product-level status.
 - `GET /api/runs/{run_id}/generation-artifacts` for artifact links.
-- `GET /api/runs/{run_id}/harness` for runtime evidence.
+- `GET /api/runs/{run_id}/runtime-evidence` for runtime evidence.
 - `GET /api/runs/{run_id}/versions` for version snapshots.
 - `data/runs/{run_id}/package.json` for the full saved state.

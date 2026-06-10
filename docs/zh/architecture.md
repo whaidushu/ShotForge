@@ -9,7 +9,7 @@ ShotForge 围绕一个核心对象组织：带版本的视频生成 run。一次
 Web / CLI / API
   -> App services
   -> LangGraph workflows
-  -> Agent Harness Runtime
+  -> Workflow Runtime
   -> Provider adapters
   -> ProjectState + artifacts
 ```
@@ -18,7 +18,7 @@ ShotForge 把用户工作台和执行运行时分开：
 
 - **AI 视频工作台**：页面、API、run history、provider 配置、artifact 访问、进度、
   生命周期状态和导出。
-- **Agent Harness Runtime**：类型化状态、上下文构建、agent contract、tool record、
+- **Workflow Runtime**：类型化状态、上下文构建、agent contract、tool record、
   provider 边界、trace log、版本快照和 policy record。
 
 ## Run 流程
@@ -167,7 +167,7 @@ Workflow 负责 agent 和 provider 调用顺序：
 - sandbox policy records
 - access records
 
-这些信息通过 `shotforge audit` 和 `GET /api/runs/{run_id}/harness` 暴露。
+这些信息通过 `shotforge audit` 和 `GET /api/runs/{run_id}/runtime-evidence` 暴露。
 
 ## Provider 边界
 

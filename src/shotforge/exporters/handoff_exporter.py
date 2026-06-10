@@ -23,7 +23,7 @@ def export_manifest(state: ProjectState, run_dir: Path) -> Path:
             "check_count": len(audit["readiness"].get("checks", [])),
             "next_actions": audit["readiness"].get("next_actions", []),
         },
-        "audit_api": f"/api/runs/{state.run_id}/harness",
+        "audit_api": f"/api/runs/{state.run_id}/runtime-evidence",
         "package_api": f"/api/runs/{state.run_id}",
     }
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -87,7 +87,7 @@ def export_run_summary(state: ProjectState, run_dir: Path) -> Path:
     lines.extend(
         [
             "",
-            "## Harness Evidence",
+            "## Runtime Evidence",
             "",
             f"- Context snapshots: {len(audit['contexts'])}",
             f"- Tool calls: {len(audit['tool_calls'])}",
@@ -101,7 +101,7 @@ def export_run_summary(state: ProjectState, run_dir: Path) -> Path:
             "",
             "## Audit",
             "",
-            f"- Harness API: `/api/runs/{state.run_id}/harness`",
+            f"- Runtime evidence API: `/api/runs/{state.run_id}/runtime-evidence`",
             f"- CLI: `shotforge audit {path.parent / 'package.json'}`",
             "",
         ]

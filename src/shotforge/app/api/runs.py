@@ -76,6 +76,10 @@ def build_run_router(run_service: RunService, artifact_service: ArtifactService)
     def get_harness_audit(run_id: str) -> dict[str, Any]:
         return build_harness_audit(load_run(run_id))
 
+    @router.get("/{run_id}/runtime-evidence")
+    def get_runtime_evidence(run_id: str) -> dict[str, Any]:
+        return build_harness_audit(load_run(run_id))
+
     @router.get("/{run_id}/workbench")
     def get_run_workbench(run_id: str) -> dict[str, Any]:
         return run_status_service.workbench(load_run(run_id)).model_dump(mode="json")

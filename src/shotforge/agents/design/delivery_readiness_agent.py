@@ -89,8 +89,8 @@ def _context_observability_check(state: ProjectState) -> ReadinessCheck:
         ),
         remediation=_text(
             state,
-            "Enable AgentHarnessRuntime context snapshots for every agent.",
-            "为每个 Agent 启用 AgentHarnessRuntime 上下文快照。",
+            "Enable workflow runtime context snapshots for every agent.",
+            "为每个 Agent 启用 workflow runtime 上下文快照。",
         ),
     )
 
@@ -139,8 +139,8 @@ def _tool_orchestration_check(state: ProjectState) -> ReadinessCheck:
         ),
         remediation=_text(
             state,
-            "Review denied tools, schema failures, and fallback outcomes before pilot.",
-            "试点前复核被拒绝工具、schema 失败和降级结果。",
+            "Review denied tools, schema failures, and fallback outcomes before release.",
+            "发布前复核被拒绝工具、schema 失败和降级结果。",
         ),
     )
 
@@ -162,8 +162,8 @@ def _state_transition_check(state: ProjectState) -> ReadinessCheck:
         ),
         remediation=_text(
             state,
-            "Review state transition warnings before pilot handoff.",
-            "试点交付前复核状态变化告警。",
+            "Review state transition warnings before release handoff.",
+            "发布交付前复核状态变化告警。",
         ),
     )
 
@@ -176,7 +176,7 @@ def _agent_contract_check(state: ProjectState) -> ReadinessCheck:
     ]
     return ReadinessCheck(
         check_id="agent_contracts",
-        category=_text(state, "Agent Harness", "Agent Harness"),
+        category=_text(state, "Runtime Evidence", "Runtime Evidence"),
         status="passed" if state.agent_contract_reports and not failed else "warning",
         evidence=_text(
             state,
@@ -185,8 +185,8 @@ def _agent_contract_check(state: ProjectState) -> ReadinessCheck:
         ),
         remediation=_text(
             state,
-            "Review failed agent contracts before pilot handoff.",
-            "试点交付前复核失败的 Agent 契约。",
+            "Review failed agent contracts before release handoff.",
+            "发布交付前复核失败的 Agent 契约。",
         ),
     )
 
@@ -302,8 +302,8 @@ def _memory_strategy_check(state: ProjectState) -> ReadinessCheck:
         ),
         remediation=_text(
             state,
-            "Promote successful runs or seed customer memory before pilot.",
-            "试点前沉淀成功任务或初始化客户场景记忆。",
+            "Promote successful runs or seed reusable scenario memory before release.",
+            "发布前沉淀成功任务或初始化可复用场景记忆。",
         ),
     )
 
@@ -332,8 +332,8 @@ def _sandbox_strategy_check(state: ProjectState) -> ReadinessCheck:
         ),
         remediation=_text(
             state,
-            "Review denied sandbox activity and enforce workspace boundary before pilot.",
-            "试点前复核被拒绝的 Sandbox 活动，并强制工作区边界。",
+            "Review denied sandbox activity and enforce workspace boundary before release.",
+            "发布前复核被拒绝的 Sandbox 活动，并强制工作区边界。",
         ),
     )
 
@@ -363,8 +363,8 @@ def _solution_architecture_check(state: ProjectState) -> ReadinessCheck:
         ),
         remediation=_text(
             state,
-            "Generate customer-facing solution architecture before delivery.",
-            "交付前生成面向客户的解决方案架构。",
+            "Generate solution architecture before delivery.",
+            "交付前生成解决方案架构。",
         ),
     )
 
@@ -407,8 +407,8 @@ def _provider_strategy_check(state: ProjectState) -> ReadinessCheck:
         evidence=_text(state, f"prompt provider={provider}", f"提示词服务={provider}"),
         remediation=_text(
             state,
-            "Configure one real video provider and credentials for pilot.",
-            "为试点配置一个真实视频生成服务和凭证。",
+            "Configure one real video provider and credentials before release.",
+            "发布前配置一个真实视频生成服务和凭证。",
         ),
     )
 
@@ -441,7 +441,7 @@ def _evaluation_loop_check(state: ProjectState) -> ReadinessCheck:
 
 
 def _overall_status(checks: list[ReadinessCheck]) -> ReadinessStatus:
-    if any(item.status == "failed" and item.required_for_pilot for item in checks):
+    if any(item.status == "failed" and item.required_for_release for item in checks):
         return "failed"
     if any(item.status == "warning" for item in checks):
         return "warning"
@@ -453,7 +453,7 @@ def _handoff_deliverables(state: ProjectState) -> list[str]:
         _text(state, "ProjectState JSON package", "ProjectState JSON 任务包"),
         _text(state, "Storyboard CSV package", "分镜 CSV 任务包"),
         _text(state, "Markdown production brief", "Markdown 生产简报"),
-        _text(state, "Harness evidence trace", "Harness 证据链路"),
+        _text(state, "Runtime evidence trace", "运行时证据链路"),
         _text(state, "Solution architecture summary", "解决方案架构摘要"),
         _text(state, "Delivery readiness report", "交付就绪度报告"),
     ]
@@ -470,8 +470,8 @@ def _next_actions(state: ProjectState, checks: list[ReadinessCheck]) -> list[str
         actions.append(
             _text(
                 state,
-                "Select one pilot customer scenario and bind success criteria to measurable data.",
-                "选择一个试点客户场景，并将成功标准绑定到可度量数据。",
+                "Select one validation scenario and bind success criteria to measurable data.",
+                "选择一个验证场景，并将成功标准绑定到可度量数据。",
             )
         )
     return actions
@@ -486,8 +486,8 @@ def _risk_register(state: ProjectState) -> list[str]:
         ),
         _text(
             state,
-            "Customer asset ingestion and permission model are planned but not implemented.",
-            "客户资产接入和权限模型仍处于规划阶段，尚未实现。",
+            "User asset ingestion and permission model are planned but not implemented.",
+            "用户资产接入和权限模型仍处于规划阶段，尚未实现。",
         ),
     ]
     if not state.evaluation_reports:

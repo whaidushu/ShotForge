@@ -220,10 +220,12 @@ Content-Type: application/json
 
 返回 run package 中的 trace log。
 
-### `GET /api/runs/{run_id}/harness`
+### `GET /api/runs/{run_id}/runtime-evidence`
 
 返回运行时证据，包括 context snapshot、tool call、state transition、
 workflow decision、policy record 和拓扑信息。
+
+`GET /api/runs/{run_id}/harness` 作为兼容别名仍然可用。
 
 ### `GET /api/runs/{run_id}/workbench`
 

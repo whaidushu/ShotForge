@@ -126,6 +126,6 @@ data/runs/{run_id}
 
 - `GET /api/runs/{run_id}/workbench`：产品工作台状态。
 - `GET /api/runs/{run_id}/generation-artifacts`：artifact links。
-- `GET /api/runs/{run_id}/harness`：runtime evidence。
+- `GET /api/runs/{run_id}/runtime-evidence`：runtime evidence。
 - `GET /api/runs/{run_id}/versions`：version snapshots。
 - `data/runs/{run_id}/package.json`：完整保存状态。

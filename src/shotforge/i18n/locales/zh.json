@@ -556,7 +556,7 @@
     },
     "solution": {
       "title": "解决方案架构",
-      "subtitle": "从场景洞察到可交付视频方案的客户路径。",
+      "subtitle": "从场景洞察到可交付视频方案的工作流路径。",
       "industry": "行业",
       "scenario": "场景",
       "objective": "业务目标",
@@ -573,13 +573,13 @@
     },
     "readiness": {
       "title": "交付就绪度",
-      "subtitle": "面向交付、试点设置和生产加固的验收检查。",
+      "subtitle": "面向交付、provider 设置和生产加固的验收检查。",
       "overall": "整体状态",
       "checks": "检查项",
       "handoff": "交付物",
       "next_actions": "下一步行动",
       "risks": "风险",
-      "required": "Pilot 必需",
+      "required": "发布门禁",
       "remediation": "修复建议"
     },
     "generation": {

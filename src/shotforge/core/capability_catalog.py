@@ -67,7 +67,7 @@ def build_capability_catalog() -> dict[str, Any]:
             "GET /api/runs/{run_id}",
             "GET /api/runs/{run_id}/package-view",
             "GET /api/runs/{run_id}/status",
-            "GET /api/runs/{run_id}/harness",
+            "GET /api/runs/{run_id}/runtime-evidence",
             "GET /api/runs/{run_id}/generation-artifacts",
             "GET /api/runs/{run_id}/effect-comparison",
             "GET /api/runs/{run_id}/artifacts/{artifact_kind}/{iteration}/{shot_id}",

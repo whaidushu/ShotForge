@@ -51,7 +51,7 @@ class LocalMCPAdapter:
             ),
             "runs.get_harness_audit": MCPToolSpec(
                 name="runs.get_harness_audit",
-                description="Read harness audit data for a run id.",
+                description="Read runtime evidence data for a run id.",
                 input_schema={"run_id": "string"},
                 output_schema={"harness_audit": "object"},
             ),
@@ -64,7 +64,7 @@ class LocalMCPAdapter:
                 description="Summarize a ShotForge run for review/refine.",
                 arguments={"run_id": "string"},
                 template=(
-                    "Review ShotForge run {run_id}. Focus on harness evidence, "
+                    "Review ShotForge run {run_id}. Focus on runtime evidence, "
                     "provider readiness, evaluation issues, and next actions."
                 ),
                 metadata={"kind": "review_refine"},
@@ -178,8 +178,8 @@ class LocalMCPAdapter:
                     ),
                     MCPResourceSpec(
                         uri=f"shotforge://runs/{run_id}/harness",
-                        name=f"{run_id} harness audit",
-                        description="ShotForge harness audit JSON",
+                        name=f"{run_id} runtime evidence",
+                        description="ShotForge runtime evidence JSON",
                         metadata={"run_id": run_id, "kind": "harness_audit"},
                     ),
                 ]

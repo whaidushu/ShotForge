@@ -190,7 +190,7 @@ def test_chinese_demo_route_seeds_chinese_gold_sample(tmp_path, monkeypatch):
     page = client.get(response.headers["location"])
     assert page.status_code == 200
     assert_template_rendered(page.text)
-    assert "黑色门禁卡" in page.text
+    assert "隐藏扫描器" in page.text
     assert "shotforge_gold_sample_zh" in page.text
     get_settings.cache_clear()
 
@@ -603,9 +603,9 @@ def test_create_run_api_with_planning(tmp_path, monkeypatch):
     assert versions.json()
     assert any(item["label"].startswith("redesign_iter") for item in versions.json())
 
-    harness = client.get(f"/api/runs/{payload['run_id']}/harness")
-    assert harness.status_code == 200
-    audit = harness.json()
+    evidence = client.get(f"/api/runs/{payload['run_id']}/runtime-evidence")
+    assert evidence.status_code == 200
+    audit = evidence.json()
     assert audit["run_id"] == payload["run_id"]
     assert audit["contexts"]
     assert audit["tool_calls"]
@@ -616,6 +616,10 @@ def test_create_run_api_with_planning(tmp_path, monkeypatch):
     assert "knowledge.search" in audit["policies"]["mcp_tool_names"]
     assert audit["solution"]["knowledge_assets"]
     assert audit["readiness"]["checks"]
+
+    harness = client.get(f"/api/runs/{payload['run_id']}/harness")
+    assert harness.status_code == 200
+    assert harness.json()["run_id"] == payload["run_id"]
 
     manifest = client.get(f"/api/runs/{payload['run_id']}/export/manifest")
     assert manifest.status_code == 200

@@ -120,7 +120,7 @@ def test_pipeline_supports_english_output(tmp_path, monkeypatch):
     assert "harness_audit" in open(trace_path, encoding="utf-8").read()
     summary = open(summary_path, encoding="utf-8").read()
     assert "ShotForge Run Summary" in summary
-    assert "Harness Evidence" in summary
+    assert "Runtime Evidence" in summary
     assert "State transitions" in summary
 
 

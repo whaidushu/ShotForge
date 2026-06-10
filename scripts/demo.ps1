@@ -21,7 +21,7 @@ if (-not $package) {
 Write-Host ""
 Write-Host "Latest package:" $package.FullName -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Harness audit:" -ForegroundColor Cyan
+Write-Host "Runtime evidence:" -ForegroundColor Cyan
 python -m shotforge audit $package.FullName
 
 Write-Host ""
