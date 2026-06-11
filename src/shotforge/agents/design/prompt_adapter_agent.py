@@ -85,9 +85,9 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
                 )
             )
         state.prompt_package = PromptPackage(
-            provider="mock-video-model",
+            provider="local-test-video-provider",
             prompts=prompts,
-            adapter_notes=["V0 design harness prompt package"],
+            adapter_notes=["V0 structured prompt package"],
         )
     return state
 

@@ -18,7 +18,7 @@ class MockGenerator:
             supports_audio=False,
             supports_batch=True,
             max_duration_seconds=None,
-            metadata={"purpose": "deterministic development and evaluation harness"},
+            metadata={"purpose": "deterministic local test and evaluation runtime"},
         )
 
     def estimate_cost(self, state: ProjectState) -> GenerationCostEstimate:
@@ -82,7 +82,7 @@ class MockGenerator:
     def _summary(self, language: str, title: str, shot_id: str) -> str:
         if language == "zh":
             return f"{shot_id} 模拟生成了“{title}”段落，但部分动作、情绪或声音点位可能偏弱。"
-        return f"{shot_id} mocked a '{title}' beat with possible weak action, emotion, or audio timing."
+        return f"{shot_id} local test generated a '{title}' beat with possible weak action, emotion, or audio timing."
 
     def _quality_signals(self, state: ProjectState, shot_id: str, shot_index: int) -> dict[str, float]:
         base = {

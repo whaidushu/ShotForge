@@ -144,7 +144,7 @@ class StructuredPromptTemplate(BaseModel):
 
 class PromptItem(BaseModel):
     shot_id: str
-    provider: str = "mock-video-model"
+    provider: str = "local-test-video-provider"
     prompt: str
     structured_template: StructuredPromptTemplate | None = None
     negative_prompt: str = "low quality, distorted anatomy, unreadable text, flicker"
@@ -153,7 +153,7 @@ class PromptItem(BaseModel):
 
 
 class PromptPackage(BaseModel):
-    provider: str = "mock-video-model"
+    provider: str = "local-test-video-provider"
     prompts: list[PromptItem] = Field(default_factory=list)
     adapter_notes: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -203,7 +203,10 @@ class SolutionArchitecture(BaseModel):
     industry: str
     scenario: str
     business_objective: str
-    reference_customer: str = ""
+    target_user_segment: str = Field(
+        default="",
+        validation_alias=AliasChoices("target_user_segment", "reference_customer"),
+    )
     model_strategy: str
     agent_topology: list[str] = Field(default_factory=list)
     components: list[ArchitectureComponent] = Field(default_factory=list)

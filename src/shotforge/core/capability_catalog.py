@@ -23,7 +23,7 @@ def build_capability_catalog() -> dict[str, Any]:
             "state_management": "ProjectState",
             "context_engineering": "ContextBuilder",
             "tool_orchestration": "SkillRegistry",
-            "runtime": "AgentHarnessRuntime",
+            "runtime": "WorkflowRuntime",
             "trace": "TraceLog",
             "versioning": "VersionManager",
         },

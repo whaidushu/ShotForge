@@ -8,7 +8,7 @@ assignees: ""
 
 ## Scenario
 
-Which customer or industry scenario should ShotForge support?
+Which user, team, or industry workflow should ShotForge support?
 
 ## Desired Capability
 

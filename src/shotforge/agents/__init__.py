@@ -83,7 +83,7 @@ def build_default_registry() -> SkillRegistry:
     registry.register(
         "export.manifest",
         ExportManager().export_manifest,
-        description="Export customer handoff manifest.",
+        description="Export workflow handoff manifest.",
         permission_scope="local_file_write",
         risk_level="medium",
     )
@@ -128,7 +128,7 @@ def build_default_agent_catalog() -> AgentCatalog:
                 outputs=["creative_intent", "characters"],
                 skills=["mock_llm.complete"],
                 context_tags=["cinematic", "visual"],
-                extension_points=["real_llm_provider", "customer_brief_parser"],
+                extension_points=["real_llm_provider", "user_brief_parser"],
             ),
             AgentSpec(
                 agent_name="storyboard_agent",
@@ -173,8 +173,8 @@ def build_default_agent_catalog() -> AgentCatalog:
                 outputs=["solution_architecture"],
                 dependencies=["prompt_adapter_agent"],
                 skills=["mock_llm.complete"],
-                context_tags=["solution-design", "agent-infra", "customer-value"],
-                extension_points=["customer_playbook_overlay", "rag_knowledge_source"],
+                context_tags=["solution-design", "agent-infra", "workflow-value"],
+                extension_points=["workflow_playbook_overlay", "rag_knowledge_source"],
             ),
             AgentSpec(
                 agent_name="delivery_readiness_agent",
@@ -183,7 +183,7 @@ def build_default_agent_catalog() -> AgentCatalog:
                 outputs=["delivery_readiness"],
                 dependencies=["solution_architect_agent"],
                 context_tags=["acceptance-readiness", "deployment", "governance"],
-                extension_points=["customer_gate_policy", "security_review_policy"],
+                extension_points=["release_gate_policy", "security_review_policy"],
             ),
             AgentSpec(
                 agent_name="export_agent",
@@ -274,7 +274,7 @@ class AgentHarness:
                 self.context_builder,
                 self.registry,
             ),
-            tags=["solution-design", "agent-infra", "customer-value"],
+            tags=["solution-design", "agent-infra", "workflow-value"],
         )
 
     def delivery_readiness_agent(self, state: ProjectState) -> ProjectState:

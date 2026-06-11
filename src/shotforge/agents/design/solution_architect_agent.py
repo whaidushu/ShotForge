@@ -25,7 +25,7 @@ def solution_architect_agent(
         context = context_builder.build(
             state,
             "Solution Architect Agent",
-            ["solution-design", "agent-infra", "customer-value"],
+            ["solution-design", "agent-infra", "workflow-value"],
         )
         tool_name = _llm_tool_name()
         completion = registry.call(
@@ -46,7 +46,7 @@ def solution_architect_agent(
                 "Reduce creative planning latency and make video prompt production auditable.",
                 "\u964d\u4f4e\u521b\u610f\u7b56\u5212\u5230\u89c6\u9891\u63d0\u793a\u8bcd\u751f\u4ea7\u7684\u8017\u65f6\uff0c\u5e76\u8ba9\u751f\u4ea7\u8fc7\u7a0b\u53ef\u8ffd\u6eaf\u3001\u53ef\u8bc4\u4f30\u3002",
             ),
-            reference_customer=_text(
+            target_user_segment=_text(
                 state,
                 "Brand marketing, content studio, or AI video operations team",
                 "\u54c1\u724c\u8425\u9500\u3001\u5185\u5bb9\u5de5\u4f5c\u5ba4\u6216 AI \u89c6\u9891\u8fd0\u8425\u56e2\u961f",
@@ -140,7 +140,7 @@ def _components(state: ProjectState) -> list[ArchitectureComponent]:
                 "Single structured state across creative, runtime, evaluation, and exports.",
                 "\u8de8\u521b\u610f\u3001\u8fd0\u884c\u65f6\u3001\u8bc4\u4f30\u548c\u5bfc\u51fa\u7684\u7edf\u4e00\u7ed3\u6784\u5316\u72b6\u6001\u3002",
             ),
-            owner_agent="AgentHarnessRuntime",
+            owner_agent="WorkflowRuntime",
             skills=[],
             guardrails=["pydantic_schema", "versioned_snapshots"],
         ),
@@ -162,7 +162,7 @@ def _components(state: ProjectState) -> list[ArchitectureComponent]:
                 "Register local tools and record tool-call purpose, status, latency, and permission scope.",
                 "\u6ce8\u518c\u672c\u5730\u5de5\u5177\uff0c\u5e76\u8bb0\u5f55\u5de5\u5177\u8c03\u7528\u76ee\u7684\u3001\u72b6\u6001\u3001\u8017\u65f6\u548c\u6743\u9650\u8303\u56f4\u3002",
             ),
-            owner_agent="AgentHarnessRuntime",
+            owner_agent="WorkflowRuntime",
             skills=["mock_llm.complete", "export.json", "export.csv", "export.markdown"],
             guardrails=["permission_scope", "input_output_preview"],
         ),
@@ -173,7 +173,7 @@ def _components(state: ProjectState) -> list[ArchitectureComponent]:
                 "Expose local resources, constrained execution, and reusable run memory as extension points.",
                 "\u5c06\u672c\u5730\u8d44\u6e90\u3001\u53d7\u9650\u6267\u884c\u548c\u53ef\u590d\u7528\u8fd0\u884c\u8bb0\u5fc6\u4f5c\u4e3a\u6269\u5c55\u70b9\u66b4\u9732\u3002",
             ),
-            owner_agent="AgentHarnessRuntime",
+            owner_agent="WorkflowRuntime",
             skills=["runs.list", "runs.get_package", "sandbox.run", "memory.search"],
             guardrails=["allowlisted_commands", "dry_run_default", "local_storage"],
         ),
@@ -245,7 +245,7 @@ def _success_criteria(
             criterion_id="acceptance_observability",
             metric=_text(state, "workflow runtime observability", "工作流运行时可观测性"),
             target=_text(state, "context, tool calls, policies, MCP, sandbox, and memory visible per run", "\u6bcf\u6b21\u8fd0\u884c\u53ef\u89c1 context/tool/policy/MCP/sandbox/memory"),
-            evaluation_method=_text(state, "Harness Inspector and exported ProjectState", "Harness Inspector \u4e0e ProjectState \u5bfc\u51fa"),
+            evaluation_method=_text(state, "runtime evidence report and exported ProjectState", "\u8fd0\u884c\u65f6\u8bc1\u636e\u62a5\u544a\u4e0e ProjectState \u5bfc\u51fa"),
         ),
         AcceptanceCriterion(
             criterion_id="acceptance_quality_loop",

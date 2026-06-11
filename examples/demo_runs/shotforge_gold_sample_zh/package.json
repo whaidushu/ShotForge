@@ -485,11 +485,11 @@
     }
   ],
   "prompt_package": {
-    "provider": "mock-video-model",
+    "provider": "local-test-video-provider",
     "prompts": [
       {
         "shot_id": "shot_01",
-        "provider": "mock-video-model",
+        "provider": "local-test-video-provider",
         "prompt": "PHYSICAL TARGETS: keep all explicitly requested visible elements on screen. MANDATORY VISIBLE ELEMENTS: . 第 1 段：隐藏扫描器在雨夜城市屋顶追踪发光无人机。画面需要用一个清晰主体和一个可见道具建立目标。保持 the primary subject, key prop, and location 作为前景或中景中的具体锚点，不要只做成模糊背景氛围。. wide establishing, wide lock-off, 起始姿态 -> 一个具体动作 -> 可见反应或结果. 视觉风格: cinematic. 关键视觉: cinematic, the primary subject, key prop, and location, 前景道具, 可见反应, 稳定地点, 清晰主体焦点, 有层次的环境细节. 音频意图: 克制的电影感脉冲. Revision target for shot_01: 把抽象运动替换为一个明确动词、一个目标物和一个结果。 Keep these visible anchors measurable on screen: cinematic, the primary subject, key prop, and location, 前景道具, 可见反应, 稳定地点, 清晰主体焦点. 效果契约: ACTION CONTINUITY - keep one continuous action across the whole clip; show a visible start pose, one readable movement direction, and a clear end pose; do not let the action mutate into a different action. Use: start pose -> continuous movement -> end pose.",
         "structured_template": {
           "character_identity": "主角: 视觉叙事核心, cinematic, clear silhouette",
@@ -535,7 +535,7 @@
       },
       {
         "shot_id": "shot_02",
-        "provider": "mock-video-model",
+        "provider": "local-test-video-provider",
         "prompt": "PHYSICAL TARGETS: keep all explicitly requested visible elements on screen. MANDATORY VISIBLE ELEMENTS: . 第 2 段：隐藏扫描器在雨夜城市屋顶追踪发光无人机。画面需要让主体对道具采取一次可观察动作，并出现明确结果。保持 the primary subject, key prop, and location 作为前景或中景中的具体锚点，不要只做成模糊背景氛围。. tracking medium, side tracking, 起始姿态 -> 一个具体动作 -> 可见反应或结果. 视觉风格: cinematic. 关键视觉: cinematic, the primary subject, key prop, and location, 前景道具, 可见反应, 稳定地点, 清晰主体焦点, 有层次的环境细节. 音频意图: 克制的电影感脉冲. Revision target for shot_02: 把抽象运动替换为一个明确动词、一个目标物和一个结果。 Keep these visible anchors measurable on screen: cinematic, the primary subject, key prop, and location, 前景道具, 可见反应, 稳定地点, 清晰主体焦点. 效果契约: ACTION CONTINUITY - keep one continuous action across the whole clip; show a visible start pose, one readable movement direction, and a clear end pose; do not let the action mutate into a different action. 效果契约: ACTION READABILITY - use one clear verb, one target object, and one visible reaction/outcome; avoid abstract motion language. 效果契约: make the target issue visibly measurable in the generated frames. Target dimension: pacing_progression. Use: start pose -> continuous movement -> end pose. Revision target for shot_02: 把抽象运动替换为一个明确动词、一个目标物和一个结果。 Keep these visible anchors measurable on screen: cinematic, the primary subject, key prop, and location, 前景道具, 可见反应, 稳定地点, 清晰主体焦点. 效果契约: ACTION READABILITY - use one clear verb, one target object, and one visible reaction/outcome; avoid abstract motion language. Use: start pose -> continuous movement -> end pose.",
         "structured_template": {
           "character_identity": "主角: 视觉叙事核心, cinematic, clear silhouette",
@@ -581,7 +581,7 @@
       },
       {
         "shot_id": "shot_03",
-        "provider": "mock-video-model",
+        "provider": "local-test-video-provider",
         "prompt": "PHYSICAL TARGETS: keep all explicitly requested visible elements on screen. MANDATORY VISIBLE ELEMENTS: . 第 3 段：隐藏扫描器在雨夜城市屋顶追踪发光无人机。画面需要揭示新的信息锚点，让观众理解局势发生变化。保持 the primary subject, key prop, and location 作为前景或中景中的具体锚点，不要只做成模糊背景氛围。. dynamic close-up, slow push-in, 起始姿态 -> 一个具体动作 -> 可见反应或结果. 视觉风格: cinematic. 关键视觉: cinematic, the primary subject, key prop, and location, 前景道具, 可见反应, 稳定地点, 清晰主体焦点, 有层次的环境细节. 音频意图: 克制的电影感脉冲. Revision target for shot_03: 把抽象运动替换为一个明确动词、一个目标物和一个结果。 Keep these visible anchors measurable on screen: cinematic, the primary subject, key prop, and location, 前景道具, 可见反应, 稳定地点, 清晰主体焦点. 效果契约: ACTION CONTINUITY - keep one continuous action across the whole clip; show a visible start pose, one readable movement direction, and a clear end pose; do not let the action mutate into a different action. Use: start pose -> continuous movement -> end pose.",
         "structured_template": {
           "character_identity": "主角: 视觉叙事核心, cinematic, clear silhouette",
@@ -627,7 +627,7 @@
       },
       {
         "shot_id": "shot_04",
-        "provider": "mock-video-model",
+        "provider": "local-test-video-provider",
         "prompt": "PHYSICAL TARGETS: keep all explicitly requested visible elements on screen. MANDATORY VISIBLE ELEMENTS: . 第 4 段：隐藏扫描器在雨夜城市屋顶追踪发光无人机。画面需要用最终动作和环境变化完成收束。保持 the primary subject, key prop, and location 作为前景或中景中的具体锚点，不要只做成模糊背景氛围。. hero wide, crane pullback, 起始姿态 -> 一个具体动作 -> 可见反应或结果. 视觉风格: cinematic. 关键视觉: cinematic, the primary subject, key prop, and location, 前景道具, 可见反应, 稳定地点, 清晰主体焦点, 有层次的环境细节. 音频意图: 克制的电影感脉冲. Revision target for shot_04: 把抽象运动替换为一个明确动词、一个目标物和一个结果。 Keep these visible anchors measurable on screen: cinematic, the primary subject, key prop, and location, 前景道具, 可见反应, 稳定地点, 清晰主体焦点. 效果契约: ACTION CONTINUITY - keep one continuous action across the whole clip; show a visible start pose, one readable movement direction, and a clear end pose; do not let the action mutate into a different action. Use: start pose -> continuous movement -> end pose.",
         "structured_template": {
           "character_identity": "主角: 视觉叙事核心, cinematic, clear silhouette",
@@ -673,7 +673,7 @@
       }
     ],
     "adapter_notes": [
-      "V0 design harness prompt package"
+      "V0 structured prompt package"
     ],
     "metadata": {}
   },
@@ -681,7 +681,7 @@
     "industry": "影视内容",
     "scenario": "AI 视频生产策划",
     "business_objective": "降低创意策划到视频提示词生产的耗时，并让生产过程可追溯、可评估。",
-    "reference_customer": "品牌营销、内容工作室或 AI 视频运营团队",
+    "target_user_segment": "品牌营销、内容工作室或 AI 视频运营团队",
     "model_strategy": "默认使用测试 LLM，并保留 ComfyUI/即梦/Kling/Runway/Open-Sora 的可插拔视频模型适配。",
     "agent_topology": [
       "Intent -> Storyboard -> Motion -> Audio Cue -> Prompt Adapter -> Solution Architect -> Export",
@@ -691,7 +691,7 @@
       {
         "name": "ProjectState",
         "responsibility": "跨创意、运行时、评估和导出的统一结构化状态。",
-        "owner_agent": "AgentHarnessRuntime",
+        "owner_agent": "WorkflowRuntime",
         "skills": [],
         "guardrails": [
           "pydantic_schema",
@@ -715,7 +715,7 @@
       {
         "name": "SkillRegistry",
         "responsibility": "注册本地工具，并记录工具调用目的、状态、耗时和权限范围。",
-        "owner_agent": "AgentHarnessRuntime",
+        "owner_agent": "WorkflowRuntime",
         "skills": [
           "mock_llm.complete",
           "export.json",
@@ -731,7 +731,7 @@
       {
         "name": "MCP / Sandbox / Memory",
         "responsibility": "将本地资源、受限执行和可复用运行记忆作为扩展点暴露。",
-        "owner_agent": "AgentHarnessRuntime",
+        "owner_agent": "WorkflowRuntime",
         "skills": [
           "runs.list",
           "runs.get_package",
@@ -818,7 +818,7 @@
         "criterion_id": "acceptance_observability",
         "metric": "Workflow Runtime 可观测性",
         "target": "每次运行可见 context/tool/policy/MCP/sandbox/memory",
-        "evaluation_method": "Harness Inspector 与 ProjectState 导出",
+        "evaluation_method": "运行时证据报告与 ProjectState 导出",
         "metadata": {}
       },
       {
@@ -1744,7 +1744,7 @@
           ],
           "max_duration_seconds": null,
           "metadata": {
-            "purpose": "deterministic development and evaluation harness"
+            "purpose": "deterministic local test and evaluation runtime"
           }
         },
         "frame_observation_provider": "heuristic_frame_observer",
@@ -2541,7 +2541,7 @@
           ],
           "max_duration_seconds": null,
           "metadata": {
-            "purpose": "deterministic development and evaluation harness"
+            "purpose": "deterministic local test and evaluation runtime"
           }
         },
         "frame_observation_provider": "heuristic_frame_observer",
@@ -3338,7 +3338,7 @@
           ],
           "max_duration_seconds": null,
           "metadata": {
-            "purpose": "deterministic development and evaluation harness"
+            "purpose": "deterministic local test and evaluation runtime"
           }
         },
         "frame_observation_provider": "heuristic_frame_observer",
@@ -10016,7 +10016,7 @@
       ],
       "max_duration_seconds": null,
       "metadata": {
-        "purpose": "deterministic development and evaluation harness"
+        "purpose": "deterministic local test and evaluation runtime"
       }
     },
     "parent_version": 2,

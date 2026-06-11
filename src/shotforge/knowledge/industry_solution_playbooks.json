@@ -44,7 +44,7 @@
     "scenario_patterns": [
       "policy explainer video planning",
       "risk education short-video package",
-      "customer onboarding content generation"
+      "user onboarding content generation"
     ],
     "value_levers": ["content governance", "review efficiency", "message consistency"],
     "required_integrations": ["compliance rule base", "approved copy library", "review record system"],

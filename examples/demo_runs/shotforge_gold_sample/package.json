@@ -485,11 +485,11 @@
     }
   ],
   "prompt_package": {
-    "provider": "mock-video-model",
+    "provider": "local-test-video-provider",
     "prompts": [
       {
         "shot_id": "shot_01",
-        "provider": "mock-video-model",
+        "provider": "local-test-video-provider",
         "prompt": "PHYSICAL TARGETS: keep all explicitly requested visible elements on screen. MANDATORY VISIBLE ELEMENTS: . A woman in a dark tailored suit enters a mirrored luxury elevator, rain dripping from the tip of her umbrella. She hides a black access card in her palm as the former partner who betrayed her slips in before the doors close.. wide establishing, low wide shot reflected in elevator mirrors, she steps in, hides the access card, and never looks directly at him. Visual style: cinematic. Key visuals: cinematic, mirrored elevator, black access card, rain on umbrella tip, former partner, clear focal subject, layered environment detail. Audio intent: low pulse under elevator hum.",
         "structured_template": {
           "character_identity": "Primary Subject: visual narrative focus, cinematic, clear silhouette",
@@ -533,7 +533,7 @@
       },
       {
         "shot_id": "shot_02",
-        "provider": "mock-video-model",
+        "provider": "local-test-video-provider",
         "prompt": "PHYSICAL TARGETS: keep all explicitly requested visible elements on screen. MANDATORY VISIBLE ELEMENTS: . She lightly taps the black access card against a hidden scanner. The floor display jumps from 12 to private floor 88. As he looks down, the mirrored metal tag on her briefcase reveals the logo of the prototype he stole.. tracking medium, tight tracking shot from access card to floor indicator to reflected briefcase logo, she taps the scanner, lets the floor number jump, and tilts the briefcase into his sightline. Visual style: cinematic. Key visuals: cinematic, hidden scanner, floor 12 to 88, prototype logo, metal briefcase, clear focal subject, layered environment detail. Audio intent: pulse tightens with a metallic tick. Revision target for shot_02: Make the card tap, floor jump, and briefcase reveal happen as three separate visible actions. Keep these visible anchors measurable on screen: cinematic, hidden scanner, floor 12 to 88, prototype logo, metal briefcase, clear focal subject. EFFECT CONTRACT: ACTION READABILITY - use one clear verb, one target object, and one visible reaction/outcome; avoid abstract motion language. EFFECT CONTRACT: make the target issue visibly measurable in the generated frames. Target dimension: pacing_progression. Use: start pose -> continuous movement -> end pose. Revision target for shot_02: Make the card tap, floor jump, and briefcase reveal happen as three separate visible actions. Keep these visible anchors measurable on screen: cinematic, hidden scanner, floor 12 to 88, prototype logo, metal briefcase, clear focal subject. EFFECT CONTRACT: ACTION READABILITY - use one clear verb, one target object, and one visible reaction/outcome; avoid abstract motion language. Use: start pose -> continuous movement -> end pose.",
         "structured_template": {
           "character_identity": "Primary Subject: visual narrative focus, cinematic, clear silhouette",
@@ -579,7 +579,7 @@
       },
       {
         "shot_id": "shot_03",
-        "provider": "mock-video-model",
+        "provider": "local-test-video-provider",
         "prompt": "PHYSICAL TARGETS: keep all explicitly requested visible elements on screen. MANDATORY VISIBLE ELEMENTS: . The elevator lights blink off and return. A wall screen plays security footage of him handing the company's encryption key to a competitor. She finally raises her eyes, with her face and the evidence screen layered in the mirror.. dynamic close-up, slow orbit close-up that keeps her eyes, his reflection, and the evidence screen aligned, she raises her eyes as the evidence screen lights up and he freezes mid-breath. Visual style: cinematic. Key visuals: cinematic, security footage, company encryption key, competitor, mirror overlay, clear focal subject, layered environment detail. Audio intent: sub-bass drop under a thin glass tone.",
         "structured_template": {
           "character_identity": "Primary Subject: visual narrative focus, cinematic, clear silhouette",
@@ -623,7 +623,7 @@
       },
       {
         "shot_id": "shot_04",
-        "provider": "mock-video-model",
+        "provider": "local-test-video-provider",
         "prompt": "PHYSICAL TARGETS: keep all explicitly requested visible elements on screen. MANDATORY VISIBLE ELEMENTS: . The elevator opens onto an empty boardroom on floor 88, every seat lit by the same evidence file. She walks out and drops the access card on the marble. As the doors close, he remains trapped inside and the floor counter begins to count down.. hero wide, wide pullback from opening doors to the empty boardroom table, she exits without turning back, drops the card, and leaves him trapped in the closing reflection. Visual style: cinematic. Key visuals: cinematic, floor 88 boardroom, evidence files, dropped access card, countdown display, clear focal subject, layered environment detail. Audio intent: low pulse resolves into a cold sustained note.",
         "structured_template": {
           "character_identity": "Primary Subject: visual narrative focus, cinematic, clear silhouette",
@@ -667,7 +667,7 @@
       }
     ],
     "adapter_notes": [
-      "V0 design harness prompt package"
+      "V0 structured prompt package"
     ],
     "metadata": {}
   },
@@ -675,7 +675,7 @@
     "industry": "Media and Entertainment",
     "scenario": "AI video production planning",
     "business_objective": "Reduce creative planning latency and make video prompt production auditable.",
-    "reference_customer": "Brand marketing, content studio, or AI video operations team",
+    "target_user_segment": "Brand marketing, content studio, or AI video operations team",
     "model_strategy": "Test LLM by default, with pluggable video providers for ComfyUI/Jimeng/Kling/Runway/Open-Sora.",
     "agent_topology": [
       "Intent -> Storyboard -> Motion -> Audio Cue -> Prompt Adapter -> Solution Architect -> Export",
@@ -685,7 +685,7 @@
       {
         "name": "ProjectState",
         "responsibility": "Single structured state across creative, runtime, evaluation, and exports.",
-        "owner_agent": "AgentHarnessRuntime",
+        "owner_agent": "WorkflowRuntime",
         "skills": [],
         "guardrails": [
           "pydantic_schema",
@@ -709,7 +709,7 @@
       {
         "name": "SkillRegistry",
         "responsibility": "Register local tools and record tool-call purpose, status, latency, and permission scope.",
-        "owner_agent": "AgentHarnessRuntime",
+        "owner_agent": "WorkflowRuntime",
         "skills": [
           "mock_llm.complete",
           "export.json",
@@ -725,7 +725,7 @@
       {
         "name": "MCP / Sandbox / Memory",
         "responsibility": "Expose local resources, constrained execution, and reusable run memory as extension points.",
-        "owner_agent": "AgentHarnessRuntime",
+        "owner_agent": "WorkflowRuntime",
         "skills": [
           "runs.list",
           "runs.get_package",
@@ -812,7 +812,7 @@
         "criterion_id": "acceptance_observability",
         "metric": "workflow runtime observability",
         "target": "context, tool calls, policies, MCP, sandbox, and memory visible per run",
-        "evaluation_method": "Harness Inspector and exported ProjectState",
+        "evaluation_method": "runtime evidence report and exported ProjectState",
         "metadata": {}
       },
       {
@@ -963,7 +963,7 @@
           "prompt_id": "shot_01",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_01",
           "duration_seconds": 6,
-          "observed_summary": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Hook",
             "wide establishing",
@@ -1149,7 +1149,7 @@
           "prompt_id": "shot_02",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_02",
           "duration_seconds": 6,
-          "observed_summary": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Escalation",
             "tracking medium",
@@ -1335,7 +1335,7 @@
           "prompt_id": "shot_03",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_03",
           "duration_seconds": 6,
-          "observed_summary": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Signature Moment",
             "dynamic close-up",
@@ -1521,7 +1521,7 @@
           "prompt_id": "shot_04",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_04",
           "duration_seconds": 6,
-          "observed_summary": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Resolution",
             "hero wide",
@@ -1738,7 +1738,7 @@
           ],
           "max_duration_seconds": null,
           "metadata": {
-            "purpose": "deterministic development and evaluation harness"
+            "purpose": "deterministic local test and evaluation runtime"
           }
         },
         "frame_observation_provider": "heuristic_frame_observer",
@@ -1760,7 +1760,7 @@
           "prompt_id": "shot_01",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_01",
           "duration_seconds": 6,
-          "observed_summary": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Hook",
             "wide establishing",
@@ -1946,7 +1946,7 @@
           "prompt_id": "shot_02",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_02",
           "duration_seconds": 6,
-          "observed_summary": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Escalation",
             "tracking medium",
@@ -2132,7 +2132,7 @@
           "prompt_id": "shot_03",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_03",
           "duration_seconds": 6,
-          "observed_summary": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Signature Moment",
             "dynamic close-up",
@@ -2318,7 +2318,7 @@
           "prompt_id": "shot_04",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_04",
           "duration_seconds": 6,
-          "observed_summary": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Resolution",
             "hero wide",
@@ -2535,7 +2535,7 @@
           ],
           "max_duration_seconds": null,
           "metadata": {
-            "purpose": "deterministic development and evaluation harness"
+            "purpose": "deterministic local test and evaluation runtime"
           }
         },
         "frame_observation_provider": "heuristic_frame_observer",
@@ -2557,7 +2557,7 @@
           "prompt_id": "shot_01",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_01",
           "duration_seconds": 6,
-          "observed_summary": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Hook",
             "wide establishing",
@@ -2743,7 +2743,7 @@
           "prompt_id": "shot_02",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_02",
           "duration_seconds": 6,
-          "observed_summary": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Escalation",
             "tracking medium",
@@ -2929,7 +2929,7 @@
           "prompt_id": "shot_03",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_03",
           "duration_seconds": 6,
-          "observed_summary": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Signature Moment",
             "dynamic close-up",
@@ -3115,7 +3115,7 @@
           "prompt_id": "shot_04",
           "mock_video_uri": "mock://shotforge_gold_sample/shot_04",
           "duration_seconds": 6,
-          "observed_summary": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing.",
+          "observed_summary": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing.",
           "detected_elements": [
             "Resolution",
             "hero wide",
@@ -3332,7 +3332,7 @@
           ],
           "max_duration_seconds": null,
           "metadata": {
-            "purpose": "deterministic development and evaluation harness"
+            "purpose": "deterministic local test and evaluation runtime"
           }
         },
         "frame_observation_provider": "heuristic_frame_observer",
@@ -3357,7 +3357,7 @@
           "generated_result_id": "gen_ae1f0b2c25fa",
           "version": 1,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -3458,7 +3458,7 @@
           "generated_result_id": "gen_ae1f0b2c25fa",
           "version": 1,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -3559,7 +3559,7 @@
           "generated_result_id": "gen_ae1f0b2c25fa",
           "version": 1,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -3660,7 +3660,7 @@
           "generated_result_id": "gen_ae1f0b2c25fa",
           "version": 1,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -3800,7 +3800,7 @@
           "generated_result_id": "gen_98cca3c0f068",
           "version": 2,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -3901,7 +3901,7 @@
           "generated_result_id": "gen_98cca3c0f068",
           "version": 2,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -4002,7 +4002,7 @@
           "generated_result_id": "gen_98cca3c0f068",
           "version": 2,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -4103,7 +4103,7 @@
           "generated_result_id": "gen_98cca3c0f068",
           "version": 2,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -4243,7 +4243,7 @@
           "generated_result_id": "gen_0cbf85c7f676",
           "version": 3,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -4344,7 +4344,7 @@
           "generated_result_id": "gen_0cbf85c7f676",
           "version": 3,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -4445,7 +4445,7 @@
           "generated_result_id": "gen_0cbf85c7f676",
           "version": 3,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -4546,7 +4546,7 @@
           "generated_result_id": "gen_0cbf85c7f676",
           "version": 3,
           "observer_id": "heuristic_frame_observer",
-          "summary": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing.",
+          "summary": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing.",
           "frame_observations": [
             {
               "frame_index": 0,
@@ -5482,7 +5482,7 @@
           "dimension_label": "Action Clarity",
           "shot_id": "shot_02",
           "description": "The main action target in shot_02 is not explicit enough.",
-          "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.58 | source=mock_visual",
+          "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.58 | source=mock_visual",
           "suspected_cause": "Action verbs, target objects, or reaction outcomes are not concrete enough.",
           "correction_type": "action",
           "metadata": {
@@ -5511,7 +5511,7 @@
           "dimension_label": "Pacing Progression",
           "shot_id": "shot_02",
           "description": "Pacing progression in shot_02 is not clear enough.",
-          "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.63 | source=mock_visual",
+          "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.63 | source=mock_visual",
           "suspected_cause": "Beat markers, transition triggers, or action progression are missing.",
           "correction_type": "action",
           "metadata": {
@@ -5540,7 +5540,7 @@
           "dimension_label": "Color Alignment",
           "shot_id": "shot_01",
           "description": "shot_01 underperforms on Color Alignment.",
-          "evidence": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+          "evidence": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
           "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
           "correction_type": "scene",
           "metadata": {
@@ -5594,7 +5594,7 @@
           "dimension_label": "Color Alignment",
           "shot_id": "shot_02",
           "description": "shot_02 underperforms on Color Alignment.",
-          "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+          "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
           "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
           "correction_type": "scene",
           "metadata": {
@@ -5649,7 +5649,7 @@
           "dimension_label": "Camera Expression",
           "shot_id": "shot_04",
           "description": "Camera language in shot_04 does not support the narrative beat strongly enough.",
-          "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
+          "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
           "suspected_cause": "Shot type, camera motion, or subject relationship is under-specified.",
           "correction_type": "camera",
           "metadata": {
@@ -5677,7 +5677,7 @@
           "dimension_label": "Emotional Intensity",
           "shot_id": "shot_03",
           "description": "The emotional expression in shot_03 is not strong enough.",
-          "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
+          "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
           "suspected_cause": "Emotional action, facial detail, or audio turn design is insufficient.",
           "correction_type": "emotion",
           "metadata": {
@@ -5706,7 +5706,7 @@
           "dimension_label": "Reversal Expression",
           "shot_id": "shot_03",
           "description": "The reversal or key information anchor in shot_03 is not explicit enough.",
-          "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
+          "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
           "suspected_cause": "Visual anchors, before/after contrast, or reveal actions are missing.",
           "correction_type": "scene",
           "metadata": {
@@ -5735,7 +5735,7 @@
           "dimension_label": "Audio Timing",
           "shot_id": "shot_04",
           "description": "Audio timing in shot_04 is not aligned with the visual beat.",
-          "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
+          "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
           "suspected_cause": "Sound trigger, BGM transition, or ambience layering is under-specified.",
           "correction_type": "audio",
           "metadata": {
@@ -6295,7 +6295,7 @@
           "dimension_label": "Action Clarity",
           "shot_id": "shot_02",
           "description": "The main action target in shot_02 is not explicit enough.",
-          "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.74 | source=mock_visual",
+          "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.74 | source=mock_visual",
           "suspected_cause": "Action verbs, target objects, or reaction outcomes are not concrete enough.",
           "correction_type": "action",
           "metadata": {
@@ -6324,7 +6324,7 @@
           "dimension_label": "Color Alignment",
           "shot_id": "shot_01",
           "description": "shot_01 underperforms on Color Alignment.",
-          "evidence": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+          "evidence": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
           "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
           "correction_type": "scene",
           "metadata": {
@@ -6378,7 +6378,7 @@
           "dimension_label": "Color Alignment",
           "shot_id": "shot_02",
           "description": "shot_02 underperforms on Color Alignment.",
-          "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+          "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
           "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
           "correction_type": "scene",
           "metadata": {
@@ -6433,7 +6433,7 @@
           "dimension_label": "Camera Expression",
           "shot_id": "shot_04",
           "description": "Camera language in shot_04 does not support the narrative beat strongly enough.",
-          "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
+          "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
           "suspected_cause": "Shot type, camera motion, or subject relationship is under-specified.",
           "correction_type": "camera",
           "metadata": {
@@ -6461,7 +6461,7 @@
           "dimension_label": "Emotional Intensity",
           "shot_id": "shot_03",
           "description": "The emotional expression in shot_03 is not strong enough.",
-          "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
+          "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
           "suspected_cause": "Emotional action, facial detail, or audio turn design is insufficient.",
           "correction_type": "emotion",
           "metadata": {
@@ -6490,7 +6490,7 @@
           "dimension_label": "Reversal Expression",
           "shot_id": "shot_03",
           "description": "The reversal or key information anchor in shot_03 is not explicit enough.",
-          "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
+          "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
           "suspected_cause": "Visual anchors, before/after contrast, or reveal actions are missing.",
           "correction_type": "scene",
           "metadata": {
@@ -6519,7 +6519,7 @@
           "dimension_label": "Audio Timing",
           "shot_id": "shot_04",
           "description": "Audio timing in shot_04 is not aligned with the visual beat.",
-          "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
+          "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
           "suspected_cause": "Sound trigger, BGM transition, or ambience layering is under-specified.",
           "correction_type": "audio",
           "metadata": {
@@ -7079,7 +7079,7 @@
           "dimension_label": "Action Clarity",
           "shot_id": "shot_02",
           "description": "The main action target in shot_02 is not explicit enough.",
-          "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.74 | source=mock_visual",
+          "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.74 | source=mock_visual",
           "suspected_cause": "Action verbs, target objects, or reaction outcomes are not concrete enough.",
           "correction_type": "action",
           "metadata": {
@@ -7108,7 +7108,7 @@
           "dimension_label": "Color Alignment",
           "shot_id": "shot_01",
           "description": "shot_01 underperforms on Color Alignment.",
-          "evidence": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+          "evidence": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
           "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
           "correction_type": "scene",
           "metadata": {
@@ -7162,7 +7162,7 @@
           "dimension_label": "Color Alignment",
           "shot_id": "shot_02",
           "description": "shot_02 underperforms on Color Alignment.",
-          "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+          "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
           "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
           "correction_type": "scene",
           "metadata": {
@@ -7217,7 +7217,7 @@
           "dimension_label": "Camera Expression",
           "shot_id": "shot_04",
           "description": "Camera language in shot_04 does not support the narrative beat strongly enough.",
-          "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
+          "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
           "suspected_cause": "Shot type, camera motion, or subject relationship is under-specified.",
           "correction_type": "camera",
           "metadata": {
@@ -7245,7 +7245,7 @@
           "dimension_label": "Emotional Intensity",
           "shot_id": "shot_03",
           "description": "The emotional expression in shot_03 is not strong enough.",
-          "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
+          "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
           "suspected_cause": "Emotional action, facial detail, or audio turn design is insufficient.",
           "correction_type": "emotion",
           "metadata": {
@@ -7274,7 +7274,7 @@
           "dimension_label": "Reversal Expression",
           "shot_id": "shot_03",
           "description": "The reversal or key information anchor in shot_03 is not explicit enough.",
-          "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
+          "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
           "suspected_cause": "Visual anchors, before/after contrast, or reveal actions are missing.",
           "correction_type": "scene",
           "metadata": {
@@ -7303,7 +7303,7 @@
           "dimension_label": "Audio Timing",
           "shot_id": "shot_04",
           "description": "Audio timing in shot_04 is not aligned with the visual beat.",
-          "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
+          "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
           "suspected_cause": "Sound trigger, BGM transition, or ambience layering is under-specified.",
           "correction_type": "audio",
           "metadata": {
@@ -7397,7 +7397,7 @@
       "dimension_label": "Color Alignment",
       "shot_id": "shot_01",
       "description": "shot_01 underperforms on Color Alignment.",
-      "evidence": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+      "evidence": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
       "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
       "correction_type": "scene",
       "metadata": {
@@ -7451,7 +7451,7 @@
       "dimension_label": "Color Alignment",
       "shot_id": "shot_02",
       "description": "shot_02 underperforms on Color Alignment.",
-      "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+      "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
       "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
       "correction_type": "scene",
       "metadata": {
@@ -7506,7 +7506,7 @@
       "dimension_label": "Camera Expression",
       "shot_id": "shot_04",
       "description": "Camera language in shot_04 does not support the narrative beat strongly enough.",
-      "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
+      "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
       "suspected_cause": "Shot type, camera motion, or subject relationship is under-specified.",
       "correction_type": "camera",
       "metadata": {
@@ -7534,7 +7534,7 @@
       "dimension_label": "Emotional Intensity",
       "shot_id": "shot_03",
       "description": "The emotional expression in shot_03 is not strong enough.",
-      "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
+      "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
       "suspected_cause": "Emotional action, facial detail, or audio turn design is insufficient.",
       "correction_type": "emotion",
       "metadata": {
@@ -7563,7 +7563,7 @@
       "dimension_label": "Reversal Expression",
       "shot_id": "shot_03",
       "description": "The reversal or key information anchor in shot_03 is not explicit enough.",
-      "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
+      "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
       "suspected_cause": "Visual anchors, before/after contrast, or reveal actions are missing.",
       "correction_type": "scene",
       "metadata": {
@@ -7592,7 +7592,7 @@
       "dimension_label": "Audio Timing",
       "shot_id": "shot_04",
       "description": "Audio timing in shot_04 is not aligned with the visual beat.",
-      "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
+      "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
       "suspected_cause": "Sound trigger, BGM transition, or ambience layering is under-specified.",
       "correction_type": "audio",
       "metadata": {
@@ -7620,7 +7620,7 @@
       "dimension_label": "Color Alignment",
       "shot_id": "shot_01",
       "description": "shot_01 underperforms on Color Alignment.",
-      "evidence": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+      "evidence": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
       "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
       "correction_type": "scene",
       "metadata": {
@@ -7674,7 +7674,7 @@
       "dimension_label": "Color Alignment",
       "shot_id": "shot_02",
       "description": "shot_02 underperforms on Color Alignment.",
-      "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+      "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
       "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
       "correction_type": "scene",
       "metadata": {
@@ -7729,7 +7729,7 @@
       "dimension_label": "Camera Expression",
       "shot_id": "shot_04",
       "description": "Camera language in shot_04 does not support the narrative beat strongly enough.",
-      "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
+      "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
       "suspected_cause": "Shot type, camera motion, or subject relationship is under-specified.",
       "correction_type": "camera",
       "metadata": {
@@ -7757,7 +7757,7 @@
       "dimension_label": "Emotional Intensity",
       "shot_id": "shot_03",
       "description": "The emotional expression in shot_03 is not strong enough.",
-      "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
+      "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
       "suspected_cause": "Emotional action, facial detail, or audio turn design is insufficient.",
       "correction_type": "emotion",
       "metadata": {
@@ -7786,7 +7786,7 @@
       "dimension_label": "Reversal Expression",
       "shot_id": "shot_03",
       "description": "The reversal or key information anchor in shot_03 is not explicit enough.",
-      "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
+      "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
       "suspected_cause": "Visual anchors, before/after contrast, or reveal actions are missing.",
       "correction_type": "scene",
       "metadata": {
@@ -7815,7 +7815,7 @@
       "dimension_label": "Audio Timing",
       "shot_id": "shot_04",
       "description": "Audio timing in shot_04 is not aligned with the visual beat.",
-      "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
+      "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
       "suspected_cause": "Sound trigger, BGM transition, or ambience layering is under-specified.",
       "correction_type": "audio",
       "metadata": {
@@ -7843,7 +7843,7 @@
       "dimension_label": "Action Clarity",
       "shot_id": "shot_02",
       "description": "The main action target in shot_02 is not explicit enough.",
-      "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.74 | source=mock_visual",
+      "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | score=0.74 | source=mock_visual",
       "suspected_cause": "Action verbs, target objects, or reaction outcomes are not concrete enough.",
       "correction_type": "action",
       "metadata": {
@@ -7872,7 +7872,7 @@
       "dimension_label": "Color Alignment",
       "shot_id": "shot_01",
       "description": "shot_01 underperforms on Color Alignment.",
-      "evidence": "shot_01 mocked a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+      "evidence": "shot_01 local test generated a 'Hook' beat with possible weak action, emotion, or audio timing. | expected_colors=['black'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
       "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
       "correction_type": "scene",
       "metadata": {
@@ -7926,7 +7926,7 @@
       "dimension_label": "Color Alignment",
       "shot_id": "shot_02",
       "description": "shot_02 underperforms on Color Alignment.",
-      "evidence": "shot_02 mocked a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
+      "evidence": "shot_02 local test generated a 'Escalation' beat with possible weak action, emotion, or audio timing. | expected_colors=['black', 'silver'] | observed_colors=[] | missing_from_prompt=[] | missing_from_observation=['black', 'silver'] | prompt_effect_contract=False | observation_mode=prompt_proxy | score=0.80 | source=physical_effect_static",
       "suspected_cause": "Color, material, or glow attributes are not written as hard constraints.",
       "correction_type": "scene",
       "metadata": {
@@ -7981,7 +7981,7 @@
       "dimension_label": "Camera Expression",
       "shot_id": "shot_04",
       "description": "Camera language in shot_04 does not support the narrative beat strongly enough.",
-      "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
+      "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.68 | source=mock_visual",
       "suspected_cause": "Shot type, camera motion, or subject relationship is under-specified.",
       "correction_type": "camera",
       "metadata": {
@@ -8009,7 +8009,7 @@
       "dimension_label": "Emotional Intensity",
       "shot_id": "shot_03",
       "description": "The emotional expression in shot_03 is not strong enough.",
-      "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
+      "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.55 | source=mock_visual",
       "suspected_cause": "Emotional action, facial detail, or audio turn design is insufficient.",
       "correction_type": "emotion",
       "metadata": {
@@ -8038,7 +8038,7 @@
       "dimension_label": "Reversal Expression",
       "shot_id": "shot_03",
       "description": "The reversal or key information anchor in shot_03 is not explicit enough.",
-      "evidence": "shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 mocked a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
+      "evidence": "shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | shot_03 local test generated a 'Signature Moment' beat with possible weak action, emotion, or audio timing. | score=0.48 | source=mock_visual",
       "suspected_cause": "Visual anchors, before/after contrast, or reveal actions are missing.",
       "correction_type": "scene",
       "metadata": {
@@ -8067,7 +8067,7 @@
       "dimension_label": "Audio Timing",
       "shot_id": "shot_04",
       "description": "Audio timing in shot_04 is not aligned with the visual beat.",
-      "evidence": "shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 mocked a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
+      "evidence": "shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | shot_04 local test generated a 'Resolution' beat with possible weak action, emotion, or audio timing. | score=0.60 | source=mock_visual",
       "suspected_cause": "Sound trigger, BGM transition, or ambience layering is under-specified.",
       "correction_type": "audio",
       "metadata": {
@@ -9027,7 +9027,7 @@
       ],
       "max_duration_seconds": null,
       "metadata": {
-        "purpose": "deterministic development and evaluation harness"
+        "purpose": "deterministic local test and evaluation runtime"
       }
     },
     "parent_version": 2,
