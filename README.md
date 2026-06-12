@@ -103,7 +103,9 @@ The effect demo creates a compact v1/v2/v3 comparison for one cinematic prompt:
 raw prompt, structured prompt, and one observation-guided refinement. Use a real
 generator provider when ComfyUI or another video backend is configured.
 
-[![Effect demo comparison](docs/assets/effect-demo-v1-v2-v3-comparison-poster.jpg)](docs/assets/effect-demo-v1-v2-v3-comparison.mp4)
+![Effect demo comparison](docs/assets/effect-demo-v1-v2-v3-comparison.gif)
+
+[Download the MP4 comparison](docs/assets/effect-demo-v1-v2-v3-comparison.mp4)
 
 Example run setup:
 
