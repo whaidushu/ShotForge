@@ -147,12 +147,19 @@ class VLMFrameObserver:
         observations: list[FrameObservation] = []
         targets = state.metadata.get("physical_targets", {})
         effect_targets = state.metadata.get("effect_demo_targets", {})
+        effect_contract = state.metadata.get("effect_contract", {})
+        contract_targets = (
+            effect_contract.get("targets", [])
+            if isinstance(effect_contract, dict)
+            else []
+        )
         context = {
             "project_id": state.project_id,
             "run_id": state.run_id,
             "shot_id": generated_shot.shot_id,
             "provider_id": self.provider_id,
             "physical_targets": targets,
+            "effect_targets": contract_targets,
             "required_elements": targets.get("required_elements")
             or effect_targets.get("required_elements")
             or [],

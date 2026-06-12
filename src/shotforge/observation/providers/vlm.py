@@ -94,6 +94,8 @@ def _vision_messages(frame_path: Path, context: dict[str, Any]) -> list[dict[str
 def _observer_prompt(context: dict[str, Any]) -> str:
     required = context.get("required_elements") or []
     required_text = ", ".join(str(item) for item in required)
+    effect_targets = context.get("effect_targets") or []
+    target_contract_text = _target_contract_text(effect_targets)
     identity_text = "; ".join(str(item) for item in context.get("identity_constraints") or [])
     relationship_text = "; ".join(str(item) for item in context.get("spatial_relationships") or [])
     motion_text = "; ".join(str(item) for item in context.get("motion_contracts") or [])
@@ -102,15 +104,21 @@ def _observer_prompt(context: dict[str, Any]) -> str:
         "/no_think\n"
         "Return JSON only. Inspect visible physical video content, not captions or text labels. "
         f"Required targets: {required_text}. "
+        f"Effect target contracts: {target_contract_text}. "
         f"Identity contracts: {identity_text}. "
         f"Spatial/action contracts: {relationship_text}; {motion_text}. "
         f"Success criteria: {criteria_text}. "
         "Use this schema exactly: "
         "{\"detected_elements\":[],\"face_identity\":\"\",\"action_summary\":\"\","
         "\"spatial_relationship\":\"\",\"identity_detail_summary\":\"\","
-        "\"style_summary\":\"\",\"color_summary\":\"\",\"confidence\":0,\"evidence\":\"\"}. "
+        "\"style_summary\":\"\",\"color_summary\":\"\",\"confidence\":0,"
+        "\"target_checks\":[{\"target_id\":\"\",\"label\":\"\",\"target_type\":\"\","
+        "\"visible\":false,\"score\":0,\"evidence\":\"\",\"failure_reason\":\"\","
+        "\"suggested_repair\":\"\",\"confidence\":0}],\"evidence\":\"\"}. "
         "Only include required targets in detected_elements when physically visible; list missing "
-        "targets in evidence. For action scenes, spatial_relationship must describe the visible "
+        "targets in evidence. For every effect target, add one target_checks item using the exact "
+        "target_id when available. Do not mark a target visible just because it appears in the "
+        "prompt; use only physical image evidence. For action scenes, spatial_relationship must describe the visible "
         "front/back, lead/follow, contact, or relative position between required subjects. "
         "identity_detail_summary must describe visible identity-defining details attached to the "
         "required subject, or say ordinary/unclear when those details are not visible. "
@@ -125,6 +133,12 @@ def _observation_payload(content: str, context: dict[str, Any]) -> dict[str, Any
     elements = data.get("detected_elements", [])
     if not isinstance(elements, list):
         elements = []
+    target_checks = _target_checks(
+        data.get("target_checks", []),
+        context,
+        detected=[str(item) for item in elements[:12]],
+        evidence=_string_or_empty(data.get("evidence", "")),
+    )
     return {
         "detected_elements": [str(item) for item in elements[:12]],
         "face_identity": _string_or_empty(data.get("face_identity")),
@@ -133,6 +147,7 @@ def _observation_payload(content: str, context: dict[str, Any]) -> dict[str, Any
         "identity_detail_summary": _string_or_empty(data.get("identity_detail_summary")),
         "style_summary": _string_or_empty(data.get("style_summary")),
         "color_summary": _string_or_empty(data.get("color_summary")),
+        "target_checks": target_checks,
         "confidence": _clamp_float(data.get("confidence", 0.0)),
         "metadata": {
             "provider_id": context.get("provider_id", ""),
@@ -198,12 +213,121 @@ def _fallback_observation_from_text(content: str, context: dict[str, Any]) -> di
         confidence = 0.45 if detected else 0.2
     return {
         "detected_elements": detected,
+        "target_checks": _fallback_target_checks(detected, missing, evidence, context),
         "face_identity": "",
         "action_summary": "",
         "style_summary": "",
         "color_summary": "",
         "confidence": confidence,
         "evidence": evidence,
+    }
+
+
+def _target_contract_text(effect_targets: list[Any]) -> str:
+    parts = []
+    for target in effect_targets[:16]:
+        if not isinstance(target, dict):
+            continue
+        parts.append(
+            " / ".join(
+                str(value)
+                for value in [
+                    target.get("target_id", ""),
+                    target.get("label", ""),
+                    target.get("target_type", ""),
+                    target.get("evidence_rule", ""),
+                ]
+                if value
+            )
+        )
+    return "; ".join(parts)
+
+
+def _target_checks(
+    raw: Any,
+    context: dict[str, Any],
+    *,
+    detected: list[str],
+    evidence: str,
+) -> list[dict[str, Any]]:
+    if not isinstance(raw, list):
+        raw = []
+    checks = []
+    for item in raw[:24]:
+        if not isinstance(item, dict):
+            continue
+        checks.append(
+            {
+                "target_id": _string_or_empty(item.get("target_id")),
+                "label": _string_or_empty(item.get("label")),
+                "target_type": _string_or_empty(item.get("target_type")),
+                "visible": bool(item.get("visible", False)),
+                "score": _clamp_float(item.get("score", 0.0)),
+                "evidence": _string_or_empty(item.get("evidence")),
+                "failure_reason": _string_or_empty(item.get("failure_reason")),
+                "suggested_repair": _string_or_empty(item.get("suggested_repair")),
+                "confidence": _clamp_float(item.get("confidence", item.get("score", 0.0))),
+                "metadata": {"source": "vlm_target_checks"},
+            }
+        )
+    if checks:
+        return checks
+    return _fallback_target_checks(detected, [], evidence, context)
+
+
+def _fallback_target_checks(
+    detected: list[str],
+    missing: list[str],
+    evidence: str,
+    context: dict[str, Any],
+) -> list[dict[str, Any]]:
+    effect_targets = context.get("effect_targets") or []
+    if effect_targets:
+        return [
+            _fallback_target_check_from_contract(target, detected, missing, evidence)
+            for target in effect_targets[:24]
+            if isinstance(target, dict)
+        ]
+    required = context.get("required_elements", []) or []
+    detected_lower = {item.lower() for item in detected}
+    return [
+        {
+            "target_id": "",
+            "label": str(target),
+            "target_type": "",
+            "visible": str(target).lower() in detected_lower,
+            "score": 0.75 if str(target).lower() in detected_lower else 0.2,
+            "evidence": evidence,
+            "failure_reason": "" if str(target).lower() in detected_lower else "unresolved",
+            "suggested_repair": "" if str(target).lower() in detected_lower else f"make {target} physically visible",
+            "confidence": 0.35,
+            "metadata": {"source": "fallback_required_elements"},
+        }
+        for target in required[:24]
+    ]
+
+
+def _fallback_target_check_from_contract(
+    target: dict[str, Any],
+    detected: list[str],
+    missing: list[str],
+    evidence: str,
+) -> dict[str, Any]:
+    label = str(target.get("label", ""))
+    aliases = [label, *[str(alias) for alias in target.get("aliases", [])]]
+    detected_lower = {item.lower() for item in detected}
+    visible = any(alias.lower() in detected_lower for alias in aliases if alias)
+    return {
+        "target_id": str(target.get("target_id", "")),
+        "label": label,
+        "target_type": str(target.get("target_type", target.get("type", ""))),
+        "visible": visible,
+        "score": 0.75 if visible else 0.2,
+        "evidence": evidence,
+        "failure_reason": "" if visible else "unresolved",
+        "suggested_repair": "" if visible else f"make {label} physically visible",
+        "confidence": 0.35,
+        "metadata": {"source": "fallback_effect_targets"},
     }
 
 

@@ -241,11 +241,16 @@ def _dedupe(values: list[str]) -> list[str]:
 
 def _merge_targets(primary: list[dict[str, Any]], secondary: list[dict[str, Any]]) -> list[dict[str, Any]]:
     merged = []
-    seen = set()
+    seen: dict[tuple[Any, Any], dict[str, Any]] = {}
     for target in [*primary, *secondary]:
         key = (target.get("type"), target.get("label"))
         if key in seen:
+            existing = seen[key]
+            for field, value in target.items():
+                current = existing.get(field)
+                if field not in existing or current is None or current == "" or current == []:
+                    existing[field] = value
             continue
-        seen.add(key)
+        seen[key] = target
         merged.append(target)
     return merged

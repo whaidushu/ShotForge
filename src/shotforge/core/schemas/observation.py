@@ -11,6 +11,19 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+class TargetObservationCheck(BaseModel):
+    target_id: str = ""
+    label: str = ""
+    target_type: str = ""
+    visible: bool = False
+    score: float = Field(default=0.0, ge=0, le=1)
+    evidence: str = ""
+    failure_reason: str = ""
+    suggested_repair: str = ""
+    confidence: float = Field(default=0.0, ge=0, le=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
 class FrameObservation(BaseModel):
     frame_index: int
     timestamp_seconds: float | None = None
@@ -22,6 +35,7 @@ class FrameObservation(BaseModel):
     identity_detail_summary: str = ""
     style_summary: str = ""
     color_summary: str = ""
+    target_checks: list[TargetObservationCheck] = Field(default_factory=list)
     source: str = "heuristic"
     confidence: float = Field(default=0.45, ge=0, le=1)
     metadata: dict[str, Any] = Field(default_factory=dict)

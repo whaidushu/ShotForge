@@ -3,6 +3,7 @@ from __future__ import annotations
 from statistics import mean
 from typing import Any
 
+from shotforge.core.repair_strategies import RepairStrategyCatalog
 from shotforge.core.project_state import EvaluationReport, GeneratedResult, ProjectState
 
 
@@ -18,32 +19,50 @@ def build_revision_plan_from_target_evaluation(
     composition_policy: str = "",
     control_policy: str = "",
 ) -> dict[str, Any]:
-    issue_targets = [issue["target"] for issue in evaluation.get("issues", [])]
+    matrix_rows = _matrix_rows(evaluation)
+    catalog = RepairStrategyCatalog()
+    unresolved_rows = [
+        row
+        for row in matrix_rows
+        if row.get("required", True) and row.get("status") in {"failed", "weak"}
+    ]
+    issue_targets = [
+        str(row.get("target") or row.get("label"))
+        for row in unresolved_rows
+    ] or [issue["target"] for issue in evaluation.get("issues", [])]
     patch_catalog = patch_catalog or {}
     lock_catalog = lock_catalog or {}
     macro_refinement_axes = macro_refinement_axes or []
-    prompt_patches = [
-        {
-            "target": target,
-            "change": patch_catalog.get(
-                target,
-                f"make {target} clearly visible and measurable in the frame",
-            ),
-        }
-        for target in issue_targets
-    ]
-    preservation_locks = [
-        {
-            "target": item["target"],
-            "score": item["score"],
-            "frame_presence": f"{len(item.get('frame_hits', []))}/{item.get('sampled_frame_count', 0)}",
-            "lock": lock_catalog.get(
-                item["target"],
-                f"preserve {item['target']} with at least the same visibility as the source iteration",
-            ),
-        }
-        for item in evaluation.get("target_scores", [])
-        if item["target"] not in issue_targets and item.get("score", 0) >= 0.68
+    if unresolved_rows:
+        prompt_patches = []
+        for row in unresolved_rows:
+            target = str(row.get("target") or row.get("label"))
+            patch = catalog.prompt_patch(row)
+            if target in patch_catalog:
+                patch["change"] = patch_catalog[target]
+            prompt_patches.append(patch)
+    else:
+        prompt_patches = [
+            {
+                "target": target,
+                "change": patch_catalog.get(
+                    target,
+                    f"make {target} clearly visible and measurable in the frame",
+                ),
+            }
+            for target in issue_targets
+        ]
+    preservation_locks = _preservation_locks(
+        evaluation=evaluation,
+        issue_targets=issue_targets,
+        lock_catalog=lock_catalog,
+        catalog=catalog,
+    )
+    negative_patches = [
+        value
+        for row in unresolved_rows
+        for value in [catalog.negative_patch(row)]
+        if value
     ]
     revision_intent = "make missing or weak physical targets visible and measurable"
     refinement_mode = "repair_missing_or_weak_targets"
@@ -75,13 +94,19 @@ def build_revision_plan_from_target_evaluation(
         "target_iteration": target_iteration,
         "prompt_patches": prompt_patches,
         "preservation_locks": preservation_locks,
-        "negative_prompt_patches": negative_constraints or [],
+        "negative_prompt_patches": [*(negative_constraints or []), *negative_patches],
         "success_criteria": success_criteria or [],
         "convergence_strategy": {
             "refinement_mode": refinement_mode,
             "repair_targets": issue_targets,
+            "repair_target_ids": [
+                str(row.get("target_id", ""))
+                for row in unresolved_rows
+                if row.get("target_id")
+            ],
             "macro_refinement_axes": macro_refinement_axes,
             "locked_targets": [item["target"] for item in preservation_locks],
+            "target_matrix_available": bool(matrix_rows),
             "regression_guard": (
                 "Do not improve one physical target by removing or weakening a target that was "
                 "already visible in the source iteration."
@@ -92,6 +117,49 @@ def build_revision_plan_from_target_evaluation(
         "control_policy": control_policy
         or "keep provider, workflow, duration, seed policy, and composition anchors stable; change only the prompt package",
     }
+
+
+def _matrix_rows(evaluation: dict[str, Any]) -> list[dict[str, Any]]:
+    matrix = evaluation.get("target_matrix", {})
+    rows = matrix.get("target_scores", []) if isinstance(matrix, dict) else []
+    return [row for row in rows if isinstance(row, dict)]
+
+
+def _preservation_locks(
+    *,
+    evaluation: dict[str, Any],
+    issue_targets: list[str],
+    lock_catalog: dict[str, str],
+    catalog: RepairStrategyCatalog,
+) -> list[dict[str, Any]]:
+    matrix_rows = _matrix_rows(evaluation)
+    if matrix_rows:
+        return [
+            {
+                **catalog.preservation_lock(row),
+                "lock": lock_catalog.get(
+                    str(row.get("target") or row.get("label")),
+                    catalog.preservation_lock(row)["lock"],
+                ),
+            }
+            for row in matrix_rows
+            if row.get("target") not in issue_targets
+            and row.get("required", True)
+            and float(row.get("score", 0.0) or 0.0) >= 0.68
+        ]
+    return [
+        {
+            "target": item["target"],
+            "score": item["score"],
+            "frame_presence": f"{len(item.get('frame_hits', []))}/{item.get('sampled_frame_count', 0)}",
+            "lock": lock_catalog.get(
+                item["target"],
+                f"preserve {item['target']} with at least the same visibility as the source iteration",
+            ),
+        }
+        for item in evaluation.get("target_scores", [])
+        if item["target"] not in issue_targets and item.get("score", 0) >= 0.68
+    ]
 
 
 def compare_iteration_evaluations(

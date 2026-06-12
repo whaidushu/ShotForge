@@ -6,6 +6,8 @@ from statistics import mean
 from typing import Any
 
 from shotforge.config import get_settings
+from shotforge.core.effect_contract import EffectContract, build_effect_contract
+from shotforge.core.effect_matrix import build_effect_target_matrix
 from shotforge.core.physical_convergence import (
     build_revision_plan_from_target_evaluation,
     compare_iteration_evaluations,
@@ -71,6 +73,15 @@ def run_effect_demo(
     state.metadata["effect_demo_case_id"] = case["case_id"]
     state.metadata["effect_demo_targets"] = _targets_payload(case)
     state.metadata["physical_targets"] = _physical_targets_payload(case)
+    effect_contract = build_effect_contract(
+        state.metadata["physical_targets"],
+        source_text=idea,
+        language="zh" if language == "zh" else "en",
+        shot_id="shot_001",
+        contract_id=f"effect.{case['case_id']}",
+        creative_controls=case.get("creative_controls", []),
+    )
+    state.metadata["effect_contract"] = effect_contract.model_dump(mode="json")
 
     v1_prompt = state.prompt_package.prompts[0].model_dump(mode="json")
     generated_v1 = run_generation(state, provider_id=generator_provider_id)
@@ -88,6 +99,7 @@ def run_effect_demo(
     v1_evaluation = _evaluate_iteration(
         state=state,
         case=case,
+        effect_contract=effect_contract,
         iteration="v1",
         prompt=PromptItem.model_validate(v1_prompt),
         generated_result_id=generated_v1.generated_result_id,
@@ -95,6 +107,7 @@ def run_effect_demo(
     v2_evaluation = _evaluate_iteration(
         state=state,
         case=case,
+        effect_contract=effect_contract,
         iteration="v2",
         prompt=state.prompt_package.prompts[0],
         generated_result_id=generated_v2.generated_result_id,
@@ -110,6 +123,7 @@ def run_effect_demo(
     v3_evaluation = _evaluate_iteration(
         state=state,
         case=case,
+        effect_contract=effect_contract,
         iteration="v3",
         prompt=state.prompt_package.prompts[0],
         generated_result_id=generated_v3.generated_result_id,
@@ -290,6 +304,7 @@ def _evaluate_iteration(
     *,
     state: ProjectState,
     case: dict[str, Any],
+    effect_contract: EffectContract,
     iteration: str,
     prompt: PromptItem,
     generated_result_id: str,
@@ -382,7 +397,7 @@ def _evaluate_iteration(
         for item in target_scores
         if item["status"] != "passed"
     ]
-    return {
+    evaluation = {
         "iteration": iteration,
         "generated_result_id": generated_result_id,
         "provider": generated.provider,
@@ -390,10 +405,25 @@ def _evaluate_iteration(
         "visual_observation_available": bool(frame_texts),
         "observer_id": generated.metadata.get("frame_observation_provider", ""),
         "sampled_frame_count": len(frame_texts),
+        "frame_observations": frame_payloads,
         "overall_score": round(mean(item["score"] for item in target_scores), 3),
         "target_scores": target_scores,
         "issues": issues,
     }
+    matrix = build_effect_target_matrix(effect_contract, evaluation)
+    evaluation["target_matrix"] = matrix.model_dump(mode="json")
+    evaluation["issues"] = [
+        {
+            **issue,
+            "target_id": row["target_id"],
+            "failure_reason": row["failure_reason"],
+            "repair_suggestion": row["repair_suggestion"],
+        }
+        for issue in issues
+        for row in evaluation["target_matrix"]["target_scores"]
+        if issue["target"] == row["target"]
+    ]
+    return evaluation
 
 
 def _apply_structured_prompt(state: ProjectState, case: dict[str, Any]) -> None:
@@ -507,7 +537,6 @@ def _apply_revision_plan(
     convergence = revision_plan.get("convergence_strategy", {})
     identity_text = "; ".join(case.get("identity_constraints", []))
     relationship_text = "; ".join(case.get("spatial_relationships", []) + case.get("motion_contracts", []))
-    macro_axes = revision_plan.get("convergence_strategy", {}).get("macro_refinement_axes", [])
     refinement_mode = revision_plan.get("convergence_strategy", {}).get("refinement_mode", "")
     macro_text = _v3_director_upgrade_text(case, revision_plan)
     v3_seed_policy = "fixed-per-shot"

@@ -114,7 +114,65 @@ def test_vlm_observer_adapts_frame_descriptions(tmp_path, monkeypatch):
 
     assert observations[0].source == "test_vlm"
     assert observations[0].detected_elements == ["woman", "red umbrella"]
+    assert observations[0].target_checks == []
     assert observations[0].metadata["context_shot"] == generated.shots[0].shot_id
+
+
+def test_vlm_observer_preserves_target_checks(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+    monkeypatch.setattr("shutil.which", lambda name: None)
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_design_pipeline("A robot dog chases a glowing drone", duration_seconds=8, language="en")
+    state.metadata["effect_contract"] = {
+        "targets": [
+            {
+                "target_id": "object.glowing_drone",
+                "label": "glowing drone",
+                "target_type": "object",
+            }
+        ]
+    }
+    generated = run_generation(state, provider_id="mock")
+    frame = tmp_path / "frame.jpg"
+    frame.write_bytes(b"jpg")
+
+    observer = VLMFrameObserver(
+        lambda frame_path, context: {
+            "detected_elements": [],
+            "target_checks": [
+                {
+                    "target_id": "object.glowing_drone",
+                    "label": "glowing drone",
+                    "target_type": "object",
+                    "visible": False,
+                    "score": 0.2,
+                    "evidence": "No drone is visible in the frame.",
+                    "failure_reason": "model_ignored",
+                    "suggested_repair": "separate the drone from background neon",
+                    "confidence": 0.8,
+                }
+            ],
+            "confidence": 0.8,
+        },
+        provider_id="test_vlm",
+    )
+
+    observations = observer.observe(
+        state=state,
+        generated_shot=generated.shots[0],
+        frame_paths=[frame],
+    )
+
+    context_targets = state.metadata["effect_contract"]["targets"]
+    assert context_targets
+    assert context_targets[0]["target_id"] == "object.glowing_drone"
+    assert observations[0].target_checks[0].target_id == "object.glowing_drone"
+    assert observations[0].target_checks[0].failure_reason == "model_ignored"
 
 
 def test_vlm_observation_payload_falls_back_from_thinking_text():
@@ -139,6 +197,39 @@ def test_vlm_observation_payload_falls_back_from_thinking_text():
     )
 
     assert payload["detected_elements"] == ["glowing drone", "rain"]
+    assert payload["target_checks"]
+    assert any(check["label"] == "glowing drone" and check["visible"] for check in payload["target_checks"])
     assert payload["face_identity"] == ""
     assert payload["confidence"] > 0
     assert "Shanghai landmark skyline" in payload["metadata"]["evidence"]
+
+
+def test_vlm_observation_payload_accepts_explicit_target_checks():
+    payload = _observation_payload(
+        """
+        {
+          "detected_elements": [],
+          "target_checks": [
+            {
+              "target_id": "setting.shanghai_rooftop",
+              "label": "Shanghai rooftop",
+              "target_type": "setting",
+              "visible": false,
+              "score": 0.18,
+              "evidence": "A rooftop is present but no Shanghai landmark is visible.",
+              "failure_reason": "prompt_weak",
+              "suggested_repair": "add Oriental Pearl Tower and Lujiazui skyline",
+              "confidence": 0.83
+            }
+          ],
+          "confidence": 0.83,
+          "evidence": "checked target contracts"
+        }
+        """,
+        {"provider_id": "test-vlm", "required_elements": ["Shanghai rooftop"]},
+    )
+
+    check = payload["target_checks"][0]
+    assert check["target_id"] == "setting.shanghai_rooftop"
+    assert check["score"] == 0.18
+    assert check["failure_reason"] == "prompt_weak"

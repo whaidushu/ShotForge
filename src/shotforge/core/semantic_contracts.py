@@ -293,9 +293,21 @@ def _entity_aliases(label: str, head: dict[str, Any], modifiers: list[dict[str, 
 
 def _first_present(text: str, lowered: str, labels: list[str]) -> str:
     for label in labels:
-        if label.lower() in lowered or label in text:
+        if _label_present(text, lowered, label):
             return label
     return ""
+
+
+def _label_present(text: str, lowered: str, label: str) -> bool:
+    if label == "人":
+        for match in re.finditer(re.escape(label), text):
+            previous_char = text[match.start() - 1] if match.start() > 0 else ""
+            next_char = text[match.end()] if match.end() < len(text) else ""
+            if previous_char in {"无", "無", "机器", "器"} or next_char == "机":
+                continue
+            return True
+        return False
+    return label.lower() in lowered or label in text
 
 
 def _find_index(text: str, lowered: str, value: str) -> int:
