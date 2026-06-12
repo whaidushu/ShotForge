@@ -2,6 +2,7 @@ from shotforge.core.effect_contract import build_effect_contract
 from shotforge.core.effect_matrix import build_effect_target_matrix, matrix_to_revision_input
 from shotforge.core.physical_convergence import build_revision_plan_from_target_evaluation
 from shotforge.core.physical_targets import extract_physical_targets
+from shotforge.workflows.design_workflow import run_design_pipeline
 
 
 def test_effect_contract_normalizes_physical_targets_and_reserves_controls():
@@ -29,6 +30,30 @@ def test_effect_contract_normalizes_physical_targets_and_reserves_controls():
     assert "rooftop" in labels
     assert contract.creative_controls[0].control_id == "cinematic_intensity"
     assert all(target.shot_id == "shot_001" for target in contract.targets)
+
+
+def test_design_pipeline_extracts_effect_contract_before_prompt_adapter(tmp_path, monkeypatch):
+    monkeypatch.setenv("SHOTFORGE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("SHOTFORGE_VERSIONS_DIR", str(tmp_path / "versions"))
+    monkeypatch.setenv("SHOTFORGE_KNOWLEDGE_BASE_PATH", str(tmp_path / "kb.json"))
+
+    from shotforge.config import get_settings
+
+    get_settings.cache_clear()
+    state = run_design_pipeline(
+        "A robot dog chases a glowing drone across a rooftop",
+        duration_seconds=8,
+        language="en",
+    )
+    prompt = state.prompt_package.prompts[0]
+    labels = {target["label"] for target in state.metadata["effect_contract"]["targets"]}
+
+    assert {"robot dog", "glowing drone", "rooftop"}.issubset(labels)
+    assert state.metadata["effect_contract_stage"] == "intent_contract_extraction"
+    assert prompt.parameters["effect_contract_id"] == state.metadata["effect_contract"]["contract_id"]
+    assert "EFFECT CONTRACT" in prompt.prompt
+    assert any("object.glowing_drone" in item for item in prompt.structured_template.physical_constraints)
+    get_settings.cache_clear()
 
 
 def test_effect_target_matrix_adds_failure_reason_and_repair_suggestion():

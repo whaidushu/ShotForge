@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from shotforge.core.context_builder import ContextBuilder
+from shotforge.core.effect_contract import build_effect_contract
 from shotforge.core.physical_targets import extract_physical_targets
 from shotforge.core.project_state import CharacterSpec, CreativeIntent, ProjectState, runtime_language
 from shotforge.core.trace_log import TraceLog
@@ -33,6 +34,15 @@ def intent_agent(
         )
         physical_targets = extract_physical_targets(state.user_idea, runtime_language(state))
         state.metadata["physical_targets"] = physical_targets
+        effect_contract = build_effect_contract(
+            physical_targets,
+            source_text=state.user_idea,
+            language=runtime_language(state),
+            shot_id="shot_001",
+            contract_id=f"effect.{state.project_id}",
+        )
+        state.metadata["effect_contract"] = effect_contract.model_dump(mode="json")
+        state.metadata["effect_contract_stage"] = "intent_contract_extraction"
         primary_subject = next(
             (
                 target
@@ -50,6 +60,7 @@ def intent_agent(
             constraints=[
                 *t(runtime_language(state), "constraints"),
                 physical_targets["prompt_contract"],
+                _effect_contract_summary(effect_contract.model_dump(mode="json")),
                 "Every required physical target must be visible or the generation should be treated as failed.",
                 completion,
             ],
@@ -68,6 +79,17 @@ def intent_agent(
             )
         ]
     return state
+
+
+def _effect_contract_summary(effect_contract: dict) -> str:
+    targets = [
+        f"{target.get('target_id')}: {target.get('label')}"
+        for target in effect_contract.get("targets", [])
+        if target.get("label")
+    ]
+    if not targets:
+        return "EFFECT CONTRACT: no explicit hard targets extracted."
+    return "EFFECT CONTRACT TARGETS: " + "; ".join(targets[:12])
 
 
 def _llm_tool_name() -> str:

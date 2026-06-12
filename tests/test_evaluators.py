@@ -103,8 +103,13 @@ def test_design_prompt_injects_physical_targets_for_generation(tmp_path, monkeyp
         "rooftop",
         "rainy night",
     ]
+    assert state.metadata["effect_contract"]["targets"]
+    assert state.metadata["effect_contract_stage"] == "intent_contract_extraction"
+    assert state.prompt_package.metadata["effect_contract_id"] == state.metadata["effect_contract"]["contract_id"]
+    assert "EFFECT CONTRACT" in prompt.prompt
     assert "MANDATORY VISIBLE ELEMENTS: cyber cat, glowing drone, Shanghai, rooftop, rainy night." in prompt.prompt
     assert prompt.structured_template is not None
+    assert any("EFFECT CONTRACT" in item for item in prompt.structured_template.physical_constraints)
     assert any("glowing drone" in item for item in prompt.structured_template.physical_constraints)
     assert "missing cyber cat" in prompt.negative_prompt
     get_settings.cache_clear()

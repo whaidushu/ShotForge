@@ -163,7 +163,7 @@ def _target_from_payload(item: dict[str, Any], *, shot_id: str) -> EffectTarget:
     target_type = _target_type(str(item.get("type", "object")))
     target_id = str(item.get("target_id") or f"{target_type}.{_slug(label)}")
     return EffectTarget(
-        target_id=target_id.replace("_", ".") if "." not in target_id else target_id,
+        target_id=_normalize_target_id(target_id, target_type, label),
         label=label,
         layer=_layer_for_type(target_type),
         target_type=target_type,
@@ -327,3 +327,12 @@ def _dedupe_targets(targets: list[EffectTarget]) -> list[EffectTarget]:
 def _slug(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
     return slug or "target"
+
+
+def _normalize_target_id(target_id: str, target_type: EffectTargetType, label: str) -> str:
+    if "." in target_id:
+        return target_id
+    prefix = f"{target_type}_"
+    if target_id.startswith(prefix):
+        return f"{target_type}.{target_id[len(prefix):]}"
+    return f"{target_type}.{_slug(label)}"
