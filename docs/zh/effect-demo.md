@@ -18,7 +18,7 @@
 
 本地实测示例中，“赛博猫追逐无人机”的动作关系从 `0.53 -> 0.82 -> 0.98`。总分也从 `0.836 -> 0.966 -> 0.989`，但 V3 更适合看目标项的定向修正，而不是只看已经接近饱和的总分。
 
-![V1/V2/V3 对比预览](../assets/effect-demo-v1-v2-v3-comparison.gif)
+![V1/V2/V3 对比预览](../assets/effect-demo-v1-v2-v3-stacked-preview.gif)
 
 [下载 MP4 对比视频](../assets/effect-demo-v1-v2-v3-comparison.mp4)
 
