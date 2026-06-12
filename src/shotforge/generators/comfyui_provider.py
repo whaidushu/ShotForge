@@ -119,6 +119,7 @@ class ComfyUIProvider:
         shot_slug = self._shot_slug(shot_id, shot.title)
         base_name = f"{version_label}_{shot_slug}"
         comfy_prefix = f"shotforge/{state.run_id}/{version_label}/{base_name}"
+        seed_policy = str(prompt.parameters.get("seed_policy", "fixed-per-shot"))
         workflow = template.bind(
             {
                 "prompt": self._provider_prompt(prompt),
@@ -128,10 +129,12 @@ class ComfyUIProvider:
                 "height": settings.comfyui_height,
                 "length": settings.comfyui_length,
                 "fps": settings.comfyui_fps,
-                "seed": self._seed_for_shot(state.run_id, shot_id),
+                "seed": self._seed_for_shot(state.run_id, shot_id, version_label if "remix" in seed_policy else ""),
                 "filename_prefix": comfy_prefix,
                 "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
                 "vae_name": "wan_2.1_vae.safetensors",
+                "ti2v_unet": "wan2.2_ti2v_5B_fp16.safetensors",
+                "ti2v_vae_name": self._ti2v_vae_name(),
                 "high_noise_unet": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
                 "low_noise_unet": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
                 "high_noise_lora": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
@@ -179,10 +182,27 @@ class ComfyUIProvider:
             },
         )
 
-    def _seed_for_shot(self, run_id: str, shot_id: str) -> int:
-        return crc32(f"{run_id}:{shot_id}".encode("utf-8")) & 0xFFFFFFFF
+    def _seed_for_shot(self, run_id: str, shot_id: str, remix_key: str = "") -> int:
+        return crc32(f"{run_id}:{shot_id}:{remix_key}".encode("utf-8")) & 0xFFFFFFFF
+
+    def _ti2v_vae_name(self) -> str:
+        # The official Wan2.2 TI2V 5B workflow uses wan2.2_vae.safetensors.
+        # Optionally fall back for local smoke tests when a copied model set only
+        # contains the older Wan VAE.
+        vae_dir = get_settings().comfyui_vae_dir
+        if not vae_dir:
+            return "wan2.2_vae.safetensors"
+        comfy_root = Path(vae_dir)
+        if (comfy_root / "wan2.2_vae.safetensors").exists():
+            return "wan2.2_vae.safetensors"
+        if (comfy_root / "wan_2.1_vae.safetensors").exists():
+            return "wan_2.1_vae.safetensors"
+        return "wan_2.1_vae.safetensors"
 
     def _provider_prompt(self, prompt) -> str:
+        override = prompt.parameters.get("provider_prompt_override")
+        if isinstance(override, str) and override.strip():
+            return override.strip()
         parts = [prompt.prompt]
         if prompt.structured_template is not None:
             parts.append(prompt.structured_template.render())

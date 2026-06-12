@@ -29,6 +29,13 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
             or physical_contract_text(physical_targets.get("targets", []))
         )
         required_elements = required_element_labels(physical_targets)
+        identity_constraints = [str(item) for item in physical_targets.get("identity_constraints", [])]
+        spatial_relationships = [str(item) for item in physical_targets.get("spatial_relationships", [])]
+        motion_contracts = [str(item) for item in physical_targets.get("motion_contracts", [])]
+        semantic_negative_constraints = [
+            str(item) for item in physical_targets.get("negative_constraints", [])
+        ]
+        semantic_success_criteria = [str(item) for item in physical_targets.get("success_criteria", [])]
         for shot in state.shots:
             motion = shot.motion
             audio = next(item for item in state.audio_cues if item.shot_id == shot.shot_id)
@@ -40,6 +47,9 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
                 physical_constraints=[
                     target_contract,
                     f"MANDATORY VISIBLE ELEMENTS: {', '.join(required_elements)}.",
+                    *identity_constraints,
+                    *spatial_relationships,
+                    *motion_contracts,
                     "Keep the exact requested subject count; do not duplicate or drop primary subjects.",
                     "Preserve named colors, materials, props, and scene anchors.",
                     f"Required visible elements: {', '.join(shot.key_visuals)}",
@@ -52,6 +62,7 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
                 style_constraints=f"{state.style}, {state.target_platform}, 16:9",
                 success_criteria=[
                     f"all mandatory physical targets are visible: {', '.join(required_elements)}",
+                    *semantic_success_criteria,
                     "primary subject is visible",
                     "main action is readable",
                     "camera, motion, and audio cues align with the beat",
@@ -75,7 +86,12 @@ def prompt_adapter_agent(state: ProjectState, context_builder: ContextBuilder) -
                         required_elements,
                     ),
                     structured_template=structured_template,
-                    negative_prompt=_negative_prompt(required_elements),
+                    negative_prompt=", ".join(
+                        [
+                            _negative_prompt(required_elements),
+                            *semantic_negative_constraints,
+                        ]
+                    ),
                     parameters={
                         "duration_seconds": shot.duration_seconds,
                         "aspect_ratio": "16:9",

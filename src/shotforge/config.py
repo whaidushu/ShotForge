@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     comfyui_length: int = 9
     comfyui_fps: float = 8.0
     comfyui_max_shots: int = 0
+    comfyui_vae_dir: str = ""
     observer_provider: Literal["prompt-proxy", "openai-vision", "ollama-vision", "vllm-vlm"] = (
         "prompt-proxy"
     )

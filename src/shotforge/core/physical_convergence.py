@@ -14,12 +14,14 @@ def build_revision_plan_from_target_evaluation(
     negative_constraints: list[str] | None = None,
     patch_catalog: dict[str, str] | None = None,
     lock_catalog: dict[str, str] | None = None,
+    macro_refinement_axes: list[dict[str, str]] | None = None,
     composition_policy: str = "",
     control_policy: str = "",
 ) -> dict[str, Any]:
     issue_targets = [issue["target"] for issue in evaluation.get("issues", [])]
     patch_catalog = patch_catalog or {}
     lock_catalog = lock_catalog or {}
+    macro_refinement_axes = macro_refinement_axes or []
     prompt_patches = [
         {
             "target": target,
@@ -43,15 +45,32 @@ def build_revision_plan_from_target_evaluation(
         for item in evaluation.get("target_scores", [])
         if item["target"] not in issue_targets and item.get("score", 0) >= 0.68
     ]
+    revision_intent = "make missing or weak physical targets visible and measurable"
+    refinement_mode = "repair_missing_or_weak_targets"
     if not prompt_patches:
-        prompt_patches = [
-            {
-                "target": "all targets",
-                "change": "preserve all required elements while strengthening the action relationship",
-            }
-        ]
+        if macro_refinement_axes:
+            revision_intent = (
+                "upgrade an already strong source iteration with macro-level motion, staging, "
+                "and silhouette refinements"
+            )
+            refinement_mode = "high_score_macro_refinement"
+            prompt_patches = [
+                {
+                    "target": axis.get("target", "macro refinement"),
+                    "change": axis.get("change", "strengthen the scene at the composition level"),
+                    "refinement_type": axis.get("type", "macro"),
+                }
+                for axis in macro_refinement_axes
+            ]
+        else:
+            prompt_patches = [
+                {
+                    "target": "all targets",
+                    "change": "preserve all required elements while strengthening the action relationship",
+                }
+            ]
     return {
-        "revision_intent": "make missing or weak physical targets visible and measurable",
+        "revision_intent": revision_intent,
         "source_iteration": evaluation.get("iteration", ""),
         "target_iteration": target_iteration,
         "prompt_patches": prompt_patches,
@@ -59,7 +78,9 @@ def build_revision_plan_from_target_evaluation(
         "negative_prompt_patches": negative_constraints or [],
         "success_criteria": success_criteria or [],
         "convergence_strategy": {
+            "refinement_mode": refinement_mode,
             "repair_targets": issue_targets,
+            "macro_refinement_axes": macro_refinement_axes,
             "locked_targets": [item["target"] for item in preservation_locks],
             "regression_guard": (
                 "Do not improve one physical target by removing or weakening a target that was "

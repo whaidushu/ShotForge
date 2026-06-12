@@ -156,6 +156,9 @@ class VLMFrameObserver:
             "required_elements": targets.get("required_elements")
             or effect_targets.get("required_elements")
             or [],
+            "identity_constraints": effect_targets.get("identity_constraints", []),
+            "spatial_relationships": effect_targets.get("spatial_relationships", []),
+            "motion_contracts": effect_targets.get("motion_contracts", []),
             "success_criteria": effect_targets.get("success_criteria", []),
         }
         for index, frame_path in enumerate(frame_paths):

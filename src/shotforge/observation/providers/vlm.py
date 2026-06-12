@@ -94,15 +94,27 @@ def _vision_messages(frame_path: Path, context: dict[str, Any]) -> list[dict[str
 def _observer_prompt(context: dict[str, Any]) -> str:
     required = context.get("required_elements") or []
     required_text = ", ".join(str(item) for item in required)
+    identity_text = "; ".join(str(item) for item in context.get("identity_constraints") or [])
+    relationship_text = "; ".join(str(item) for item in context.get("spatial_relationships") or [])
+    motion_text = "; ".join(str(item) for item in context.get("motion_contracts") or [])
+    criteria_text = "; ".join(str(item) for item in context.get("success_criteria") or [])
     return (
         "/no_think\n"
         "Return JSON only. Inspect visible physical video content, not captions or text labels. "
         f"Required targets: {required_text}. "
+        f"Identity contracts: {identity_text}. "
+        f"Spatial/action contracts: {relationship_text}; {motion_text}. "
+        f"Success criteria: {criteria_text}. "
         "Use this schema exactly: "
         "{\"detected_elements\":[],\"face_identity\":\"\",\"action_summary\":\"\","
+        "\"spatial_relationship\":\"\",\"identity_detail_summary\":\"\","
         "\"style_summary\":\"\",\"color_summary\":\"\",\"confidence\":0,\"evidence\":\"\"}. "
         "Only include required targets in detected_elements when physically visible; list missing "
-        f"targets in evidence. Shot={context.get('shot_id','')}."
+        "targets in evidence. For action scenes, spatial_relationship must describe the visible "
+        "front/back, lead/follow, contact, or relative position between required subjects. "
+        "identity_detail_summary must describe visible identity-defining details attached to the "
+        "required subject, or say ordinary/unclear when those details are not visible. "
+        f"Shot={context.get('shot_id','')}."
     )
 
 
@@ -117,6 +129,8 @@ def _observation_payload(content: str, context: dict[str, Any]) -> dict[str, Any
         "detected_elements": [str(item) for item in elements[:12]],
         "face_identity": _string_or_empty(data.get("face_identity")),
         "action_summary": _string_or_empty(data.get("action_summary")),
+        "spatial_relationship": _string_or_empty(data.get("spatial_relationship")),
+        "identity_detail_summary": _string_or_empty(data.get("identity_detail_summary")),
         "style_summary": _string_or_empty(data.get("style_summary")),
         "color_summary": _string_or_empty(data.get("color_summary")),
         "confidence": _clamp_float(data.get("confidence", 0.0)),

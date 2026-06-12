@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from shotforge.core.semantic_contracts import build_semantic_contract
+
 
 ZH_NUMBER_WORDS = {
     "一": 1,
@@ -28,6 +30,7 @@ EN_NUMBER_WORDS = {
 
 
 def extract_physical_targets(text: str, language: str = "zh") -> dict[str, Any]:
+    semantic = build_semantic_contract(text, language)
     lowered = text.lower()
     targets: list[dict[str, Any]] = []
 
@@ -44,12 +47,27 @@ def extract_physical_targets(text: str, language: str = "zh") -> dict[str, Any]:
     for target in targets:
         if target["type"] in {"subject", "object", "setting", "atmosphere"}:
             required_elements.append(target["label"])
-    return {
+    legacy = {
         "source_text": text,
         "targets": targets,
         "required_elements": _dedupe(required_elements),
         "prompt_contract": physical_contract_text(targets),
     }
+    if semantic.get("targets"):
+        merged_targets = _merge_targets(semantic["targets"], legacy["targets"])
+        required = _dedupe([*semantic.get("required_elements", []), *legacy["required_elements"]])
+        return {
+            **legacy,
+            **semantic,
+            "targets": merged_targets,
+            "required_elements": required,
+            "prompt_contract": " ".join(
+                part
+                for part in [semantic.get("prompt_contract", ""), physical_contract_text(merged_targets)]
+                if part
+            ),
+        }
+    return legacy
 
 
 def physical_contract_text(targets: list[dict[str, Any]]) -> str:
@@ -219,3 +237,15 @@ def _dedupe(values: list[str]) -> list[str]:
         if value not in seen:
             seen.append(value)
     return seen
+
+
+def _merge_targets(primary: list[dict[str, Any]], secondary: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    merged = []
+    seen = set()
+    for target in [*primary, *secondary]:
+        key = (target.get("type"), target.get("label"))
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(target)
+    return merged

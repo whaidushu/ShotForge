@@ -75,13 +75,14 @@ def run_effect_demo(
     v1_prompt = state.prompt_package.prompts[0].model_dump(mode="json")
     generated_v1 = run_generation(state, provider_id=generator_provider_id)
     _mark_generation_iteration(generated_v1, "v001")
+    resource_events = [_release_generation_resources(generated_v1)]
 
     _apply_structured_prompt(state, case)
     v2_prompt = state.prompt_package.prompts[0].model_dump(mode="json")
     generated_v2 = run_generation(state, provider_id=generator_provider_id)
     _mark_generation_iteration(generated_v2, "v002")
 
-    resource_events = [_release_generation_resources(generated_v2)]
+    resource_events.append(_release_generation_resources(generated_v2))
     observe_generation(state, generated_v1)
     observe_generation(state, generated_v2)
     v1_evaluation = _evaluate_iteration(
@@ -251,6 +252,7 @@ def _initial_prompt(
 def _targets_payload(case: dict[str, Any]) -> dict[str, Any]:
     return {
         "required_elements": case["required_elements"],
+        "identity_constraints": case.get("identity_constraints", []),
         "visual_attributes": case.get("visual_attributes", []),
         "spatial_relationships": case.get("spatial_relationships", []),
         "motion_contracts": case.get("motion_contracts", []),
@@ -275,7 +277,12 @@ def _physical_targets_payload(case: dict[str, Any]) -> dict[str, Any]:
         "source_text": _case_idea(case, "en"),
         "targets": targets,
         "required_elements": case["required_elements"],
-        "prompt_contract": "; ".join(case.get("success_criteria", [])),
+        "prompt_contract": "; ".join(
+            case.get("identity_constraints", [])
+            + case.get("spatial_relationships", [])
+            + case.get("motion_contracts", [])
+            + case.get("success_criteria", [])
+        ),
     }
 
 
@@ -293,6 +300,7 @@ def _evaluate_iteration(
         _observation_text(frame.model_dump(mode="json"))
         for frame in generated_shot.frame_observations
     ]
+    frame_payloads = [frame.model_dump(mode="json") for frame in generated_shot.frame_observations]
     generated_text = " ".join(
         [
             generated_shot.observed_summary,
@@ -325,6 +333,8 @@ def _evaluate_iteration(
             visual_score = len(frame_hits) / len(frame_texts)
         else:
             visual_score = 0.8 if generated_hit else 0.0
+        if element.lower() == "cyber cat":
+            visual_score = _cyber_identity_visual_score(frame_payloads, frame_hits, visual_score)
         prompt_score = 0.25
         if prompt_hit:
             prompt_score += 0.45
@@ -358,6 +368,7 @@ def _evaluate_iteration(
                 "status": status,
             }
         )
+    target_scores.append(_chase_relationship_score(frame_payloads, prompt_text))
     issues = [
         {
             "target": item["target"],
@@ -390,9 +401,13 @@ def _apply_structured_prompt(state: ProjectState, case: dict[str, Any]) -> None:
     shot = state.shots[0]
     prompt = state.prompt_package.prompts[0]
     required = case["required_elements"]
+    identity_text = "; ".join(case.get("identity_constraints", []))
     relationship_text = "; ".join(case.get("spatial_relationships", []) + case.get("motion_contracts", []))
     translated_prompt = _case_idea(case, "en")
     prompt.prompt = (
+        f"ELEMENT CONTRACT: cyber cat is one indivisible subject; an ordinary cat does not satisfy the cyber cat target. "
+        f"IDENTITY DETAILS: {identity_text}. "
+        f"ACTION HARD CONSTRAINTS: {relationship_text}. "
         f"{translated_prompt} "
         f"{case['shot']['description']} "
         f"Camera: {case['shot']['shot_type']}. "
@@ -409,8 +424,10 @@ def _apply_structured_prompt(state: ProjectState, case: dict[str, Any]) -> None:
         scene_constraints=case["shot"]["description"],
         physical_constraints=[
             f"Visible elements requested by the user: {', '.join(required)}",
+            *case.get("identity_constraints", []),
             *case.get("visual_attributes", []),
             *case.get("spatial_relationships", []),
+            *case.get("motion_contracts", []),
         ],
         action_sequence=relationship_text,
         emotional_direction="tense focused pursuit",
@@ -458,13 +475,18 @@ def _build_revision_plan(
         negative_constraints=case.get("negative_constraints", []),
         patch_catalog=_target_patch_map(),
         lock_catalog=_target_lock_map(),
+        macro_refinement_axes=_macro_refinement_axes(case),
         composition_policy=(
-            "Keep a stable single-shot composition: foreground cyber cat, glowing drone ahead, "
-            "wet rooftop surface, rain/night atmosphere, and Shanghai landmark skyline in the background."
+            "Keep a stable single-shot composition: cyber cat and glowing drone on the same left-to-right "
+            "screen-space chase path, wet rooftop surface, rain/night atmosphere, and Shanghai landmark "
+            "skyline in the background. "
+            "The drone must lead toward screen-right and the cyber cat must trail and chase from screen-left; "
+            "lead/trail means screen motion order, not camera-depth foreground/background."
         ),
         control_policy=(
             "release generation resources before visual inspection; keep provider, workflow, duration, "
-            "seed policy, and composition anchors stable; change only the prompt package"
+            "and composition anchors stable; allow the v3 prompt to use an iteration-remix seed when "
+            "the source iteration is already strong"
         ),
     )
 
@@ -483,23 +505,47 @@ def _apply_revision_plan(
     patch_text = " ".join(item["change"] for item in revision_plan["prompt_patches"])
     lock_text = " ".join(item["lock"] for item in revision_plan.get("preservation_locks", []))
     convergence = revision_plan.get("convergence_strategy", {})
+    identity_text = "; ".join(case.get("identity_constraints", []))
     relationship_text = "; ".join(case.get("spatial_relationships", []) + case.get("motion_contracts", []))
-    prompt.prompt = (
-        f"NON-NEGOTIABLE PHYSICAL TARGETS: {', '.join(required)}. "
-        f"REGRESSION GUARD: {convergence.get('regression_guard', '')} "
-        f"STABLE COMPOSITION: {convergence.get('composition_policy', '')} "
-        f"SCENE: {case['shot']['description']} "
-        f"REPAIR FOCUS: {patch_text}. "
-        f"PRESERVE LOCKS: {lock_text or 'preserve every target that is already visible'}. "
-        f"RELATIONSHIP AND MOTION: {relationship_text}. "
-        f"STYLE: {case.get('style', state.style)}."
-    )
+    macro_axes = revision_plan.get("convergence_strategy", {}).get("macro_refinement_axes", [])
+    refinement_mode = revision_plan.get("convergence_strategy", {}).get("refinement_mode", "")
+    macro_text = _v3_director_upgrade_text(case, revision_plan)
+    v3_seed_policy = "fixed-per-shot"
+    director_clause = f"V3 DIRECTORIAL UPGRADE: {macro_text}. " if macro_text else ""
+    compact_prompt = _compact_v3_prompt(case, revision_plan, macro_text)
+    if compact_prompt:
+        prompt.prompt = compact_prompt
+    else:
+        prompt.prompt = (
+            f"NON-NEGOTIABLE PHYSICAL TARGETS: {', '.join(required)}. "
+            f"ELEMENT CONTRACT: cyber cat is one indivisible subject; an ordinary cat does not satisfy it. "
+            f"IDENTITY DETAILS: {identity_text}. "
+            f"REGRESSION GUARD: {convergence.get('regression_guard', '')} "
+            f"STABLE COMPOSITION: {convergence.get('composition_policy', '')} "
+            f"{director_clause}"
+            f"ACTION HARD CONSTRAINTS: {relationship_text}. "
+            f"SCENE: {case['shot']['description']} "
+            f"REPAIR FOCUS: {patch_text}. "
+            f"PRESERVE LOCKS: {lock_text or 'preserve every target that is already visible'}. "
+            f"RELATIONSHIP AND MOTION: {relationship_text}. "
+            f"STYLE: {case.get('style', state.style)}."
+        )
     prompt.negative_prompt = ", ".join(
         [
             "low quality",
             "distorted anatomy",
             "unreadable text",
             "flicker",
+            "muddy merged silhouettes",
+            "amorphous cat body",
+            "tail smeared into background",
+            "unclear travel direction",
+            "full scene redesign",
+            "new unrelated composition",
+            "long continuous light strip",
+            "neon ribbon path",
+            "glowing tail trail",
+            "motion path drawn as a solid light bar",
             *revision_plan["negative_prompt_patches"],
         ]
     )
@@ -511,25 +557,35 @@ def _apply_revision_plan(
         scene_constraints=case["shot"]["description"],
         physical_constraints=[
             f"Mandatory visible elements: {', '.join(required)}",
+            *case.get("identity_constraints", []),
             f"Regression guard: {convergence.get('regression_guard', '')}",
             f"Stable composition: {convergence.get('composition_policy', '')}",
             *[item["lock"] for item in revision_plan.get("preservation_locks", [])],
             *case.get("visual_attributes", []),
             *case.get("spatial_relationships", []),
+            *case.get("motion_contracts", []),
+            *([macro_text] if macro_text else []),
         ],
-        action_sequence=relationship_text,
+        action_sequence=f"{relationship_text}; {macro_text}" if macro_text else relationship_text,
         emotional_direction="tense focused pursuit",
-        camera_direction=shot.shot_type,
-        motion_direction=case["shot"]["motion"],
+        camera_direction=(
+            f"{shot.shot_type}; low side-tracking chase grammar with the drone in the upper-right screen area "
+            "and the cyber cat in the lower-left screen area"
+        ),
+        motion_direction=f"{case['shot']['motion']}; {macro_text}" if macro_text else case["shot"]["motion"],
         style_constraints=str(case.get("style", state.style)),
         success_criteria=revision_plan["success_criteria"],
-        comfyui_params={"duration_seconds": shot.duration_seconds, "seed_policy": "fixed-per-shot"},
+        comfyui_params={"duration_seconds": shot.duration_seconds, "seed_policy": v3_seed_policy},
         metadata={
             "effect_iteration": target_iteration,
             "stage": "physical_compensation_prompt",
             "revision_intent": revision_plan["revision_intent"],
+            "refinement_mode": refinement_mode,
         },
     )
+    prompt.parameters["seed_policy"] = v3_seed_policy
+    if compact_prompt:
+        prompt.parameters["provider_prompt_override"] = compact_prompt
     state.prompt_package.metadata["iteration"] = target_iteration
     from_version = state.version
     state.version = target_version
@@ -557,8 +613,15 @@ def _apply_revision_plan(
 
 def _target_patch_map() -> dict[str, str]:
     return {
-        "cyber cat": "show one cybernetic cat with visible metallic details, glowing collar, and running body posture",
-        "glowing drone": "place a glowing quadcopter drone two meters ahead of the cat with a cyan light trail",
+        "cyber cat": (
+            "show one indivisible cybernetic cat, not an ordinary cat, with visible metallic limbs, "
+            "mechanical body panels, glowing collar, LED seams, and running body posture"
+        ),
+        "glowing drone": "place a glowing quadcopter drone as the lead subject toward screen-right with a small cyan glow attached to the drone",
+        "cat-drone chase relationship": (
+            "make the drone lead the screen-space travel direction toward screen-right while the cyber cat trails "
+            "on the same path toward screen-left-to-center; do not express this as camera-depth foreground/background"
+        ),
         "rain": "make rain visible with raindrops, wet fur highlights, puddles, and neon reflections",
         "night": "use dark night sky, high contrast neon lighting, and no daylight cues",
         "rooftop": "show rooftop edge, safety rail, HVAC units, puddles, and high-rise perspective",
@@ -571,8 +634,11 @@ def _target_patch_map() -> dict[str, str]:
 
 def _target_lock_map() -> dict[str, str]:
     return {
-        "cyber cat": "keep the cyber cat visible in the foreground with the same silhouette and cybernetic details",
-        "glowing drone": "keep the glowing drone visible ahead of the cat with a cyan light trail",
+        "cyber cat": "keep the indivisible cyber cat visible with mechanical, metallic, or glowing details attached to the cat",
+        "glowing drone": "keep the glowing drone visible as the screen-right lead subject with a small cyan glow attached to the drone",
+        "cat-drone chase relationship": (
+            "keep the drone leading toward screen-right and the cat trailing on the same screen-space path"
+        ),
         "rain": "keep rain streaks, puddles, and wet reflections visible across the rooftop",
         "night": "keep the scene clearly at night with dark sky and neon contrast",
         "rooftop": "keep the rooftop plane, railing, edge, or HVAC geometry visible as the ground setting",
@@ -581,6 +647,91 @@ def _target_lock_map() -> dict[str, str]:
             "Shanghai Tower, or Lujiazui skyline shapes"
         ),
     }
+
+
+def _macro_refinement_axes(case: dict[str, Any]) -> list[dict[str, str]]:
+    configured = case.get("macro_refinement_axes")
+    if isinstance(configured, list) and configured:
+        return [item for item in configured if isinstance(item, dict)]
+    return [
+        {
+            "target": "motion staging",
+            "type": "macro",
+            "change": (
+                "stage the shot as a readable side-on chase path: the pursued object leads in the "
+                "upper-right screen area, the pursuer trails in the lower-left screen area, and the "
+                "screen-space gap between them stays visible across the clip"
+            ),
+        },
+        {
+            "target": "silhouette separation",
+            "type": "macro",
+            "change": (
+                "separate every moving subject from the rainy background with rim light, negative space, "
+                "and crisp edges so bodies do not melt into neon reflections"
+            ),
+        },
+        {
+            "target": "motion evidence",
+            "type": "macro",
+            "change": (
+                "make the travel direction readable through angled rain streaks, wet reflection trails, "
+                "body posture, paw splash direction, and drone position; keep glow short and attached to the drone"
+            ),
+        },
+        {
+            "target": "physical cleanup",
+            "type": "macro",
+            "change": (
+                "avoid abstract mush by keeping the animal body, legs, tail, drone rotors, rooftop edge, "
+                "and skyline landmarks as distinct physical shapes"
+            ),
+        },
+    ]
+
+
+def _v3_director_upgrade_text(case: dict[str, Any], revision_plan: dict[str, Any]) -> str:
+    repair_targets = set(revision_plan.get("convergence_strategy", {}).get("repair_targets", []))
+    if "cat-drone chase relationship" in repair_targets:
+        return (
+            "keep the successful V2 cyber cat, rainy rooftop, night lighting, and Shanghai skyline; "
+            "do not redesign the whole scene; only clarify screen-space chase staging with the glowing drone "
+            "leading toward screen-right in the upper-right area, the cyber cat trailing toward screen-left in "
+            "the lower-left area, and a visible gap between them; use posture and placement to show motion; "
+            "the drone may have a small cyan glow attached to it, but no continuous light strip or neon ribbon; "
+            "the cat tail remains a natural attached tail, not a drawn trajectory; lead/trail is not foreground/background depth"
+        )
+    if revision_plan.get("convergence_strategy", {}).get("refinement_mode") == "high_score_macro_refinement":
+        axes = case.get("macro_refinement_axes") or _macro_refinement_axes(case)
+        selected = [item.get("change", "") for item in axes if isinstance(item, dict)][:2]
+        return (
+            "preserve the successful source composition; make a visible polish pass only: "
+            + "; ".join(text for text in selected if text)
+        )
+    return ""
+
+
+def _compact_v3_prompt(case: dict[str, Any], revision_plan: dict[str, Any], macro_text: str) -> str:
+    if not macro_text:
+        return ""
+    style = str(case.get("style", "cinematic"))
+    required = ", ".join(case.get("required_elements", []))
+    return (
+        f"NON-NEGOTIABLE PHYSICAL TARGETS: {required}. "
+        "Final V3 cinematic shot, preserve the successful V2 rainy Shanghai rooftop night scene. "
+        "One indivisible cybernetic cat with visible metallic limbs, mechanical body panels, glowing collar, "
+        "LED seams, sharp ears, clear legs, and a natural visible tail attached to the body. "
+        "A glowing cyan quadcopter drone escapes toward screen-right; the drone leads in the upper-right screen area, "
+        "the cyber cat trails in the lower-left screen area on the same path, and a visible screen-space gap separates them. "
+        "Low side-tracking wide shot across a wet high-rise rooftop, rooftop edge and puddles visible, "
+        "Oriental Pearl Tower or Lujiazui skyline silhouette in the background. "
+        "Rain streaks, paw-splash direction, body lean, and drone placement imply motion toward screen-right; "
+        "the drone has only a short cyan glow attached to the drone body, no long continuous light strip; "
+        "the cat tail stays attached as a natural tail, not a glowing trajectory. "
+        "Do not interpret lead/trail as camera-depth foreground/background. "
+        "Crisp physical silhouettes, separated subjects, neon rim light, no abstract mush, no neon ribbon path. "
+        f"{macro_text}. STYLE: {style}."
+    )
 
 
 def _release_generation_resources(generated_result) -> dict[str, Any]:
@@ -760,13 +911,17 @@ def _comparison_markdown(comparison: dict[str, Any]) -> str:
 
 
 def _observation_text(frame: dict[str, Any]) -> str:
+    metadata = frame.get("metadata", {})
     return " ".join(
         str(value)
         for value in [
             frame.get("action_summary", ""),
+            frame.get("spatial_relationship", ""),
+            frame.get("identity_detail_summary", ""),
             frame.get("style_summary", ""),
             frame.get("color_summary", ""),
             " ".join(frame.get("detected_elements", [])),
+            metadata.get("evidence", ""),
         ]
         if value
     ).lower()
@@ -775,7 +930,18 @@ def _observation_text(frame: dict[str, Any]) -> str:
 def _aliases_for(element: str) -> list[str]:
     base = element.lower()
     aliases = {
-        "cyber cat": ["cyber cat", "cybernetic cat", "cat", "robotic cat", "赛博猫", "猫"],
+        "cyber cat": [
+            "cyber cat",
+            "cybernetic cat",
+            "robotic cat",
+            "mechanical cat",
+            "metallic cat",
+            "glowing collar",
+            "visible mechanical",
+            "赛博猫",
+            "机械猫",
+            "金属猫",
+        ],
         "glowing drone": ["glowing drone", "drone", "quadcopter", "cyan light", "发光无人机", "无人机"],
         "rain": ["rain", "rainy", "raindrops", "wet", "puddles", "雨", "雨滴", "湿"],
         "night": ["night", "dark sky", "nighttime", "夜", "夜晚", "雨夜"],
@@ -798,6 +964,149 @@ def _aliases_for(element: str) -> list[str]:
 def _contains_alias(text: str, aliases: list[str]) -> bool:
     lowered = text.lower()
     return any(alias.lower() in lowered for alias in aliases)
+
+
+def _cyber_identity_visual_score(
+    frame_payloads: list[dict[str, Any]],
+    frame_hits: list[int],
+    fallback_score: float,
+) -> float:
+    if not frame_payloads:
+        return fallback_score
+    cyber_markers = [
+        "cyber",
+        "cybernetic",
+        "robotic",
+        "mechanical",
+        "metallic",
+        "glowing collar",
+        "visible mechanical",
+        "赛博",
+        "机械",
+        "金属",
+    ]
+    ordinary_markers = [
+        "ordinary cat",
+        "normal cat",
+        "generic cat",
+        "not a cyber",
+        "not cyber",
+        "普通猫",
+    ]
+    strong_hits = 0
+    weak_cat_hits = 0
+    for frame in frame_payloads:
+        text = _observation_text(frame)
+        has_cat_shape = "cat" in text or "猫" in text
+        has_cyber_detail = any(marker in text for marker in cyber_markers)
+        ordinary = any(marker in text for marker in ordinary_markers)
+        if has_cat_shape and has_cyber_detail and not ordinary:
+            strong_hits += 1
+        elif has_cat_shape:
+            weak_cat_hits += 1
+    strong_ratio = strong_hits / len(frame_payloads)
+    weak_ratio = weak_cat_hits / len(frame_payloads)
+    return min(1.0, max(strong_ratio, strong_ratio + weak_ratio * 0.35, fallback_score * 0.65))
+
+
+def _chase_relationship_score(frame_payloads: list[dict[str, Any]], prompt_text: str) -> dict[str, Any]:
+    frame_count = len(frame_payloads)
+    prompt_hit = _contains_alias(
+        prompt_text,
+        [
+            "drone leads",
+            "screen-space",
+            "screen-right",
+            "cat trails",
+            "cat is visibly chasing",
+            "drone is visibly escaping",
+            "cat-drone chase",
+        ],
+    )
+    good_hits: list[int] = []
+    weak_hits: list[int] = []
+    bad_hits: list[int] = []
+    for index, frame in enumerate(frame_payloads):
+        text = _observation_text(frame)
+        has_cat = "cat" in text or "猫" in text
+        has_drone = "drone" in text or "quadcopter" in text or "无人机" in text
+        drone_leads_path = any(
+            marker in text
+            for marker in [
+                "drone leads",
+                "drone lead",
+                "leads along the screen",
+                "leads along the screen path",
+                "screen-right",
+                "upper-right",
+                "cat trails",
+                "trailing pursuer",
+                "same screen-space path",
+                "drone escapes",
+                "无人机沿画面路径领先",
+            ]
+        )
+        cat_chasing = any(
+            marker in text
+            for marker in ["cat chases", "cat is chasing", "cat follows", "chasing", "追逐", "跟随"]
+        )
+        wrong_order = any(
+            marker in text
+            for marker in [
+                "cat leads",
+                "cat leading",
+                "drone trails",
+                "drone trailing",
+                "trailing after the cat",
+                "order is reversed",
+                "drone follows",
+                "猫沿画面路径领先",
+            ]
+        )
+        static_drone = "drone hovers" in text or "hovering" in text or "static" in text
+        if wrong_order:
+            bad_hits.append(index)
+        elif has_cat and has_drone and drone_leads_path and cat_chasing:
+            good_hits.append(index)
+        elif has_cat and has_drone and (drone_leads_path or cat_chasing) and not static_drone:
+            weak_hits.append(index)
+        elif static_drone:
+            bad_hits.append(index)
+    if frame_count:
+        visual_score = max(0.0, (len(good_hits) + 0.5 * len(weak_hits) - 0.5 * len(bad_hits)) / frame_count)
+    else:
+        visual_score = 0.0
+    prompt_score = 0.9 if prompt_hit else 0.25
+    score = round(0.8 * visual_score + 0.2 * prompt_score, 3)
+    if score >= 0.75:
+        status = "passed"
+    elif score >= 0.45:
+        status = "weak"
+    else:
+        status = "failed"
+    return {
+        "target": "cat-drone chase relationship",
+        "aliases": [
+            "drone leads along screen path",
+            "cat trails along screen path",
+            "cat is chasing",
+            "drone is escaping",
+            "cat follows drone",
+        ],
+        "score": score,
+        "visual_score": round(visual_score, 3),
+        "prompt_score": round(prompt_score, 3),
+        "frame_hits": good_hits + weak_hits,
+        "sampled_frame_count": frame_count,
+        "generated_hit": bool(good_hits or weak_hits),
+        "prompt_hit": prompt_hit,
+        "status": status,
+        "metadata": {
+            "good_hits": good_hits,
+            "weak_hits": weak_hits,
+            "bad_hits": bad_hits,
+        },
+    }
 
 
 def _slug(value: str) -> str:

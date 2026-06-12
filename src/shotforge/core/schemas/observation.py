@@ -18,6 +18,8 @@ class FrameObservation(BaseModel):
     detected_elements: list[str] = Field(default_factory=list)
     face_identity: str = ""
     action_summary: str = ""
+    spatial_relationship: str = ""
+    identity_detail_summary: str = ""
     style_summary: str = ""
     color_summary: str = ""
     source: str = "heuristic"

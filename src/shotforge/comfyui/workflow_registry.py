@@ -132,6 +132,15 @@ def build_workflow_registry() -> ComfyUIWorkflowRegistry:
             "status": "local_real",
         },
     )
+    registry.register_resource(
+        "wan2_2_ti2v_5b",
+        "wan2_2_ti2v_5b.json",
+        metadata={
+            "display_name": "Wan 2.2 TI2V 5B text-to-video",
+            "modality": "video",
+            "status": "local_real",
+        },
+    )
     settings = get_settings()
     workflow_root = (
         Path(settings.comfyui_workflows_dir)

@@ -99,17 +99,20 @@ Run the built-in effect demo:
 shotforge effect-demo cyber_cat_rooftop --language en --generator mock
 ```
 
-The effect demo creates a single-shot v1/v2/v3 run for a concrete
-physical-target case: v1 uses the raw user prompt, v2 applies a translated
-structured prompt, and v3 is treated as a candidate compensation pass after
-frame observation. The report records target-level deltas, preservation locks,
-candidate acceptance or rejection, and the accepted iteration. Use a real
+The effect demo creates a compact v1/v2/v3 comparison for one cinematic prompt:
+raw prompt, structured prompt, and one observation-guided refinement. Use a real
 generator provider when ComfyUI or another video backend is configured.
 
-The same physical-convergence primitives are used by the main redesign flow:
-physical-effect issues produce target-level repair plans, preservation locks,
-and candidate gates. The demo remains a packaged example case; the convergence
-logic lives in the core workflow layer.
+[![Effect demo comparison](docs/assets/effect-demo-v1-v2-v3-comparison-poster.jpg)](docs/assets/effect-demo-v1-v2-v3-comparison.mp4)
+
+Example run setup:
+
+| Stage | Hardware / model |
+| --- | --- |
+| Hardware | NVIDIA GeForce RTX 5090, 32GB VRAM |
+| LLM planning | Ollama `qwen3:30b` |
+| Video generation | ComfyUI Wan2.2 I2V 14B FP8, 1920x1088, 5s, 8fps |
+| Visual observation | Ollama `qwen3-vl:30b`, 8 sampled frames |
 
 More setup details are in [Getting Started](docs/en/getting-started.md) and
 [Configuration](docs/en/configuration.md).

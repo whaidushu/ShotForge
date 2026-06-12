@@ -12,7 +12,7 @@
     "description": "A cybernetic cat sprints across a wet high-rise rooftop while a glowing quadcopter drone escapes ahead through visible rain, with a recognizable Shanghai landmark skyline behind them, including Oriental Pearl Tower or Lujiazui tower silhouettes.",
     "shot_type": "low tracking wide shot",
     "camera": "low side-tracking camera following the cat and drone in the same direction",
-    "motion": "cat leans forward mid-run, drone flies two meters ahead, rain streaks and neon reflections move past them",
+    "motion": "the glowing drone leads the chase path and escapes forward; the cyber cat follows the drone's direction of travel",
     "music": "tense electronic pulse with rain ambience"
   },
   "required_elements": [
@@ -23,9 +23,16 @@
     "rooftop",
     "Shanghai landmark skyline"
   ],
+  "identity_constraints": [
+    "cyber cat is one indivisible required subject: a normal cat does not satisfy this target",
+    "the cat must show visible cybernetic traits such as metallic limbs, mechanical body panels, glowing collar, LED seams, or robotic silhouette",
+    "do not split cyber and cat into separate concepts; the cybernetic traits must be attached to the cat"
+  ],
   "visual_attributes": [
     "cybernetic cat details",
-    "cyan drone light trail",
+    "metallic or mechanical cat body details",
+    "glowing collar or LED seams on the cat",
+    "cyan drone glow",
     "wet reflective rooftop",
     "neon city glow",
     "recognizable Shanghai landmark silhouette",
@@ -33,13 +40,16 @@
   ],
   "spatial_relationships": [
     "cat and drone appear in the same shot",
-    "drone stays ahead of the cat",
+    "the glowing drone leads the chase path",
+    "the cyber cat follows the drone's direction of travel",
     "rooftop edge and Shanghai landmark skyline anchor the location"
   ],
   "motion_contracts": [
-    "cat is visibly chasing, not posing",
-    "drone is visibly escaping forward",
-    "rain and reflections reinforce motion"
+    "the cyber cat is visibly chasing, not posing",
+    "the glowing drone is visibly escaping forward, not hovering still",
+    "the drone must not trail after the cat",
+    "the cat must not lead the drone",
+    "rain and reflections reinforce forward motion"
   ],
   "negative_constraints": [
     "no empty rooftop",
@@ -47,15 +57,21 @@
     "no daylight",
     "no indoor room",
     "no static portrait",
+    "no ordinary cat without cybernetic details",
     "no generic animal without cybernetic details",
+    "no drone trailing after the cat",
+    "no cat leading the drone",
+    "no hovering static drone as the main action",
     "no generic city skyline without Shanghai landmark cues"
   ],
   "success_criteria": [
-    "cyber cat appears in at least half of sampled frames",
+    "cyber cat appears in at least half of sampled frames with visible mechanical, metallic, glowing, or robotic details",
+    "ordinary cat alone must be scored as missing cyber cat",
     "glowing drone appears in at least half of sampled frames",
+    "the drone leads the chase path while the cyber cat follows the drone's direction of travel",
     "rain or wet reflections appear in most sampled frames",
     "rooftop location is visually evident",
     "Shanghai location is supported by recognizable Oriental Pearl Tower, Shanghai Tower, or Lujiazui skyline cues",
-    "cat-drone chase relationship is readable"
+    "cat-drone chase relationship is readable and not reversed"
   ]
 }
