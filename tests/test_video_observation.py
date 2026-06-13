@@ -131,9 +131,9 @@ def test_vlm_observer_preserves_target_checks(tmp_path, monkeypatch):
     state.metadata["effect_contract"] = {
         "targets": [
             {
-                "target_id": "object.glowing_drone",
+                "target_id": "entity_presence.glowing_drone",
                 "label": "glowing drone",
-                "target_type": "object",
+                "target_type": "entity_presence",
             }
         ]
     }
@@ -146,9 +146,9 @@ def test_vlm_observer_preserves_target_checks(tmp_path, monkeypatch):
             "detected_elements": [],
             "target_checks": [
                 {
-                    "target_id": "object.glowing_drone",
+                    "target_id": "entity_presence.glowing_drone",
                     "label": "glowing drone",
-                    "target_type": "object",
+                    "target_type": "entity_presence",
                     "visible": False,
                     "score": 0.2,
                     "evidence": "No drone is visible in the frame.",
@@ -170,8 +170,8 @@ def test_vlm_observer_preserves_target_checks(tmp_path, monkeypatch):
 
     context_targets = state.metadata["effect_contract"]["targets"]
     assert context_targets
-    assert context_targets[0]["target_id"] == "object.glowing_drone"
-    assert observations[0].target_checks[0].target_id == "object.glowing_drone"
+    assert context_targets[0]["target_id"] == "entity_presence.glowing_drone"
+    assert observations[0].target_checks[0].target_id == "entity_presence.glowing_drone"
     assert observations[0].target_checks[0].failure_reason == "model_ignored"
 
 
@@ -213,7 +213,7 @@ def test_vlm_observation_payload_accepts_explicit_target_checks():
             {
               "target_id": "setting.shanghai_rooftop",
               "label": "Shanghai rooftop",
-              "target_type": "setting",
+              "target_type": "entity_presence",
               "visible": false,
               "score": 0.18,
               "evidence": "A rooftop is present but no Shanghai landmark is visible.",

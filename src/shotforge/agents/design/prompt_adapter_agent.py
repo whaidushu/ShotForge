@@ -200,7 +200,8 @@ def _contract_negative_constraints(contract_targets: list[dict]) -> list[str]:
     values = []
     for target in contract_targets:
         values.extend(str(item) for item in target.get("negative_hints", []) if str(item).strip())
-        if target.get("target_type") == "negative_constraint" and target.get("label"):
+        metadata = target.get("metadata", {}) if isinstance(target.get("metadata", {}), dict) else {}
+        if metadata.get("constraint_polarity") == "negative" and target.get("label"):
             values.append(str(target["label"]))
     return values
 

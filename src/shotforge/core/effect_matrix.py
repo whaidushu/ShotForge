@@ -174,6 +174,7 @@ def _score_from_target(
         locked=status == "passed" and target.lock_policy == "lock_when_passed",
         lock_suggestion=_lock_suggestion(target),
         metadata={
+            **target.metadata,
             **score.get("metadata", {}),
             "evidence_rule": target.evidence_rule,
             "repair_strategy": target.repair_strategy,
@@ -191,7 +192,7 @@ def _score_from_unmatched(
     target = EffectTarget(
         target_id=f"unmatched.{_safe_id(label)}",
         label=label,
-        target_type="object",
+        target_type="entity_presence",
         shot_id=contract.shot_id,
         required=True,
     )
@@ -346,23 +347,31 @@ def _normalize_failure_reason(value: str) -> FailureReason:
 def _repair_suggestion(target: EffectTarget, failure_reason: FailureReason) -> str:
     if failure_reason == "none":
         return ""
-    if target.target_type == "setting":
+    if target.metadata.get("constraint_polarity") == "negative":
+        return f"avoid this failure mode explicitly in the negative prompt: {target.label}"
+    if target.target_type == "entity_presence":
         return (
             f"make {target.label} visible through concrete environment anchors, "
-            "background geometry, and readable scene placement"
+            "separated silhouettes, and readable scene placement"
+        )
+    if target.target_type == "entity_attribute":
+        return (
+            f"bind the required attribute to {target.label}; make it physically visible on the correct target"
+        )
+    if target.target_type == "count_constraint":
+        return (
+            f"make the count constraint explicit for {target.label}; avoid duplicates, missing subjects, or merged subjects"
         )
     if target.target_type == "spatial_relation":
         return (
             f"make the spatial relation explicit: {target.label}; use screen position, "
             "front/back order, and separated silhouettes"
         )
-    if target.target_type == "action":
+    if target.target_type == "action_legibility":
         return (
             f"make the action readable: {target.label}; describe actor, target, direction, "
             "start state, and visible motion result"
         )
-    if target.target_type == "negative_constraint":
-        return f"avoid this failure mode explicitly in the negative prompt: {target.label}"
     if failure_reason == "control_needed":
         return (
             f"{target.label} may need reference image, mask, pose, depth, or workflow-level control "

@@ -24,10 +24,20 @@ def test_effect_contract_normalizes_physical_targets_and_reserves_controls():
     )
 
     labels = {target.label for target in contract.targets}
+    target_types = {target.target_type for target in contract.targets}
 
     assert "robot dog" in labels
     assert "glowing drone" in labels
     assert "rooftop" in labels
+    assert target_types.issubset(
+        {
+            "entity_presence",
+            "entity_attribute",
+            "count_constraint",
+            "spatial_relation",
+            "action_legibility",
+        }
+    )
     assert contract.creative_controls[0].control_id == "cinematic_intensity"
     assert all(target.shot_id == "shot_001" for target in contract.targets)
 
@@ -52,7 +62,7 @@ def test_design_pipeline_extracts_effect_contract_before_prompt_adapter(tmp_path
     assert state.metadata["effect_contract_stage"] == "intent_contract_extraction"
     assert prompt.parameters["effect_contract_id"] == state.metadata["effect_contract"]["contract_id"]
     assert "EFFECT CONTRACT" in prompt.prompt
-    assert any("object.glowing_drone" in item for item in prompt.structured_template.physical_constraints)
+    assert any("entity_presence.glowing_drone" in item for item in prompt.structured_template.physical_constraints)
     get_settings.cache_clear()
 
 
@@ -164,9 +174,9 @@ def test_target_matrix_prefers_vlm_target_checks():
                 {
                     "target_checks": [
                         {
-                            "target_id": "object.glowing_drone",
+                            "target_id": "entity_presence.glowing_drone",
                             "label": "glowing drone",
-                            "target_type": "object",
+                            "target_type": "entity_presence",
                             "visible": False,
                             "score": 0.2,
                             "evidence": "No drone is physically visible.",
@@ -178,9 +188,9 @@ def test_target_matrix_prefers_vlm_target_checks():
                 {
                     "target_checks": [
                         {
-                            "target_id": "object.glowing_drone",
+                            "target_id": "entity_presence.glowing_drone",
                             "label": "glowing drone",
-                            "target_type": "object",
+                            "target_type": "entity_presence",
                             "visible": True,
                             "score": 0.65,
                             "evidence": "A small drone-like light is visible.",

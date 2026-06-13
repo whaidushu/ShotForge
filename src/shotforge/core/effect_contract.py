@@ -14,15 +14,11 @@ EffectLayer = Literal[
     "creative_control",
 ]
 EffectTargetType = Literal[
-    "subject",
-    "object",
-    "setting",
-    "attribute",
-    "count",
-    "action",
+    "entity_presence",
+    "entity_attribute",
+    "count_constraint",
     "spatial_relation",
-    "negative_constraint",
-    "creative_control",
+    "action_legibility",
 ]
 
 
@@ -107,9 +103,9 @@ def build_effect_contract(
         if not text or text.lower() in existing_labels:
             continue
         target = EffectTarget(
-            target_id=f"element.{_slug(text)}",
+            target_id=f"entity_presence.{_slug(text)}",
             label=text,
-            target_type="object",
+            target_type="entity_presence",
             shot_id=shot_id,
             aliases=[text],
             evidence_rule="The visible result contains the required element.",
@@ -128,7 +124,7 @@ def build_effect_contract(
     targets.extend(
         _relationship_targets(
             payload.get("motion_contracts", []) or [],
-            target_type="action",
+            target_type="action_legibility",
             shot_id=shot_id,
         )
     )
@@ -160,8 +156,10 @@ def build_effect_contract(
 
 def _target_from_payload(item: dict[str, Any], *, shot_id: str) -> EffectTarget:
     label = str(item.get("label") or item.get("target") or item.get("target_id") or "").strip()
-    target_type = _target_type(str(item.get("type", "object")))
+    raw_target_type = str(item.get("target_type") or item.get("type") or "object")
+    target_type = _target_type(raw_target_type)
     target_id = str(item.get("target_id") or f"{target_type}.{_slug(label)}")
+    constraint_polarity = _constraint_polarity(raw_target_type)
     return EffectTarget(
         target_id=_normalize_target_id(target_id, target_type, label),
         label=label,
@@ -171,26 +169,31 @@ def _target_from_payload(item: dict[str, Any], *, shot_id: str) -> EffectTarget:
         aliases=[str(alias) for alias in item.get("aliases", []) if str(alias).strip()],
         required=bool(item.get("required", True)),
         weight=float(item.get("weight", 1.0) or 1.0),
-        threshold=float(item.get("threshold", _threshold_for_type(target_type)) or 0.75),
-        evidence_rule=_evidence_rule(target_type),
-        repair_strategy=_repair_strategy(target_type),
+        threshold=float(item.get("threshold", _threshold_for_type(target_type, constraint_polarity)) or 0.75),
+        evidence_rule=_evidence_rule(target_type, constraint_polarity),
+        repair_strategy=_repair_strategy(target_type, constraint_polarity),
         prompt_hints=[str(value) for value in item.get("identity_constraints", [])],
         negative_hints=[str(value) for value in item.get("negative_constraints", [])],
         metadata={
-            key: value
-            for key, value in item.items()
-            if key
-            not in {
-                "target_id",
-                "label",
-                "target",
-                "type",
-                "shot_id",
-                "aliases",
-                "required",
-                "weight",
-                "threshold",
-            }
+            "raw_target_type": raw_target_type,
+            "constraint_polarity": constraint_polarity,
+            **{
+                key: value
+                for key, value in item.items()
+                if key
+                not in {
+                    "target_id",
+                    "label",
+                    "target",
+                    "type",
+                    "target_type",
+                    "shot_id",
+                    "aliases",
+                    "required",
+                    "weight",
+                    "threshold",
+                }
+            },
         },
     )
 
@@ -198,7 +201,7 @@ def _target_from_payload(item: dict[str, Any], *, shot_id: str) -> EffectTarget:
 def _relationship_targets(
     values: list[Any],
     *,
-    target_type: Literal["action", "spatial_relation"],
+    target_type: Literal["action_legibility", "spatial_relation"],
     shot_id: str,
 ) -> list[EffectTarget]:
     targets = []
@@ -210,7 +213,7 @@ def _relationship_targets(
             EffectTarget(
                 target_id=f"{target_type}.{index + 1}.{_slug(text)[:48]}",
                 label=text,
-                layer="physical" if target_type == "spatial_relation" else "consistency",
+                layer=_layer_for_type(target_type),
                 target_type=target_type,
                 shot_id=shot_id,
                 aliases=[text],
@@ -237,13 +240,17 @@ def _negative_constraint_targets(values: list[Any], *, shot_id: str) -> list[Eff
                 target_id=f"negative.{index + 1}.{_slug(text)[:48]}",
                 label=text,
                 layer="physical",
-                target_type="negative_constraint",
+                target_type="entity_attribute",
                 shot_id=shot_id,
                 required=True,
                 threshold=0.9,
                 evidence_rule="The observed frames avoid the prohibited failure mode.",
                 repair_strategy="negative_patch",
                 negative_hints=[text],
+                metadata={
+                    "raw_target_type": "negative_constraint",
+                    "constraint_polarity": "negative",
+                },
             )
         )
     return targets
@@ -251,65 +258,60 @@ def _negative_constraint_targets(values: list[Any], *, shot_id: str) -> list[Eff
 
 def _target_type(value: str) -> EffectTargetType:
     normalized = value.strip().lower()
-    if normalized in {
-        "subject",
-        "object",
-        "setting",
-        "attribute",
-        "count",
-        "action",
-        "spatial_relation",
-        "negative_constraint",
-        "creative_control",
-    }:
+    if normalized in {"entity_presence", "entity_attribute", "count_constraint", "spatial_relation", "action_legibility"}:
         return normalized  # type: ignore[return-value]
-    if normalized in {"atmosphere", "scene"}:
-        return "setting"
-    return "object"
+    if normalized in {"subject", "object", "setting", "atmosphere", "scene", "element"}:
+        return "entity_presence"
+    if normalized in {"attribute", "material", "color", "style", "negative_constraint", "negative"}:
+        return "entity_attribute"
+    if normalized in {"count", "subject_count", "object_count"}:
+        return "count_constraint"
+    if normalized in {"action", "motion", "motion_contract"}:
+        return "action_legibility"
+    if normalized in {"spatial", "relationship", "spatial_relationship"}:
+        return "spatial_relation"
+    return "entity_presence"
 
 
 def _layer_for_type(target_type: EffectTargetType) -> EffectLayer:
-    if target_type in {"action"}:
+    if target_type == "action_legibility":
         return "consistency"
-    if target_type == "creative_control":
-        return "creative_control"
     return "physical"
 
 
-def _threshold_for_type(target_type: EffectTargetType) -> float:
+def _threshold_for_type(target_type: EffectTargetType, constraint_polarity: str = "positive") -> float:
+    if constraint_polarity == "negative":
+        return 0.9
     return {
-        "subject": 0.78,
-        "object": 0.75,
-        "setting": 0.72,
-        "attribute": 0.78,
-        "count": 0.9,
-        "action": 0.75,
+        "entity_presence": 0.75,
+        "entity_attribute": 0.78,
+        "count_constraint": 0.9,
         "spatial_relation": 0.72,
-        "negative_constraint": 0.9,
-        "creative_control": 0.65,
+        "action_legibility": 0.75,
     }[target_type]
 
 
-def _repair_strategy(target_type: EffectTargetType) -> str:
-    if target_type == "negative_constraint":
+def _repair_strategy(target_type: EffectTargetType, constraint_polarity: str = "positive") -> str:
+    if constraint_polarity == "negative":
         return "negative_patch"
-    if target_type == "creative_control":
-        return "creative_control_patch"
     return "prompt_patch"
 
 
-def _evidence_rule(target_type: EffectTargetType) -> str:
+def _evidence_rule(target_type: EffectTargetType, constraint_polarity: str = "positive") -> str:
+    if constraint_polarity == "negative":
+        return "The observed frames avoid the prohibited failure mode."
     return {
-        "subject": "The required subject is visible as a stable, separable target.",
-        "object": "The required object is visible as a separable target.",
-        "setting": "The required setting has concrete visual anchors.",
-        "attribute": "The required attribute is attached to the correct target.",
-        "count": "The observed subject count matches the requested count.",
-        "action": "The action is readable across sampled frames.",
+        "entity_presence": "The required entity or scene anchor is visible as a stable, separable target.",
+        "entity_attribute": "The required attribute is attached to the correct target.",
+        "count_constraint": "The observed subject or object count matches the requested count.",
         "spatial_relation": "The relative position between targets is visible.",
-        "negative_constraint": "The prohibited failure mode is absent.",
-        "creative_control": "The creative control is expressed in visible cinematic language.",
+        "action_legibility": "The action is readable across sampled frames.",
     }[target_type]
+
+
+def _constraint_polarity(value: str) -> str:
+    normalized = value.strip().lower()
+    return "negative" if normalized in {"negative_constraint", "negative"} else "positive"
 
 
 def _dedupe_targets(targets: list[EffectTarget]) -> list[EffectTarget]:
